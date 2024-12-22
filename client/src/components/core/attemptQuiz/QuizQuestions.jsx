@@ -34,15 +34,24 @@ const QuizQuestions = ({ quizDetails, quizQuestions }) => {
         return () => clearInterval(timer);
     }, [quizStarted, remainingTime]);
 
-    const handleAnswerChange = useCallback((questionId, selectedOption) => {
-        setUserAnswers((prevAnswers) =>
-            prevAnswers.map((answer) =>
-                answer.questionId === questionId
-                    ? { ...answer, selectedOption }
-                    : answer
-            )
-        );
+    const handleAnswerChange = useCallback((questionId, answer, questionType) => {
+        console.log("answeratsubmission",answer)
+        setUserAnswers((prevAnswers) => {
+            const updatedAnswers = prevAnswers.filter(
+                (ans) => ans.questionId !== questionId
+            );
+    
+            // For MCQ, store selectedOption; For FIB, store answer text
+            const answerEntry =
+                questionType === "MCQ"
+                    ? { questionId, selectedOption: answer } // ID for MCQ
+                    : { questionId, answer }; // Text answer for FIB
+    
+            return [...updatedAnswers, answerEntry];
+        });
     }, []);
+    
+    
 
     const startQuiz = async () => {
         try {
@@ -70,6 +79,7 @@ const QuizQuestions = ({ quizDetails, quizQuestions }) => {
 
     const submitQuiz = async () => {
         try {
+            console.log("userAnswers",userAnswers)
             const response = await apiConnector(
                 'POST',
                 `${quizEndpoints.ATTEMMP_QUIZ}/${quizDetails._id}/attempt`,
@@ -116,12 +126,19 @@ const QuizQuestions = ({ quizDetails, quizQuestions }) => {
                     <div className='min-h-[50vh]'>
                         {quizQuestions && quizQuestions.length > 0 && (
                             <QuestionCard
-                                key={quizQuestions[currentQuestionIndex]._id}
-                                question={quizQuestions[currentQuestionIndex]}
-                                onAnswerChange={(option) =>
-                                    handleAnswerChange(quizQuestions[currentQuestionIndex]._id, option)
-                                }
-                            />
+                            key={quizQuestions[currentQuestionIndex]._id}
+                            question={quizQuestions[currentQuestionIndex]}
+                            onAnswerChange={(answer) =>
+                                
+                                handleAnswerChange(
+                                    quizQuestions[currentQuestionIndex]._id,
+                                    answer,
+                                    quizQuestions[currentQuestionIndex].questionType
+                                )
+                            }
+                        />
+                        
+                        
                         )}
                     </div>
                     <div className='flex justify-between mt-4'>

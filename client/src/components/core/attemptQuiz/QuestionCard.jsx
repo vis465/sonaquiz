@@ -3,8 +3,21 @@ import React from 'react';
 const QuestionCard = React.memo(({ question, onAnswerChange }) => {
     const handleAnswerChange = (event) => {
         const { value } = event.target;
-        const answer = question.questionType === 'FIB' ? value.toLowerCase() : value;
-        onAnswerChange(question._id, answer);
+
+        let answer;
+        if (question.questionType === 'FIB') {
+            // For FIB, use the plain text answer
+           
+            answer = value.toLowerCase().trim();
+        } else {
+            // For MCQ, use the ID of the selected option
+            answer = value;
+        }
+
+        // Pass the correct answer (plain text or ID) to parent
+        onAnswerChange(answer, question.questionType);
+
+        console.log(answer);
     };
 
     return (
