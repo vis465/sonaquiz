@@ -63,6 +63,7 @@ const CreateQuiz = () => {
       setValue("description", quiz.description || "");
       setValue("timer", quiz.timer || "");
       setValue("instructions", quiz.instructions || "attempt all the questions with caution, once you submit question, you cannot come back ");
+      setValue("attempts",quiz.maxAttempts)
     }
 
     // Reset form when navigating to the create-quiz route
@@ -98,7 +99,7 @@ const CreateQuiz = () => {
           <label htmlFor="description" className="block text-white mb-1">Description</label>
           <textarea
             id="description"
-            placeholder="Enter quiz description (optional)"
+            placeholder="Enter quiz description (Required)"
             className="w-full px-3 py-2 rounded bg-gray-700 text-white outline-none resize-none"
             rows={4}
             {...register("description")}
@@ -120,12 +121,12 @@ const CreateQuiz = () => {
           <label htmlFor="timer" className="block text-white mb-1">Total number of attempts (default 1)</label>
           <input
             type="number"
-            id="attempts"
+            id="maxAttempts"
             placeholder="Enter number"
             min={1}
             max={60}
             className="w-full px-3 py-2 rounded bg-gray-700 text-white outline-none"
-            {...register("attempts")}
+            {...register("maxAttempts")}
           />
           {errors.timer && <RequiredError>{errors.timer.message}</RequiredError>}
         </div>

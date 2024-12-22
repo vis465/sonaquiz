@@ -1,124 +1,192 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import Button from '../../Button';
-import { IoAdd, IoClose } from "react-icons/io5";
-import { apiConnector } from '../../../services/apiConnector';
-import { createQuestion } from '../../../services/operations/questionAPIs';
-import toast from 'react-hot-toast';
-import { useSelector } from 'react-redux';
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import Button from "../../Button";
+import { createQuestion } from "../../../services/operations/questionAPIs";
+import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 
 const CreateQuestionModal = ({ quiz, setQuestions, setCreateQuestionModalData }) => {
-  const [options, setOptions] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [currentOption, setCurrentOption] = useState('');
+  const [questionType, setQuestionType] = useState("MCQ"); // Default to MCQ
+  const [options, setOptions] = useState([]); // Used for MCQs
+  const [fibAnswers, setFibAnswers] = useState([]); // Used for FIBs
+  const [currentAnswer, setCurrentAnswer] = useState("");
+  const [isCurrentAnswerCorrect, setIsCurrentAnswerCorrect] = useState(false);
+  const [currentOption, setCurrentOption] = useState("");
   const [isCurrentOptionCorrect, setIsCurrentOptionCorrect] = useState(false);
-  const [optionError, setOptionError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm();
-  const { token } = useSelector(state => state.auth);
-
-  const submitHandler = async (data) => {
-    if (!options.some(option => option.isCorrect)) {
-      setOptionError("There must be at least one correct option.");
-      return;
-    }
-    setLoading(true)
-    data.options = options;
-    data.quizId = quiz._id;
-
-    try {
-      const response = await createQuestion(data, token);
-
-      if (response) {
-        setQuestions(prevQuestions => [...prevQuestions, response]);
-        setCreateQuestionModalData(null);
-      }
-
-    } catch (e) {
-      console.log("ERROR WHILE CREATING THE QUESTION:", e);
-      toast.error("Question cannot be created");
-    } finally {
-      setLoading(false)
-    }
-  };
+  const { token } = useSelector((state) => state.auth);
 
   const addOption = () => {
-    if (isCurrentOptionCorrect && options.some(option => option.isCorrect)) {
-      alert("There can be only one correct option.");
+    if (!currentOption.trim()) return;
+    if (isCurrentOptionCorrect && options.some((option) => option.isCorrect)) {
+      toast.error("Only one option can be marked as correct.");
       return;
     }
     setOptions([...options, { text: currentOption, isCorrect: isCurrentOptionCorrect }]);
-    if (isCurrentOptionCorrect) {
-      setOptionError("");
-    }
-    setCurrentOption('');
+    setCurrentOption("");
     setIsCurrentOptionCorrect(false);
+  };
+
+  const addFibAnswer = () => {
+    if (!currentAnswer.trim()) return;
+    setFibAnswers([...fibAnswers, { text: currentAnswer, isCorrect: isCurrentAnswerCorrect }]);
+    setCurrentAnswer("");
+    setIsCurrentAnswerCorrect(false);
   };
 
   const removeOption = (index) => {
     setOptions(options.filter((_, i) => i !== index));
   };
 
-  return (
-    <div className='absolute top-[50%] max-w-[480px] mx-auto translate-y-[-50%] flex justify-start p-5 gap-10 flex-col items-center bg-[#FBCD26] shadow-lg shadow-slate-600 rounded-lg border border-slate-600 inset-0 h-max'>
-      <h3 className='text-3xl'>Create a question</h3>
-      <form onSubmit={handleSubmit(submitHandler)} className='w-full max-w-[480px] flex flex-col gap-5'>
+  const removeFibAnswer = (index) => {
+    setFibAnswers(fibAnswers.filter((_, i) => i !== index));
+  };
 
-        <span className='flex flex-col gap-3'>
-          <label htmlFor="questionText">Enter Question</label>
+  const submitHandler = async (data) => {
+    if (questionType === "MCQ" && (!options.length || !options.some((opt) => opt.isCorrect))) {
+      toast.error("MCQs must have at least one correct option.");
+      return;
+    }
+  
+    if (questionType === "FIB" && !fibAnswers.length) {
+      toast.error("FIB questions must have at least one acceptable answer.");
+      return;
+    }
+  
+    const payload = {
+      quizId: quiz._id,
+      questionText: data.questionText,
+      questionType,
+      options: questionType === "MCQ" ? options : undefined,
+      answers: questionType === "FIB" ? fibAnswers : undefined,
+    };
+    
+    console.log("Payload being sent:", payload); // Debug payload
+  
+    try {
+      setLoading(true);
+      const response = await createQuestion(payload, token);
+      if (response) {
+        setQuestions((prev) => [...prev, response]);
+        setCreateQuestionModalData(null);
+        toast.success("Question created successfully!");
+      }
+    } catch (error) {
+      console.error("Error creating question:", error.response?.data || error.message);
+      toast.error("Failed to create question.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
+  return (
+    <div className="absolute top-[50%] max-w-[480px] mx-auto translate-y-[-50%] flex flex-col p-5 gap-5 items-center bg-white shadow-lg rounded-lg inset-0">
+      <h3 className="text-2xl font-semibold">Create a Question</h3>
+      <form onSubmit={handleSubmit(submitHandler)} className="w-full flex flex-col gap-4">
+        {/* Question Type */}
+        <div className="flex gap-4 items-center">
+          <label className="font-medium">Question Type:</label>
+          <select
+            className="p-2 border rounded"
+            value={questionType}
+            onChange={(e) => {
+              setQuestionType(e.target.value);
+              setOptions([]);
+              setFibAnswers([]);
+            }}
+          >
+            <option value="MCQ">Multiple Choice</option>
+            <option value="FIB">Fill in the Blank</option>
+          </select>
+        </div>
+
+        {/* Question Text */}
+        <div className="flex flex-col">
+          <label className="font-medium">Question:</label>
           <input
             type="text"
-            placeholder='Enter Question here'
-            className='py-1 text-base placeholder:text-black text-slate-950 rounded-lg px-3 outline-none bg-slate-300 xl:text-xl'
-            {...register("questionText", {
-              required: "Question is required",
-            })}
+            placeholder="Enter the question"
+            {...register("questionText", { required: "Question is required" })}
+            className="p-2 border rounded"
           />
-          {errors.questionText && <p className='text-red-500'>{errors.questionText.message}</p>}
-        </span>
+          {errors.questionText && <p className="text-red-500">{errors.questionText.message}</p>}
+        </div>
 
-        <span className='flex flex-col gap-3'>
-          <label htmlFor="options">Add Options</label>
-          <span className='flex items-center flex-col gap-2'>
-            <input
-              type="text"
-              placeholder='Create Options'
-              className='py-1 text-base w-full placeholder:text-black text-slate-950 rounded-lg px-3 outline-none bg-slate-300 xl:text-xl'
-              value={currentOption}
-              onChange={(e) => setCurrentOption(e.target.value)}
-            />
-            <span className='flex items-center gap-2 self-start justify-between w-full'>
-              <span className='space-x-2'>
+        {/* Options (for MCQ) */}
+        {questionType === "MCQ" && (
+          <div className="flex flex-col">
+            <label className="font-medium">Options:</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Enter option text"
+                value={currentOption}
+                onChange={(e) => setCurrentOption(e.target.value)}
+                className="flex-1 p-2 border rounded"
+              />
+              <label className="flex items-center gap-1">
                 <input
                   type="checkbox"
-                  name="isCorrect"
-                  id="isCorrect"
                   checked={isCurrentOptionCorrect}
                   onChange={() => setIsCurrentOptionCorrect(!isCurrentOptionCorrect)}
                 />
-                <label htmlFor="isCorrect">Correct option?</label>
-              </span>
-              <button onClick={addOption} className='p-2 text-lg flex gap-1 items-center' type='button'><IoAdd /> Add</button>
-            </span>
-          </span>
-        </span>
-
-        <span className='flex flex-col gap-1'>
-          {options.map((option, index) => (
-            <div key={index} className='flex gap-2 items-center text-2xl'>
-              <p>{option.text}</p>
-              {option.isCorrect && <span className='text-green-500'>(Correct)</span>}
-              <button type='button' onClick={() => removeOption(index)} className='text-red-500'><IoClose /></button>
+                Correct
+              </label>
+              <Button type="button" onClick={addOption} active>Add</Button>
             </div>
-          ))}
-        </span>
+            <div className="flex flex-col mt-2 gap-1">
+              {options.map((option, index) => (
+                <div key={index} className="flex items-center justify-between p-2 border rounded">
+                  <span>{option.text}</span>
+                  {option.isCorrect && <span className="text-green-500">(Correct)</span>}
+                  <Button type="button" onClick={() => removeOption(index)} className="text-red-500">Remove</Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
-        {optionError && <p className='text-red-500'>{optionError}</p>}
+        {/* FIB Answers */}
+        {questionType === "FIB" && (
+          <div className="flex flex-col">
+            <label className="font-medium">Acceptable Answers:</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Enter acceptable answer"
+                value={currentAnswer}
+                onChange={(e) => setCurrentAnswer(e.target.value.toLowerCase())}
+                className="flex-1 p-2 border rounded"
+              />
+              <label className="flex items-center gap-1">
+                <input
+                  type="checkbox"
+                  checked={isCurrentAnswerCorrect}
+                  onChange={() => setIsCurrentAnswerCorrect(!isCurrentAnswerCorrect)}
+                />
+                Correct
+              </label>
+              <Button type="button" onClick={addFibAnswer} active>Add</Button>
+            </div>
+            <div className="flex flex-col mt-2 gap-1">
+              {fibAnswers.map((answer, index) => (
+                <div key={index} className="flex items-center justify-between p-2 border rounded">
+                  <span>{answer.text}</span>
+                  {answer.isCorrect && <span className="text-green-500">(Correct)</span>}
+                  <Button type="button" onClick={() => removeFibAnswer(index)} className="text-red-500">Remove</Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
-        <span className='flex justify-end w-full gap-3'>
-          <Button onClick={() => setCreateQuestionModalData(null)} className='w-max h-max' active={false}>Cancel</Button>
-          <Button type="submit" disabled={loading} className='w-max h-max' active>Create</Button>
-        </span>
-
+        {/* Submit & Cancel */}
+        <div className="flex justify-end gap-4">
+          <Button type="button" onClick={() => setCreateQuestionModalData(null)} active={false}>Cancel</Button>
+          <Button type="submit" active disabled={loading}>{loading ? "Saving..." : "Save"}</Button>
+        </div>
       </form>
     </div>
   );

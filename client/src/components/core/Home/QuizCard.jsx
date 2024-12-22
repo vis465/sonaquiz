@@ -9,12 +9,14 @@ const QuizCard = ({ quiz }) => {
     const [attempted, setAttempted] = useState(false)
     const { user } = useSelector(state => state.auth);
 
-    useEffect(() => {
-        setAttempted(user?.attemptedQuizzes?.includes(quiz._id) ? true : false)
-    }, [user])
+    // useEffect(() => {
+    //     setAttempted(user?.attemptedQuizzes?.includes(quiz._id) ? true : x)
+        
+    // }, [user])
 
     return (
         <Link to={`/quiz/${quiz._id}`} className='border border-slate-600 bg-[#e0fbfc] mt-20 p-3 rounded-lg relative overflow-hidden'>
+          
             <h2 className='text-xl line-clamp-2 border-b border-slate-600 pb-3 mb-2'>{quiz.title}</h2>
             <span className='font-thin'>
                 <p className='line-clamp-2'>{quiz.description}</p>
@@ -26,13 +28,7 @@ const QuizCard = ({ quiz }) => {
             </span>
 
             <span className='absolute top-[10%] right-[3%]'>
-  {
-    attempted ? (
-      <span className='bg-green-600 text-white px-10 py-1 text-xl'>Completed</span>
-    ) : (
-      <span className='bg-red-600 text-white px-10 py-1 text-xl'>Yet to Attend</span>
-    )
-  }
+ 
 </span>
         </Link>
     )

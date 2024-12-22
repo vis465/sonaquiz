@@ -36,14 +36,14 @@ const Navbar = () => {
                     >
                         <FaHome /> Home
                     </NavLink>
-                    <NavLink
+                    {/* <NavLink
                         to="/drives"
                         className={({ isActive }) =>
                             `flex items-center gap-2 ${isActive ? 'text-green-600' : 'text-white hover:text-gray-200'}`
                         }
                     >
                         <FaBriefcase /> Drives
-                    </NavLink>
+                    </NavLink> */}
                     <NavLink
                         to="/dashboard"
                         className={({ isActive }) =>

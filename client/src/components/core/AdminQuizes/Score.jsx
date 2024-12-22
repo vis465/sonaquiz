@@ -3,11 +3,13 @@ import { quizEndpoints } from '../../../services/APIs'
 import { apiConnector } from '../../../services/apiConnector'
 import { useSelector } from 'react-redux'
 import { formatDistanceToNow } from 'date-fns'
+import CsvDownloadButton from 'react-json-to-csv'
 
 const Score = ({ quiz }) => {
 
     const [scores, setScores] = useState([])
     const [loading, setLoading] = useState(true)
+    const [quizname, Setquizname] = useState("")
     const { token } = useSelector(state => state.auth)
 
     useEffect(() => {
@@ -16,8 +18,10 @@ const Score = ({ quiz }) => {
                 const response = await apiConnector("GET", `${quizEndpoints.GET_SCORES}/${quiz._id}`, null, {
                     Authorization: `Bearer ${token}`
                 })
-                // console.log("res : ", response)
-                setScores(response?.data?.data)
+                let quizdata = response?.data?.data.slice(0, -1);
+                let quizname = response?.data?.data.slice(-1);
+                Setquizname(quizname)
+                setScores(quizdata)
             } catch (error) {
                 console.log("error : ", error)
             } finally {
@@ -36,7 +40,13 @@ const Score = ({ quiz }) => {
                 ) : !loading && scores.length > 0 ? (
                     <div className=' border rounded-lg border-slate-600 overflow-hidden'>
                         <h3 className='px-3 text-2xl bg-[#e0fbfc] py-2 text-center'>Results</h3>
-                        <div className='flex justify-between px-5 py-3'>
+                        <div className="flex justify-end items-center p-4">
+                            <CsvDownloadButton
+                                data={scores}
+                                filename={quizname}
+                                className="text-white text-4xl px-4 py-3 rounded-md bg-green-600 hover:bg-green-700 transition-all duration-300 border border-green-700 text-sm w-max"
+                            />
+                        </div>                        <div className='flex justify-between px-5 py-3'>
                             <p className='text-green-600'>Username</p>
                             <p className='text-green-600'>Score</p>
                         </div>

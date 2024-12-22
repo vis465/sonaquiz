@@ -7,9 +7,10 @@ const User = require("../models/User");
 exports.createQuiz = async (req, res) => {
   try {
     console.log(req.body);
-    const { title, description, timer, instructions, attempts } = req.body;
+    const { title, description, timer, instructions, maxAttempts } = req.body;
     const user = req.user;
-
+    console.log(maxAttempts)
+    
     if (!title || !description || !timer) {
       return res.status(400).json({
         success: false,
@@ -22,10 +23,10 @@ exports.createQuiz = async (req, res) => {
       description,
       timer,
       instructions,
-      maxAttempts:attempts,
+      maxAttempts:maxAttempts,
       createdBy: user.id,
     });
-
+    
     return res.status(201).json({
       success: true,
       message: "Quiz created successfully",
@@ -122,10 +123,44 @@ exports.getAllQuizzes = async (req, res) => {
     });
   }
 };
+exports.getAllQuizzess = async (req, res) => {
+  try {
+    const userId = req.params.id; // Get the user ID from request parameters
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        error: "User ID is required",
+      });
+    }
+
+    const quizzes = await Quiz.find().populate("createdBy", "username email");
+
+    // Filter quizzes based on the conditions
+    const filteredQuizzes = quizzes.filter((quiz) => {
+      const userAttempts = quiz.attemptCounts.get(userId) || 0;
+      return userAttempts < quiz.maxAttempts;
+    });
+console.log(filteredQuizzes)
+    return res.status(200).json({
+      success: true,
+      data: filteredQuizzes,
+    });
+  } catch (e) {
+    console.log("ERROR GETTING QUIZZES: ", e);
+    return res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};
+
+
 
 // ✅
 exports.getQuizById = async (req, res) => {
   try {
+    console.log("get quiz by id")
     const quizId = req.params.id;
     const quiz = await Quiz.findById(quizId).populate(
       "createdBy",
@@ -148,7 +183,7 @@ exports.getQuizById = async (req, res) => {
     });
   }
 };
-
+vara_answer=[]
 // ✅
 exports.attemptQuiz = async (req, res) => {
   try {
@@ -156,12 +191,13 @@ exports.attemptQuiz = async (req, res) => {
     const { quizId, answers } = req.body;
 
     const quiz = await Quiz.findById(quizId);
+    
     if (!quiz) {
       return res.status(404).json({ success: false, error: "Quiz not found" });
     }
 
     const questions = await Question.find({ quizId });
-
+    console.log(quiz," ",questions)
     let score = 0;
     const answersArray = [];
 
@@ -169,15 +205,36 @@ exports.attemptQuiz = async (req, res) => {
       const userAnswer = answers.find(
         (ans) => ans.questionId === question._id.toString()
       );
+
       if (userAnswer) {
-        const selectedOption = question.options.id(userAnswer.selectedOption);
-        if (selectedOption && selectedOption.isCorrect) {
-          score += 1;
+        if (question.questionType === "MCQ") {
+          // Handle MCQ
+          const selectedOption = question.options.id(userAnswer.selectedOption);
+          if (selectedOption && selectedOption.isCorrect) {
+            score += 1;
+          }
+          answersArray.push({
+            questionId: question._id,
+            selectedOption: userAnswer.selectedOption,
+          });
+        } else if (question.questionType === "FIB") {
+          // Handle FIB
+          const correctAnswers = question.answers.map((ans) =>
+            
+            
+            // console.log(ans.text.toLowerCase()),
+            console.log(ans)
+          ); // Normalize correct answers
+          const userProvidedAnswer = userAnswer.answer; // Normalize user answer
+          console.log(userProvidedAnswer)
+          if (correctAnswers.includes(userProvidedAnswer)) {
+            score += 1;
+          }
+          answersArray.push({
+            questionId: question._id,
+            answer: userAnswer.answer,
+          });
         }
-        answersArray.push({
-          questionId: question._id,
-          selectedOption: userAnswer.selectedOption,
-        });
       }
     }
 
@@ -191,14 +248,14 @@ exports.attemptQuiz = async (req, res) => {
 
     const user = await User.findById(userId);
 
-    if(!user.attemptedQuizes.includes(quizId)) {
+    if (!user.attemptedQuizes.includes(quizId)) {
       user.attemptedQuizes.push(quizId);
       await user.save();
     }
 
     return res.status(200).json({
       success: true,
-      success: "Quiz attempted successfully",
+      message: "Quiz attempted successfully",
       score,
     });
   } catch (e) {
@@ -209,6 +266,7 @@ exports.attemptQuiz = async (req, res) => {
     });
   }
 };
+
 
 // ✅
 exports.getUserAttempts = async (req, res) => {
@@ -259,8 +317,15 @@ exports.getQuizAttempts = async (req, res) => {
     const quizId = req.params.id;
     const attempts = await Attempt.find({ quizId }).populate(
       "userId score",
-      "username"
+      "username",
+      
     );
+    console.log(attempts)
+    const quizname=await Quiz.find({_id:quizId}).select(
+      "title"
+    )
+    attempts.push(quizname[0].title)
+    console.log(attempts)
     return res.status(200).json({
       success: true,
       data: attempts,
@@ -273,3 +338,47 @@ exports.getQuizAttempts = async (req, res) => {
     });
   }
 };
+  // Make sure to import your Quiz model
+
+  exports.Attemptedcnt = async (req, res) => {
+    try {
+      // Print the payload received
+      console.log("Payload received:", req.body);
+  
+      const { quizId, userID } = req.body;
+  
+      // Find the quiz by quizId
+      const quiz = await Quiz.findById(quizId);
+  
+      // If the quiz is not found
+      if (!quiz) {
+        return res.status(404).json({ error: "Quiz not found" });
+      }
+  
+      // Add the userID to the attemptedUsers array if not already present
+      if (!quiz.attemptedUsers.includes(userID)) {
+        quiz.attemptedUsers.push(userID);
+      }
+  
+      // Check if the user has attempted the quiz already in attemptCounts
+      if (quiz.attemptCounts.has(userID)) {
+        // Increment the attempt count for the user
+        quiz.attemptCounts.set(userID, quiz.attemptCounts.get(userID) + 1);
+      } else {
+        // Add the user with an initial attempt count of 1
+        quiz.attemptCounts.set(userID, 1);
+      }
+  
+      // Save the updated quiz document
+      const updatedQuiz = await quiz.save();
+  
+      // Send a response with the updated quiz data
+      res.status(200).json({
+        message: "User attempt count updated",
+        quiz: updatedQuiz,
+      });
+    } catch (error) {
+      console.error("Error in Attemptedcnt function:", error);
+      res.status(500).json({ error: "Server error" });
+    }
+  };

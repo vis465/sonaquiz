@@ -22,9 +22,11 @@ const History = () => {
       if (!response.data.success) {
         throw new Error(response.data.error)
       }
-
-      setAttempts(response?.data?.data)
-
+      let attempts=(response?.data?.data).reverse();
+      
+      setAttempts(attempts)
+      
+      //setAttempts(attempt.reverse())
     } catch (e) {
       console.log("Failed to get User Attempts")
       toast.success("Failed to get User Attempts")

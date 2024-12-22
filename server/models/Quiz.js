@@ -7,7 +7,7 @@ const quizSchema = new mongoose.Schema({
     },
     description: {
         type: String,
-        required: true,
+        required:false,
     },
     instructions: {
         type: String,
@@ -29,8 +29,12 @@ const quizSchema = new mongoose.Schema({
     attemptedUsers: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-       
     }],
+    attemptCounts: {
+        type: Map,
+        of: Number, // Map where key is userID and value is attempt count
+        default: {}
+    }
 }, { timestamps: true });
 
 const Quiz = mongoose.model('Quiz', quizSchema);

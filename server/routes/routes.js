@@ -7,12 +7,13 @@ const {
   createQuiz,
   updateQuiz,
   deleteQuiz,
-  getAllQuizzes,
+  getAllQuizzes,getAllQuizzess,
   getQuizById,
   attemptQuiz,
   getUserAttempts,
   getAdminQuizes,
   getQuizAttempts,
+  Attemptedcnt
 } = require("../controllers/quizController");
 
 const {
@@ -34,22 +35,23 @@ router.get("/attempts/:id", authMiddleware, adminMiddleware, getQuizAttempts);
 router.post("/quizzes", authMiddleware, adminMiddleware, createQuiz);
 router.put("/quizzes/:id", authMiddleware, adminMiddleware, updateQuiz);
 router.delete("/quizzes/:id", authMiddleware, adminMiddleware, deleteQuiz);
+router.post("/quizzess/attempted", authMiddleware,Attemptedcnt); // Correct route for attempted quiz
 
-// question routes
+// Question routes
 router.get("/questions/:id", authMiddleware, getQuizQuestions);
 router.post("/questions", authMiddleware, adminMiddleware, createQuestion);
 router.put("/questions/:id", authMiddleware, adminMiddleware, updateQuestion);
-router.delete(
-  "/questions/:id",
-  authMiddleware,
-  adminMiddleware,
-  deleteQuestion
-);
+router.delete("/questions/:id", authMiddleware, adminMiddleware, deleteQuestion);
 
-// data routes
+// Data routes
 router.get("/quizzes", authMiddleware, getAllQuizzes);
+router.get("/quizzess/:id", authMiddleware, getAllQuizzess);
 router.get("/quizzes/:id", authMiddleware, getQuizById);
 router.post("/quizzes/:id/attempt", authMiddleware, attemptQuiz);
 router.get("/attempts", authMiddleware, getUserAttempts);
-router.post("/checkattemps",authMiddleware,)
+router.post("/checkattemps", authMiddleware, (req, res) => {
+  // Implement the check attempts logic here
+  res.send("Check Attempts Route");
+});
+
 module.exports = router;
