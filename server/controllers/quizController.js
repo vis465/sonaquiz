@@ -6,10 +6,10 @@ const User = require("../models/User");
 // ✅
 exports.createQuiz = async (req, res) => {
   try {
-    console.log(req.body);
+    // console.log(req.body);
     const { title, description, timer, instructions, maxAttempts } = req.body;
     const user = req.user;
-    console.log(maxAttempts);
+    // console.log(maxAttempts);
 
     if (!title || !description || !timer) {
       return res.status(400).json({
@@ -140,7 +140,7 @@ exports.getAllQuizzess = async (req, res) => {
       const userAttempts = quiz.attemptCounts.get(userId) || 0;
       return userAttempts < quiz.maxAttempts;
     });
-    console.log(filteredQuizzes);
+    // console.log(filteredQuizzes);
     return res.status(200).json({
       success: true,
       data: filteredQuizzes,
@@ -157,7 +157,7 @@ exports.getAllQuizzess = async (req, res) => {
 // ✅
 exports.getQuizById = async (req, res) => {
   try {
-    console.log("get quiz by id");
+    // console.log("get quiz by id");
     const quizId = req.params.id;
     const quiz = await Quiz.findById(quizId).populate(
       "createdBy",
@@ -194,10 +194,10 @@ exports.attemptQuiz = async (req, res) => {
     }
 
     const questions = await Question.find({ quizId });
-    console.log(quiz, " ", questions);
+    // console.log(quiz, " ", questions);
     let score = 0;
     const answersArray = [];
-    console.log("questions recieved",questions)
+    // console.log("questions recieved",questions)
     for (const question of questions) {
       const userAnswer = answers.find(
         (ans) => ans.questionId === question._id.toString()
@@ -207,7 +207,7 @@ exports.attemptQuiz = async (req, res) => {
       if (userAnswer) {
         if (question.questionType === "MCQ") {
           // Handle MCQ
-          console.log("enter MCQ");
+          // console.log("enter MCQ");
           const selectedOption = question.options.id(userAnswer.selectedOption);
           if (selectedOption && selectedOption.isCorrect) {
             score += 1;
@@ -216,9 +216,9 @@ exports.attemptQuiz = async (req, res) => {
             questionId: question._id,
             selectedOption: userAnswer.selectedOption,
           });
-          console.log("answersArray", answersArray);
+          // console.log("answersArray", answersArray);
         } else if (question.questionType === "FIB") {
-          console.log("enter FIB");
+          // console.log("enter FIB");
       
           // Extract correct answers (normalized)
           const correctAnswers = question.answers
@@ -230,12 +230,12 @@ exports.attemptQuiz = async (req, res) => {
               ? userAnswer.answer.toLowerCase().trim()
               : null;
       
-          console.log(
-              "useranswer in FIB",
-              userProvidedAnswer,
-              "machine answer",
-              correctAnswers
-          );
+          // console.log(
+          //     "useranswer in FIB",
+          //     userProvidedAnswer,
+          //     "machine answer",
+          //     correctAnswers
+          // );
       
           if (userProvidedAnswer && correctAnswers.includes(userProvidedAnswer)) {
               score += 1;
@@ -333,10 +333,10 @@ exports.getQuizAttempts = async (req, res) => {
       "userId score",
       "username"
     );
-    console.log(attempts);
+    // console.log(attempts);
     const quizname = await Quiz.find({ _id: quizId }).select("title");
     attempts.push(quizname[0].title);
-    console.log(attempts);
+    // console.log(attempts);
     return res.status(200).json({
       success: true,
       data: attempts,
@@ -354,7 +354,7 @@ exports.getQuizAttempts = async (req, res) => {
 exports.Attemptedcnt = async (req, res) => {
   try {
     // Print the payload received
-    console.log("Payload received:", req.body);
+    // console.log("Payload received:", req.body);
 
     const { quizId, userID } = req.body;
 
