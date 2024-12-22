@@ -92,6 +92,7 @@ const QuizQuestions = ({ quizDetails, quizQuestions }) => {
         } catch (error) {
             console.error('Error submitting quiz:', error);
         }
+        
     };
 
     const formatTime = (time) => {

@@ -6,7 +6,11 @@ const QuizResults = () => {
     const location = useLocation();
     const { score, total } = location.state || { score: 0 };
     const navigate = useNavigate();
-
+    const onsybmit = ()=>{
+        navigate('/');
+        if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        }    }
     return (
         <>
         <Navbar />
@@ -15,7 +19,7 @@ const QuizResults = () => {
                 <h1 className='text-3xl border-b border-slate-600 pb-5'>Quiz Results</h1>
                 <p className='text-2xl mt-4 flex items-center gap-3 font-thin'>Your Score: <span className='font-semibold'><span className={`${score / total >= 0.4 ? "text-green-700" : "text-red-700"} `}>{score}</span> / {total}</span> </p>
             </div>
-            <Button className='w-max' onClick={() => navigate("/")}>Back to Home</Button>
+            <Button className='w-max' onClick={onsybmit}>Back to Home</Button>
         </div>
         </>
     );
