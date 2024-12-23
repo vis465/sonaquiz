@@ -4,10 +4,16 @@ import { apiConnector } from '../../../services/apiConnector'
 import { useSelector } from 'react-redux'
 import { formatDistanceToNow } from 'date-fns'
 import { CSVLink } from 'react-csv' // Import from react-csv
+import { deleteattempt } from '../../../services/operations/QuizAPIs'
+import toast, { ToastBar } from "react-hot-toast";
+import { useNavigate } from 'react-router-dom'
+
 
 const Score = ({ quiz }) => {
     const [scores, setScores] = useState([])
     const [csvData, setCsvData] = useState([]) // State for CSV data
+    const navigate = useNavigate();
+
     const [loading, setLoading] = useState(true)
     const [quizname, setQuizName] = useState("")
     const { token } = useSelector(state => state.auth)
@@ -19,10 +25,27 @@ const Score = ({ quiz }) => {
                 serialNumber: index + 1,
                 Username: score?.userId?.username || "N/A",
                 Score: score.score,
-                Time: formatDistanceToNow(new Date(score.createdAt), { addSuffix: true }),
+                Date:(String(score.createdAt)).split("T")[0] ,
+                Time: String(score.createdAt).split("T")[1].split(".")[0]
+                
             })
         })
         return csvdata
+    }
+    const deleteattempt = async (attemptid,userId,quizID) => {
+        console.log(attemptid)
+        const postdata={
+            attemptID:attemptid,
+            userId:userId._id,
+            quizID:quizID
+        }
+        console.log(postdata)
+       const response= await apiConnector('POST',quizEndpoints.DELETE_ATTEMPT, postdata,{
+            Authorization: `Bearer ${token}`
+        })
+        window.location.reload();
+
+        toast.success(response.data)
     }
 
     useEffect(() => {
@@ -35,6 +58,7 @@ const Score = ({ quiz }) => {
                 const quizName = response?.data?.data.slice(-1)[0] || "quiz_results"
                 setQuizName(quizName)
                 setScores(quizData)
+                
             } catch (error) {
                 console.error("error :", error)
             } finally {
@@ -75,9 +99,14 @@ const Score = ({ quiz }) => {
                         <div className='flex justify-between items-center py-3 border-t border-slate-600 px-5' key={index}>
                             <span className='flex flex-col md:flex-row gap-1 items-center'>
                                 <p className='text-sm md:text-lg'>{score?.userId?.username}</p>
-                                <p className='text-xs md:text-sm text-black-300'>
-                                    - {formatDistanceToNow(new Date(score.createdAt), { addSuffix: true })}
+                                <p className='text-xs md:text-sm text-black-300 font-bold'>
+                                    - {(String(score.createdAt)).split("T")[0] } at {(String(score.createdAt)).split("T")[1].split(".")[0]}
                                 </p>
+                                
+                            </span>
+                            <span>
+                                
+                                <button className='w-full  text-white text-4xl px-6 py-3 rounded-md bg-red-600 hover:bg-red-700 transiiton-all duration-300 py-1 px-3 rounded-lg text-sm w-max text-bold' onClick={()=>deleteattempt(score._id,score.userId,quiz._id)}>delete Attempt</button>
                             </span>
                             <p>
                                 <span className={`${score?.score / score.answers.length >= 0.4 ? "text-green-500" : "text-red-700"}`}>

@@ -2,7 +2,31 @@ import { apiConnector } from "../apiConnector";
 import { quizEndpoints } from "../APIs";
 import toast from "react-hot-toast";
 
-const { CREATE_QUIZ, UPDATE_QUIZ, DELETE_QUIZ } = quizEndpoints;
+const { CREATE_QUIZ, UPDATE_QUIZ, DELETE_QUIZ,DELETE_ATTEMPT } = quizEndpoints;
+
+export const deleteattempt = async (attemptid, token) => {
+  try {
+    const response = await apiConnector(
+      "DELETE",
+      `${DELETE_ATTEMPT}/${attemptid}`,
+      null,
+      {
+        Authorization: `Bearer ${token}`,
+      }
+    );
+
+    if (!response?.data?.success) {
+      throw new Error(response.data.error);
+    }
+
+    console.log("DELETE_ATTEMPT_RESPONSE : ", response);
+    toast.success("ATTEMPT deleted successfully");
+    return true
+  } catch (e) {
+    console.log("ERROR WHILE DELETING Attempt : ", e);
+  }
+  return false;
+};
 
 export const createQuiz = async (data, token) => {
   console.log(data)

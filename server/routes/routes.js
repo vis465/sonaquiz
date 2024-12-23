@@ -13,7 +13,8 @@ const {
   getUserAttempts,
   getAdminQuizes,
   getQuizAttempts,
-  Attemptedcnt
+  Attemptedcnt,
+  Attemptdelete
 } = require("../controllers/quizController");
 
 const {
@@ -36,6 +37,7 @@ router.post("/quizzes", authMiddleware, adminMiddleware, createQuiz);
 router.put("/quizzes/:id", authMiddleware, adminMiddleware, updateQuiz);
 router.delete("/quizzes/:id", authMiddleware, adminMiddleware, deleteQuiz);
 router.post("/quizzess/attempted", authMiddleware,Attemptedcnt); // Correct route for attempted quiz
+router.post("/attempt/delete", authMiddleware,Attemptdelete); // Correct route for attempted quiz
 
 // Question routes
 router.get("/questions/:id", authMiddleware, getQuizQuestions);

@@ -22,6 +22,25 @@ const userSchema = new mongoose.Schema(
       enum: ["admin", "user"],
       required: true,
     },
+    regnNumber: {
+      type: String,
+      required: true,
+    },
+    year: {
+      type: Number,
+      enum: [1, 2, 3, 4],
+      required: true,
+    },
+    dept: {
+      type: String,
+      enum: ["CSE", "IT", "EEE", "ECE", "MECH"],
+      required: true,
+    },
+    class: {
+      type: String,
+      enum: ["A", "B", "C", "D", "E"],
+      required: true,
+    },
     attemptedQuizes: [
       {
         type: mongoose.Schema.Types.ObjectId,

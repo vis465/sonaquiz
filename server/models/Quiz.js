@@ -34,6 +34,15 @@ const quizSchema = new mongoose.Schema({
         type: Map,
         of: Number, // Map where key is userID and value is attempt count
         default: {}
+    },
+    year: {
+        type: [Number], // An array of numbers
+        default: []     // Default should be an empty array
+    },
+    department: {
+        type: Array,
+        
+        default: []
     }
 }, { timestamps: true });
 

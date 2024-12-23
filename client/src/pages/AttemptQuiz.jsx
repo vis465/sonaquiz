@@ -42,9 +42,10 @@
                     Authorization: `Bearer ${token}`
                 })
 
-                console.log("QUIZ DETAILS RESPONSE : ", response)
+                
 
                 setQuizDetails(response?.data?.data);
+                console.log("quizDetails",quizDetails)
             } catch (error) {
                 console.log('Error fetching quiz details:', error);
             } finally {

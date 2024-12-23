@@ -1,49 +1,45 @@
-import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
-import React, { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import Button from '../components/Button'
-import RequiredError from '../components/RequiredError'
-import { signUp } from '../services/operations/AuthAPIs'
-import HighLightText from '../components/HighLightText'
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import Button from '../components/Button';
+import RequiredError from '../components/RequiredError';
+import { signUp } from '../services/operations/AuthAPIs';
 import { TbEyeClosed, TbEyeCheck } from "react-icons/tb";
-
-
+import departments from '../components/departments.json'
 const SignUp = () => {
-
   const [hidePassword, setHidePassword] = useState({
     password: true,
     confirmPassword: true,
-  })
-  const [role, setRole] = useState("user");
+  });
   const [loading, setLoading] = useState(false);
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm()
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
   const navigate = useNavigate();
 
   const submitHandler = async (data) => {
     setLoading(true);
-    const toastId = toast.loading("Loading...")
+    const toastId = toast.loading("Loading...");
     try {
-      const response = await signUp(data)
+      const response = await signUp(data);
       if (response) {
-        navigate("/login")
+        navigate("/login");
       }
     } catch (e) {
-      console.log("ERROR WHILE SINGING UP : ", e);
+      console.log("ERROR WHILE SIGNING UP :", e);
     } finally {
-      setLoading(false)
-      toast.dismiss(toastId)
+      setLoading(false);
+      toast.dismiss(toastId);
     }
-  }
+  };
 
   useEffect(() => {
-    setValue("role", "user")
-  }, [setValue])
+    setValue("role", "user");
+  }, [setValue]);
 
   return (
     <div className='min-h-screen flex items-center justify-center'>
       <section>
-        <h1 className='text-center pb-5 text-4xl font-mono underline'>Quizsona </h1>
+        <h1 className='text-center pb-5 text-4xl font-mono underline'>Quizsona</h1>
         <form
           onSubmit={handleSubmit(submitHandler)}
           className='flex flex-col gap-y-3 max-w-[480px] shadow-lg shadow-blue-300 border p-10 rounded-lg text-xl text-white'
@@ -54,12 +50,11 @@ const SignUp = () => {
             </h3>
           </div>
 
-          {
-            loading &&
+          {loading && (
             <span className='text-center text-red-500 text-sm'>
               When loaded for the first time, the server might take a minute or two to respond. Please be patient!
             </span>
-          }
+          )}
 
           <span className='flex flex-col gap-1'>
             <label htmlFor="username">Create a Username</label>
@@ -70,9 +65,7 @@ const SignUp = () => {
               type="text"
               {...register("username", { required: "Username is required" })}
             />
-            {
-              errors?.username && <RequiredError>{errors.username.message}</RequiredError>
-            }
+            {errors?.username && <RequiredError>{errors.username.message}</RequiredError>}
           </span>
 
           <span className='flex flex-col gap-1'>
@@ -80,13 +73,68 @@ const SignUp = () => {
             <input
               id='email'
               placeholder='Email'
-              className='py-1 text-base  placeholder:text-black text-slate-950 rounded-lg px-3 outline-none bg-slate-300 xl:text-xl'
+              className='py-1 text-base placeholder:text-black text-slate-950 rounded-lg px-3 outline-none bg-slate-300 xl:text-xl'
               type="email"
               {...register("email", { required: "Email is required" })}
             />
-            {
-              errors?.email && <RequiredError>{errors.email.message}</RequiredError>
-            }
+            {errors?.email && <RequiredError>{errors.email.message}</RequiredError>}
+          </span>
+
+          <span className='flex flex-col gap-1'>
+            <label htmlFor="regnNumber">Registration Number</label>
+            <input
+              id='regnNumber'
+              placeholder='Registration Number'
+              className='py-1 text-base placeholder:text-black text-slate-950 rounded-lg px-3 outline-none bg-slate-300 xl:text-xl'
+              type="text"
+              {...register("regnNumber", { required: "Registration number is required" })}
+            />
+            {errors?.regnNumber && <RequiredError>{errors.regnNumber.message}</RequiredError>}
+          </span>
+
+          <span className='flex flex-col gap-1'>
+            <label htmlFor="year">Year</label>
+            <select
+              id='year'
+              className='py-1 text-base text-slate-950 rounded-lg px-3 outline-none bg-slate-300 xl:text-xl'
+              {...register("year", { required: "Year is required" })}
+            >
+              <option value="">Select Year</option>
+              {[1, 2, 3, 4].map((year) => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+            {errors?.year && <RequiredError>{errors.year.message}</RequiredError>}
+          </span>
+
+          <span className='flex flex-col gap-1'>
+            <label htmlFor="dept">Department</label>
+            <select
+              id='dept'
+              className='py-1 text-base text-slate-950 rounded-lg px-3 outline-none bg-slate-300 xl:text-xl'
+              {...register("dept", { required: "Department is required" })}
+            >
+              <option value="">Select Department</option>
+              {departments.departments.map((dept) => (
+                <option key={dept} value={dept.abbreviation}>{dept.name}</option>
+              ))}
+            </select>
+            {errors?.dept && <RequiredError>{errors.dept.message}</RequiredError>}
+          </span>
+
+          <span className='flex flex-col gap-1'>
+            <label htmlFor="class">Class</label>
+            <select
+              id='class'
+              className='py-1 text-base text-slate-950 rounded-lg px-3 outline-none bg-slate-300 xl:text-xl'
+              {...register("class", { required: "Class is required" })}
+            >
+              <option value="">Select Class</option>
+              {["A", "B", "C", "D", "E"].map((cls) => (
+                <option key={cls} value={cls}>{cls}</option>
+              ))}
+            </select>
+            {errors?.class && <RequiredError>{errors.class.message}</RequiredError>}
           </span>
 
           <span className='flex flex-col gap-1'>
@@ -95,7 +143,7 @@ const SignUp = () => {
               <input
                 id='password'
                 placeholder='Password'
-                className='py-1 text-base  placeholder:text-black text-slate-950 w-full rounded-lg px-3 outline-none bg-slate-300 xl:text-xl'
+                className='py-1 text-base placeholder:text-black text-slate-950 w-full rounded-lg px-3 outline-none bg-slate-300 xl:text-xl'
                 type={hidePassword.password ? "password" : "text"}
                 {...register("password", { required: "Password is required" })}
               />
@@ -103,23 +151,19 @@ const SignUp = () => {
                 className='p-3 cursor-pointer'
                 onClick={() => setHidePassword((prev) => ({ ...prev, password: !hidePassword.password }))}
               >
-                {
-                  hidePassword.password ? <TbEyeClosed /> : <TbEyeCheck />
-                }</span>
+                {hidePassword.password ? <TbEyeClosed /> : <TbEyeCheck />}
+              </span>
             </span>
-            {
-              errors?.password && <RequiredError>{errors.password.message}</RequiredError>
-            }
+            {errors?.password && <RequiredError>{errors.password.message}</RequiredError>}
           </span>
 
           <span className='flex flex-col gap-1'>
             <label htmlFor="confirmPassword">Confirm Password</label>
             <span className='flex items-center w-full'>
               <input
-                name='confirmPassword'
                 id='confirmPassword'
                 placeholder='Confirm Password'
-                className='py-1 text-base  placeholder:text-black text-slate-950 w-full rounded-lg px-3 outline-none bg-slate-300 xl:text-xl'
+                className='py-1 text-base placeholder:text-black text-slate-950 w-full rounded-lg px-3 outline-none bg-slate-300 xl:text-xl'
                 type={hidePassword.confirmPassword ? "password" : "text"}
                 {...register("confirmPassword", { required: "Re-enter your password" })}
               />
@@ -127,28 +171,21 @@ const SignUp = () => {
                 className='p-3 cursor-pointer'
                 onClick={() => setHidePassword((prev) => ({ ...prev, confirmPassword: !hidePassword.confirmPassword }))}
               >
-                {
-                  hidePassword.confirmPassword ? <TbEyeClosed /> : <TbEyeCheck />
-                }
+                {hidePassword.confirmPassword ? <TbEyeClosed /> : <TbEyeCheck />}
               </span>
             </span>
-            {
-              errors?.confirmPassword && <RequiredError>{errors.confirmPassword.message}</RequiredError>
-            }
+            {errors?.confirmPassword && <RequiredError>{errors.confirmPassword.message}</RequiredError>}
           </span>
-
-          
 
           <span className=''>
             <Button disabled={loading} varient={"primary"} type={"submit"}>Submit</Button>
           </span>
 
           <p className='text-center mt-3'>Already have an account? <span onClick={() => navigate("/login")} className='text-green-500 cursor-pointer'>Log in</span></p>
-
         </form>
-      </section >
-    </div >
-  )
-}
+      </section>
+    </div>
+  );
+};
 
-export default SignUp
+export default SignUp;

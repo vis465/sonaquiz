@@ -1,3 +1,4 @@
+const { ObjectId } = require('mongodb');
 const Quiz = require("../models/Quiz");
 const Question = require("../models/Question");
 const Attempt = require("../models/Attempt");
@@ -6,10 +7,10 @@ const User = require("../models/User");
 // ✅
 exports.createQuiz = async (req, res) => {
   try {
-    // console.log(req.body);
-    const { title, description, timer, instructions, maxAttempts } = req.body;
+    console.dir(req.body, { depth: null }); 
+    const { title, description, timer, instructions, maxAttempts,year,department } = req.body;
     const user = req.user;
-    // console.log(maxAttempts);
+    console.log(year,department);
 
     if (!title || !description || !timer) {
       return res.status(400).json({
@@ -25,6 +26,8 @@ exports.createQuiz = async (req, res) => {
       instructions,
       maxAttempts: maxAttempts,
       createdBy: user.id,
+      year:year,
+      department:department
     });
 
     return res.status(201).json({
@@ -157,7 +160,7 @@ exports.getAllQuizzess = async (req, res) => {
 // ✅
 exports.getQuizById = async (req, res) => {
   try {
-    // console.log("get quiz by id");
+    console.log("get quiz by id");
     const quizId = req.params.id;
     const quiz = await Quiz.findById(quizId).populate(
       "createdBy",
@@ -353,37 +356,32 @@ exports.getQuizAttempts = async (req, res) => {
 
 exports.Attemptedcnt = async (req, res) => {
   try {
-    // Print the payload received
-    // console.log("Payload received:", req.body);
+    console.log("method called");
+    console.log("Payload received:", req.body);
 
     const { quizId, userID } = req.body;
 
-    // Find the quiz by quizId
     const quiz = await Quiz.findById(quizId);
-
-    // If the quiz is not found
     if (!quiz) {
       return res.status(404).json({ error: "Quiz not found" });
     }
 
-    // Add the userID to the attemptedUsers array if not already present
+    // Ensure valid data for the year field
+    if (!Array.isArray(quiz.year)) {
+      quiz.year = [];
+    }
+
+    // Avoid duplicate userIDs in attemptedUsers
     if (!quiz.attemptedUsers.includes(userID)) {
       quiz.attemptedUsers.push(userID);
     }
 
-    // Check if the user has attempted the quiz already in attemptCounts
-    if (quiz.attemptCounts.has(userID)) {
-      // Increment the attempt count for the user
-      quiz.attemptCounts.set(userID, quiz.attemptCounts.get(userID) + 1);
-    } else {
-      // Add the user with an initial attempt count of 1
-      quiz.attemptCounts.set(userID, 1);
-    }
+    // Update or initialize attemptCounts for the user
+    const currentCount = quiz.attemptCounts.get(userID) || 0;
+    quiz.attemptCounts.set(userID, currentCount + 1);
 
     // Save the updated quiz document
     const updatedQuiz = await quiz.save();
-
-    // Send a response with the updated quiz data
     res.status(200).json({
       message: "User attempt count updated",
       quiz: updatedQuiz,
@@ -391,5 +389,40 @@ exports.Attemptedcnt = async (req, res) => {
   } catch (error) {
     console.error("Error in Attemptedcnt function:", error);
     res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.Attemptdelete = async (req, res) => {
+  console.log("deletion of attempt", req.body.attemptID);
+  const { attemptID, userId, quizID } = req.body;
+  
+  if (!attemptID || !userId) {
+    return res.status(400).json({ error: "attemptID and userID are required" });
+  }
+  console.log("AB")
+  try {
+    // Validate if userId is a valid ObjectId format
+    if (!ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: "Invalid userId format" });
+    }
+
+    // Delete the attempt from the "attempts" collection
+    await Attempt.deleteOne({ _id: new ObjectId(attemptID) });
+
+    // Update the quiz document
+    
+    await Quiz.updateOne(
+      { _id: new ObjectId(quizID) },
+      {
+        $inc: { [`attemptCounts.${userId}`]: -1 },  // Decrement attempt count by 1
+        $pull: { attemptedUsers: new ObjectId(userId) },  // Convert userId to ObjectId
+      }
+    );
+    
+
+    res.status(200).json({ message: "Attempt deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to delete the attempt" });
   }
 };

@@ -5,9 +5,9 @@ const bcrypt = require("bcrypt");
 // ✅
 exports.register = async (req, res) => {
   try {
-    const { email, username, password, confirmPassword, role } = req.body;
+    const { email, username, password, confirmPassword, role, regnNumber, year, dept, class: userClass } = req.body;
 
-    if (!username || !email || !password || !confirmPassword || !role) {
+    if (!username || !email || !password || !confirmPassword || !role || !regnNumber || !year || !dept || !userClass) {
       return res
         .status(400)
         .json({ success: false, error: "Please fill all the fields" });
@@ -43,6 +43,10 @@ exports.register = async (req, res) => {
       email,
       password: hashedPasssword,
       role,
+      regnNumber,
+      year,
+      dept,
+      class: userClass,
     });
 
     return res
@@ -55,6 +59,7 @@ exports.register = async (req, res) => {
       .json({ success: false, error: "Internal server error" });
   }
 };
+
 
 // ✅
 exports.login = async (req, res) => {

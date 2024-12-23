@@ -9,6 +9,7 @@ export const quizEndpoints = {
   CREATE_QUIZ: `${BASE_URL}/quizzes`,
   UPDATE_QUIZ: `${BASE_URL}/quizzes`,
   DELETE_QUIZ: `${BASE_URL}/quizzes`,
+  DELETE_ATTEMPT:`${BASE_URL}/attempt/delete`,
   GET_ADMIN_QUIZES: `${BASE_URL}/admin-quizzes`,
   GET_SCORES: `${BASE_URL}/attempts`,
   GET_ALL_QUIZES: `${BASE_URL}/quizzes`,
