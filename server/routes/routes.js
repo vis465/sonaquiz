@@ -24,13 +24,19 @@ const {
   getQuizQuestions,
 } = require("../controllers/questionController");
 
-const { login, register } = require("../controllers/userController");
+const { login, register ,getUsersAndAnalytics,updateUser,deleteUser} = require("../controllers/userController");
 
 // User Authentication
 router.post("/login", login);
 router.post("/register", register);
+router.get("/users", getUsersAndAnalytics);
 
-// Quiz routes
+// Delete a user
+router.post("/delete", deleteUser);
+
+// Update user details
+
+
 router.get("/admin-quizzes", authMiddleware, adminMiddleware, getAdminQuizes);
 router.get("/attempts/:id", authMiddleware, adminMiddleware, getQuizAttempts);
 router.post("/quizzes", authMiddleware, adminMiddleware, createQuiz);

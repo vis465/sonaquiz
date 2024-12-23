@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux'
 import React, { useEffect } from 'react'
 import { formatDistanceToNow } from 'date-fns';
 import Button from "../components/Button"
-import { FaHome } from "react-icons/fa";
+import { FaHome,FaUserAlt } from "react-icons/fa";
 
 const Profile = () => {
 
@@ -21,12 +21,19 @@ const Profile = () => {
         <p>Role : <span className='font-bold'>{user.role}</span></p>
       </div>
 
-      <div className='w-full min-h-[50vh] grid place-content-center'>
-          <p> </p>
+      <div className='w-full min-h-[50vh] grid place-content-center justify-center items-center flex'>
+          
           <Button onClick={() => navigate('/')} className='w-max flex gap-3 items-center py-2'>
             <FaHome /> Return to Home
           </Button>
+          {user.role==="admin"?(
+            
+            <Button onClick={() => navigate('/dashboard/usermanagemnt')} className='w-max flex gap-3 items-centerpy-2 mt-5' > <FaUserAlt />User Management</Button>
+          ):
+          null}
       </div>
+      
+
 
     </section>
   )

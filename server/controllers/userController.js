@@ -1,4 +1,6 @@
 const jwt = require("jsonwebtoken");
+const { ObjectId } = require('mongodb');
+
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 
@@ -118,5 +120,103 @@ exports.login = async (req, res) => {
     return res
       .status(500)
       .json({ success: false, error: "Internal server error" });
+  }
+};
+
+
+// Fetch all users and analytics
+exports.getUsersAndAnalytics = async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments();
+    const totalAdmins = await User.countDocuments({ role: "admin" });
+    const totalStudents = await User.countDocuments({ role: "user" });
+
+    const users = await User.find();
+
+    return res.status(200).json({
+      success: true,
+      users,
+      analytics: {
+        totalUsers,
+        totalAdmins,
+        totalStudents,
+      },
+    });
+  } catch (error) {
+    console.log("Error fetching users and analytics:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};
+
+// Delete a user
+exports.deleteUser = async (req, res) => {
+  console.log("delete server call")
+  console.log(req.body)
+  const userId = req.body.user_id;
+  // generatedid=new ObjectId(userId)
+  console.log(userId)
+  try {
+    const user = await User.findById(userId);
+    console.log(user)
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        error: "User not found",
+      });
+    }
+
+    await User.deleteOne({_id:userId})
+
+    return res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    console.log("Error deleting user:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};
+
+// Update user details
+exports.updateUser = async (req, res) => {
+  const { userId } = req.params;
+  const { username, email, role, year, dept, class: userClass } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        error: "User not found",
+      });
+    }
+
+    user.username = username || user.username;
+    user.email = email || user.email;
+    user.role = role || user.role;
+    user.year = year || user.year;
+    user.dept = dept || user.dept;
+    user.class = userClass || user.class;
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: user,
+    });
+  } catch (error) {
+    console.log("Error updating user:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
   }
 };

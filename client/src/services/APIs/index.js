@@ -4,6 +4,11 @@ export const authEndpoints = {
   SIGNUP: `${BASE_URL}/register`,
   LOGIN: `${BASE_URL}/login`,
 };
+export const analyticsendpoints ={
+  GET_ANALYTICS: `${BASE_URL}/users`,
+  DELETE_USER: `${BASE_URL}/delete`,
+  UPDATE_USER:`${BASE_URL}/users`
+}
 
 export const quizEndpoints = {
   CREATE_QUIZ: `${BASE_URL}/quizzes`,
