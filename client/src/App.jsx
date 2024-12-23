@@ -29,14 +29,14 @@ function App() {
           <Route path="/quiz/:id" element={<LoggedInRoutes><AttemptQuiz /></LoggedInRoutes>} />
           <Route path="/quiz-results" element={<LoggedInRoutes><QuizResult /></LoggedInRoutes>} />
           <Route path="/login" element={<LogIn />} />
-          <Route path="/usermanagemnt" element={<UserManagement />} />
+        
           <Route path="/signup" element={<SignUp />} />
           <Route path="/dashboard">
             <Route index element={<LoggedInRoutes><DashboardLayout><Profile /></DashboardLayout></LoggedInRoutes>} />
             <Route path="history" element={<LoggedInRoutes><DashboardLayout><History /></DashboardLayout ></LoggedInRoutes>} />
             <Route path="create-quiz" element={<LoggedInRoutes><DashboardLayout><CreateQuiz /></DashboardLayout ></LoggedInRoutes>} />
             <Route path="bulkupload" element={<LoggedInRoutes><DashboardLayout><BulkQuestionUpload /></DashboardLayout ></LoggedInRoutes>} />
-            {/* <Route path="usermanagemnt" element={<LoggedInRoutes><DashboardLayout><UserManagement /></DashboardLayout ></LoggedInRoutes>} /> */}
+            <Route path="usermanagemnt" element={<LoggedInRoutes><DashboardLayout><UserManagement /></DashboardLayout ></LoggedInRoutes>} />
             <Route path="create-quiz/:id" element={<LoggedInRoutes><DashboardLayout><CreateQuestions /></DashboardLayout ></LoggedInRoutes>} />
             <Route path="quizes" element={<LoggedInRoutes><DashboardLayout><AdminQuizes /></DashboardLayout></LoggedInRoutes>} />
             <Route path="edit-quiz/:id" element={<LoggedInRoutes><DashboardLayout><CreateQuiz /></DashboardLayout></LoggedInRoutes>} />

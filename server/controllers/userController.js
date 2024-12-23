@@ -131,6 +131,18 @@ exports.getUsersAndAnalytics = async (req, res) => {
     const totalAdmins = await User.countDocuments({ role: "admin" });
     const totalStudents = await User.countDocuments({ role: "user" });
 
+    // Aggregate students by year
+    const studentsByYear = await User.aggregate([
+      { $match: { role: "user" } },
+      { $group: { _id: "$year", count: { $sum: 1 } } },
+    ]);
+
+    // Aggregate students by department
+    const studentsByDepartment = await User.aggregate([
+      { $match: { role: "user" } },
+      { $group: { _id: "$dept", count: { $sum: 1 } } },
+    ]);
+
     const users = await User.find();
 
     return res.status(200).json({
@@ -140,6 +152,8 @@ exports.getUsersAndAnalytics = async (req, res) => {
         totalUsers,
         totalAdmins,
         totalStudents,
+        studentsByYear,
+        studentsByDepartment,
       },
     });
   } catch (error) {
@@ -150,6 +164,8 @@ exports.getUsersAndAnalytics = async (req, res) => {
     });
   }
 };
+
+
 
 // Delete a user
 exports.deleteUser = async (req, res) => {

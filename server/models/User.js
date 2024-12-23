@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
     },
     dept: {
       type: String,
-      enum: ["CSE", "IT", "EEE", "ECE", "MECH"],
+      enum: ["CSE", "IT", "EEE", "CE","ECE","MCT","BME","ADS",'FT','CSD','AIML', "MECH"],
       required: true,
     },
     class: {
