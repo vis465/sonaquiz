@@ -33,7 +33,7 @@ function App() {
             <Route index element={<LoggedInRoutes><DashboardLayout><Profile /></DashboardLayout></LoggedInRoutes>} />
             <Route path="history" element={<LoggedInRoutes><DashboardLayout><History /></DashboardLayout ></LoggedInRoutes>} />
             <Route path="create-quiz" element={<LoggedInRoutes><DashboardLayout><CreateQuiz /></DashboardLayout ></LoggedInRoutes>} />
-            <Route path="bulkupload" element={<LoggedInRoutes><DashboardLayout><BulkQuestionUpload /></DashboardLayout ></LoggedInRoutes>} />
+            <Route path="bulkupload/" element={<LoggedInRoutes><DashboardLayout><BulkQuestionUpload /></DashboardLayout ></LoggedInRoutes>} />
             <Route path="create-quiz/:id" element={<LoggedInRoutes><DashboardLayout><CreateQuestions /></DashboardLayout ></LoggedInRoutes>} />
             <Route path="quizes" element={<LoggedInRoutes><DashboardLayout><AdminQuizes /></DashboardLayout></LoggedInRoutes>} />
             <Route path="edit-quiz/:id" element={<LoggedInRoutes><DashboardLayout><CreateQuiz /></DashboardLayout></LoggedInRoutes>} />

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { apiConnector } from '../services/apiConnector';
 import { questionEndpoints } from '../services/APIs';
 import Button from '../components/Button';
@@ -27,6 +27,11 @@ const CreateQuestions = () => {
         dispatch(setQuiz(null))
         dispatch(setEdit(false))
     }
+    const handlebulkupload = () => {
+        console.log("button pressed");
+        console.log(id);
+        navigate('/dashboard/bulkupload', { state: { id } }); // Pass id via state
+    };
 
     const deleteQuestionHandler = async (question) => {
 
@@ -85,11 +90,20 @@ const CreateQuestions = () => {
                             <p>{quiz?.description}</p>
                         </span>
                     </div>
-                    <Button
-                        onClick={() => setCreateQuestionModalData({ ...quiz })}
-                        className='w-max h-max text-white text-4xl px-6 py-3 rounded-md bg-blue-600 hover:bg-blue-700 m-5 '
-                        active
-                    >Create Question</Button>
+                    <section className='flex gap-y-3  md:flex-row justify-between items-cente bg-[#E0FBFC]'>
+                        <Button
+                            onClick={() => setCreateQuestionModalData({ ...quiz })}
+                            className='w-max h-max text-white text-4xl px-6 py-3 rounded-md bg-blue-600 hover:bg-blue-700 m-5 '
+                            active
+                        >Create Question</Button>
+                        <Button
+                            onClick={handlebulkupload}
+                            className="w-max h-max text-white text-4xl px-6 py-3 rounded-md bg-blue-600 hover:bg-blue-700 m-5"
+                        >
+                            Bulk Question Upload
+                        </Button>
+
+                    </section>
                 </section>
                 <div className='w-full flex flex-col gap-5 rounded-lg min-h-[50vh]'>
                     {
