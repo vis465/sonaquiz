@@ -51,7 +51,36 @@ const UserManagement = () => {
       toast.error("Failed to delete user.");
     }
   };
+  const handleedit = async(userId,data)=>
+    
+  {
+    const newRole = data=== "user" ? "admin" : "user";
 
+    console.log("editcall")
+    const payload={
+      userid:userId,
+      data:newRole
+    }
+    console.log(payload)
+    const response= await apiConnector(
+      "POST",
+      analyticsendpoints.UPDATE_USER,
+      payload,
+      { Authorization: `Bearer ${token}` }
+    )
+    if (response.data.success) {
+      // Display success message
+      toast.success(`User role updated to ${newRole}`);
+
+      // Refresh the page after 2 seconds
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000); // Delay of 2 seconds
+    } else {
+      throw new Error(response.data.error || "Failed to update role");
+    }    
+  }
+  
   return (
     <div className="user-management-container p-5 text-white bg-gray-900 rounded-lg shadow-lg">
       <h2 className="text-3xl mb-6 text-center text-blue-500 font-bold">User Management</h2>
@@ -120,28 +149,39 @@ const UserManagement = () => {
           {/* User List Section */}
           <h3 className="text-xl mb-4 text-blue-400">All Users</h3>
           <div className="user-list grid gap-4">
-            {users.map((user) => (
-              <div
-                key={user._id}
-                className="user-card bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center"
-              >
-                <div className="user-info text-white">
-                  <h4 className="text-lg font-semibold">{user.username}</h4>
-                  <p className="text-gray-400">Role: {user.role}</p>
-                  <p className="text-gray-400">Department: {user.dept}</p>
-                  <p className="text-gray-400">Year: {user.year}</p>
-                </div>
-                <div className="actions flex gap-4">
-                  <button
-                    onClick={() => handleDelete(user._id)}
-                    className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+  {users.map((user) => (
+    <div
+      key={user._id}
+      className="user-card bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center"
+    >
+      <div className="user-info text-white">
+        <h4 className="text-lg font-semibold">{user.username}</h4>
+        <p className="text-gray-400">Role: {user.role}</p>
+        <p className="text-gray-400">Department: {user.dept}</p>
+        <p className="text-gray-400">Year: {user.year}</p>
+      </div>
+      <div className="actions flex gap-4">
+        <button
+          onClick={() => handleedit(user._id, user.role)}
+          className={`${
+            user.role === "user"
+              ? "bg-green-500 hover:bg-green-600"
+              : "bg-blue-500 hover:bg-blue-600"
+          } text-white px-6 py-2 rounded-md`}
+        >
+          {user.role === "user" ? "Make Admin" : "Make User"}
+        </button>
+        <button
+          onClick={() => handleDelete(user._id)}
+          className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
+
         </>
       )}
 

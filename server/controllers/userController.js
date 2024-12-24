@@ -247,3 +247,23 @@ exports.searchUser = async (req, res) => {
   }
 };
 
+exports.edituserrole =async (req,res) =>{
+  console.log(req.body)
+  try {
+    const { userid,data } = req.body;
+    const user=User.findOne(userid);
+    const roletoupdate=req.body.data
+    console.log(roletoupdate)
+    await User.updateOne({ _id: userid }, { $set: {role: roletoupdate}});
+    return res.status(200).json({
+      success:true,
+      message:`user changed as ${roletoupdate}`
+    })}
+
+    catch (error) {
+      console.error("Error updating user:", error);
+      return res.status(500).json({ success: false, error: "Internal server error" });
+    
+  }
+
+}

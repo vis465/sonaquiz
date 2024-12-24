@@ -7,8 +7,9 @@ export const authEndpoints = {
 export const analyticsendpoints ={
   GET_ANALYTICS: `${BASE_URL}/users`,
   DELETE_USER: `${BASE_URL}/delete`,
-  UPDATE_USER:`${BASE_URL}/users`,
+  UPDATE_USER:`${BASE_URL}/updateuserrole`,
   SEARCH_USER:`${BASE_URL}/searchUser`
+  
 }
 
 export const quizEndpoints = {
