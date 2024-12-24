@@ -129,20 +129,24 @@ exports.getAllQuizzes = async (req, res) => {
 exports.getAllQuizzess = async (req, res) => {
   try {
     const userId = req.params.id; // Get the user ID from request parameters
-
+    
     if (!userId) {
       return res.status(400).json({
         success: false,
         error: "User ID is required",
       });
     }
-
+    const user=await User.findById(userId)
+    const useryear=user.year
+    const userdept=user.dept
     const quizzes = await Quiz.find().populate("createdBy", "username email");
-
+    
     // Filter quizzes based on the conditions
     const filteredQuizzes = quizzes.filter((quiz) => {
-      const userAttempts = quiz.attemptCounts.get(userId) || 0;
-      return userAttempts < quiz.maxAttempts;
+      
+      const userAttempts = quiz.attemptCounts.get(userId) || 0  ;
+      
+      return ((userAttempts < quiz.maxAttempts)&& quiz.year.includes(useryear) && quiz.department.includes(userdept));
     });
     // console.log(filteredQuizzes);
     return res.status(200).json({
