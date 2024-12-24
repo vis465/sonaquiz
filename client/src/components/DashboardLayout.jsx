@@ -16,6 +16,9 @@ const DashboardLayout = ({ children }) => {
         <section className=''>
             <div className='flex py-3 px-3 justify-between items-center gap-y-5  my-3 text-lg bg-[#e0fbfc] rounded-lg border border-slate-600'>
                 <span className='space-x-1 md:space-x-3 text-sm md:text-base'>
+                <NavLink to={"/"} className={`hover:bg-slate-700 transition-all duration-300 px-3 py-1 rounded-full ${location.pathname === "/dashboard" && "bg-[#e0fbfc]"}`}>
+                        Home
+                    </NavLink>
                     <NavLink to={"/dashboard"} className={`hover:bg-slate-700 transition-all duration-300 px-3 py-1 rounded-full ${location.pathname === "/dashboard" && "bg-[#e0fbfc]"}`}>
                         Profile
                     </NavLink>
