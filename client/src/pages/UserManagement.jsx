@@ -54,7 +54,7 @@ const UserManagement = () => {
   const handleedit = async(userId,data)=>
     
   {
-    const newRole = data=== "user" ? "admin" : "user";
+    const newRole = data=== "user" ? "trainer" : "user";
 
     console.log("editcall")
     const payload={
@@ -82,7 +82,7 @@ const UserManagement = () => {
   }
   
   return (
-    <div className="user-management-container p-5 text-white bg-gray-900 rounded-lg shadow-lg">
+    <div className="user-management-container p-5 text-white bg-gray-900 rounded-lg shadow-lg w-full">
       <h2 className="text-3xl mb-6 text-center text-blue-500 font-bold">User Management</h2>
 
       {loading && <p className="text-center text-white">Loading...</p>}
@@ -99,7 +99,11 @@ const UserManagement = () => {
               </div>
               <div className="analytics-card bg-gray-800 p-4 rounded-lg shadow-md">
                 <h4 className="text-lg font-semibold">Total Admins</h4>
-                <p className="text-xl">{analytics.totalAdmins || 0}</p>
+                <p className="text-xl">{analytics.totalAdmins|| 0}</p>
+              </div>
+              <div className="analytics-card bg-gray-800 p-4 rounded-lg shadow-md">
+                <h4 className="text-lg font-semibold">Total Trainers</h4>
+                <p className="text-xl">{analytics.totalTrainers|| 0}</p>
               </div>
               <div className="analytics-card bg-gray-800 p-4 rounded-lg shadow-md">
                 <h4 className="text-lg font-semibold">Total Students</h4>
@@ -148,13 +152,13 @@ const UserManagement = () => {
 
           {/* User List Section */}
           <h3 className="text-xl mb-4 text-blue-400">All Users</h3>
-          <div className="user-list grid gap-4">
+          <div className="user-list grid gap-4 w-full">
   {users.map((user) => (
     <div
       key={user._id}
-      className="user-card bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center"
+      className="user-card bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center analytics-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
     >
-      <div className="user-info text-white">
+      <div className="user-info text-white ">
         <h4 className="text-lg font-semibold">{user.username}</h4>
         <p className="text-gray-400">Role: {user.role}</p>
         <p className="text-gray-400">Department: {user.dept}</p>
@@ -169,7 +173,7 @@ const UserManagement = () => {
               : "bg-blue-500 hover:bg-blue-600"
           } text-white px-6 py-2 rounded-md`}
         >
-          {user.role === "user" ? "Make Admin" : "Make User"}
+          {user.role === "user" ? "Make Trainer" : "Make User"}
         </button>
         <button
           onClick={() => handleDelete(user._id)}

@@ -114,6 +114,8 @@ exports.login = async (req, res) => {
           role: user.role,
           createdAt: user.createdAt,
           attemptedQuizzes: user?.attemptedQuizes || [],
+          year:user.year,
+          dept:user.dept,
         },
       },
     });
@@ -130,7 +132,8 @@ exports.login = async (req, res) => {
 exports.getUsersAndAnalytics = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
-    const totalAdmins = await User.countDocuments({ role: "admin" });
+    const totalAdmins = await User.countDocuments({ role: "admin" }); 
+    const totalTrainers = await User.countDocuments({ role: "trainer" });
     const totalStudents = await User.countDocuments({ role: "user" });
 
     // Aggregate students by year
@@ -146,7 +149,7 @@ exports.getUsersAndAnalytics = async (req, res) => {
     ]);
 
     const users = await User.find();
-
+   
     return res.status(200).json({
       success: true,
       users,
@@ -155,6 +158,7 @@ exports.getUsersAndAnalytics = async (req, res) => {
         totalAdmins,
         totalStudents,
         studentsByYear,
+        totalTrainers,
         studentsByDepartment,
       },
     });

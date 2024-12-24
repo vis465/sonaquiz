@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 export const createQuestion = async (data, token) => {
 
   try {
+    console.log(data)
     const response = await apiConnector(
       "POST",
       questionEndpoints.CREATE_QUESTION,

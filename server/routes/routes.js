@@ -47,9 +47,9 @@ router.post("/attempt/delete", authMiddleware,Attemptdelete); // Correct route f
 
 // Question routes
 router.get("/questions/:id", authMiddleware, getQuizQuestions);
-router.post("/questions", authMiddleware, trainerMiddleware, createQuestion);
-router.put("/questions/:id", authMiddleware, trainerMiddleware, updateQuestion);
-router.delete("/questions/:id", authMiddleware, trainerMiddleware, deleteQuestion);
+router.post("/createquestion", authMiddleware, staffMiddleware, createQuestion);
+router.put("/questions/:id", authMiddleware, staffMiddleware, updateQuestion);
+router.delete("/questions/:id", authMiddleware, staffMiddleware, deleteQuestion);
 
 // Data routes
 router.get("/quizzes", authMiddleware, getAllQuizzes);
