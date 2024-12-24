@@ -6,6 +6,7 @@ const User = require("../models/User");
 
 // ✅
 exports.createQuiz = async (req, res) => {
+  console.log("servercreate")
   try {
     console.dir(req.body, { depth: null }); 
     const { title, description, timer, instructions, maxAttempts,year,department } = req.body;

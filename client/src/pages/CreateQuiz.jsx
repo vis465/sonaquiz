@@ -30,6 +30,7 @@ const CreateQuiz = () => {
     console.log("datasentfromFE",data)
     setLoading(true);
     try {
+      
         // Ensure instructions are not empty
         data.instructions = data.instructions || "Attempt all the questions with caution. Once you submit, you cannot go back.";
 

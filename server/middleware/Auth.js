@@ -27,8 +27,21 @@ const adminMiddleware = (req, res, next) => {
   }
   next();
 };
-
+const trainerMiddleware = (req, res, next) => {
+  if (req.user.role !== "trainer") {
+    return res.status(403).send({ error: "Access denied." });
+  }
+  next();
+};
+const staffMiddleware =(req,res,next)=>
+{
+  if (req.user.role === "user") {
+    return res.status(403).send({ error: "Access denied." });
+  }
+  next();}
 module.exports = {
   authMiddleware,
   adminMiddleware,
+  trainerMiddleware,
+  staffMiddleware,
 };

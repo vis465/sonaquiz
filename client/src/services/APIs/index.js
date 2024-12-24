@@ -13,7 +13,7 @@ export const analyticsendpoints ={
 }
 
 export const quizEndpoints = {
-  CREATE_QUIZ: `${BASE_URL}/quizzes`,
+  CREATE_QUIZ: `${BASE_URL}/createquizzes`,
   UPDATE_QUIZ: `${BASE_URL}/quizzes`,
   DELETE_QUIZ: `${BASE_URL}/quizzes`,
   DELETE_ATTEMPT:`${BASE_URL}/attempt/delete`,

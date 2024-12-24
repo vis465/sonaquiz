@@ -61,7 +61,7 @@ const Navbar = () => {
                         >
                             Profile
                         </NavLink>
-                        {user.role === 'admin' ? (
+                        {user.role === 'admin' || 'trainer' ? (
                             <>
                                 <NavLink
                                     to="/dashboard/create-quiz"
@@ -153,7 +153,7 @@ const Navbar = () => {
                         >
                             Profile
                         </NavLink>
-                        {user.role === 'admin' ? (
+                        {user.role === 'admin'||'trainer' ? (
                             <>
                                 <NavLink
                                     to="/dashboard/create-quiz"
