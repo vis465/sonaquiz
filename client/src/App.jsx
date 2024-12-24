@@ -15,6 +15,7 @@ import History from "./pages/History"
 import buildingimg from './components/nirf-ranking-2024.png'
 import BulkQuestionUpload from "./pages/BulkQuestionUpload"
 import UserManagement from "./pages/UserManagement"
+import UserSearchAndAnalytics from "./pages/UserSearchAndAnalytics"
 function App() {
 
   const { user } = useSelector(state => state.auth)
@@ -37,6 +38,7 @@ function App() {
             <Route path="create-quiz" element={<LoggedInRoutes><DashboardLayout><CreateQuiz /></DashboardLayout ></LoggedInRoutes>} />
             <Route path="bulkupload" element={<LoggedInRoutes><DashboardLayout><BulkQuestionUpload /></DashboardLayout ></LoggedInRoutes>} />
             <Route path="usermanagemnt" element={<LoggedInRoutes><DashboardLayout><UserManagement /></DashboardLayout ></LoggedInRoutes>} />
+            <Route path="userlookup" element={<LoggedInRoutes><DashboardLayout><UserSearchAndAnalytics/></DashboardLayout ></LoggedInRoutes>} />
             <Route path="create-quiz/:id" element={<LoggedInRoutes><DashboardLayout><CreateQuestions /></DashboardLayout ></LoggedInRoutes>} />
             <Route path="quizes" element={<LoggedInRoutes><DashboardLayout><AdminQuizes /></DashboardLayout></LoggedInRoutes>} />
             <Route path="edit-quiz/:id" element={<LoggedInRoutes><DashboardLayout><CreateQuiz /></DashboardLayout></LoggedInRoutes>} />

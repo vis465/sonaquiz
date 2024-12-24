@@ -42,6 +42,7 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     attemptedQuizes: [
+      
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Quiz",

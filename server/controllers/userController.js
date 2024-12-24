@@ -1,8 +1,10 @@
 const jwt = require("jsonwebtoken");
 const { ObjectId } = require('mongodb');
-
+const Attempt=require("../models/Attempt")
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const { attemptQuiz } = require("./quizController");
+const Quiz = require("../models/Quiz");
 
 // ✅
 exports.register = async (req, res) => {
@@ -199,40 +201,49 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
-// Update user details
-exports.updateUser = async (req, res) => {
-  const { userId } = req.params;
-  const { username, email, role, year, dept, class: userClass } = req.body;
-
+exports.searchUser = async (req, res) => {
   try {
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(400).json({
-        success: false,
-        error: "User not found",
-      });
+    const { username } = req.body;
+    
+    if (!username) {
+      return res.status(400).json({ success: false, error: "Username is required" });
     }
 
-    user.username = username || user.username;
-    user.email = email || user.email;
-    user.role = role || user.role;
-    user.year = year || user.year;
-    user.dept = dept || user.dept;
-    user.class = userClass || user.class;
+    // Find user by username
+    const user = await User.findOne({ email:username });
+    
+    if (!user) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
 
-    await user.save();
+    // Fetch the user's attempted quizzes and corresponding scores
+    const attempts = await Attempt.find({ userId: user._id })
+      .populate('quizId')  // Populate quiz details (name, etc.)
+      .exec();
+    
+    // Prepare the attempted quizzes data
+    const attemptedQuizzes = attempts.map((attempt) => ({
+      
+      quizTitle: attempt.quizId?.title,  // Assuming 'title' is a field in the Quiz model
+      score: attempt.score,
+      attemptedAt: attempt.attemptedAt, // Include timestamp if needed
+    }));
 
     return res.status(200).json({
       success: true,
-      message: "User updated successfully",
-      data: user,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        department: user.dept,
+        year: user.year,
+        attemptedQuizzes, // Include quiz details with score
+      },
     });
   } catch (error) {
-    console.log("Error updating user:", error);
-    return res.status(500).json({
-      success: false,
-      error: "Internal server error",
-    });
+    console.error("Error searching user:", error);
+    return res.status(500).json({ success: false, error: "Internal server error" });
   }
 };
+

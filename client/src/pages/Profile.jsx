@@ -26,9 +26,12 @@ const Profile = () => {
           <Button onClick={() => navigate('/')} className='w-max flex gap-3 items-center py-2'>
             <FaHome /> Return to Home
           </Button>
+          <Button onClick={() => navigate('/dashboard/userlookup')} className='w-max flex gap-3 items-centerpy-2 mt-5' > <FaUserAlt />User Lookup</Button>
           {user.role==="admin"?(
-            
+            <div>
             <Button onClick={() => navigate('/dashboard/usermanagemnt')} className='w-max flex gap-3 items-centerpy-2 mt-5' > <FaUserAlt />User Management</Button>
+           
+            </div>
           ):
           null}
       </div>
