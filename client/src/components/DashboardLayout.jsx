@@ -23,7 +23,7 @@ const DashboardLayout = ({ children }) => {
                         Profile
                     </NavLink>
                     {
-                        user.role === "admin" || 'trainer' ? <>
+                        user.role === "admin" || user.role=== "trainer" ? <>
                             <Link to={"/dashboard/create-quiz"} className={`hover:bg-slate-700 transition-all duration-300 px-3 py-1 rounded-full ${location.pathname.includes("create") && "bg-[#e0fbfc]"}`}>
                                 Create
                             </Link>

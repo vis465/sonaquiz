@@ -7,6 +7,7 @@ import { setEdit, setQuiz } from '../../../slices/QuizSlice';
 import { useNavigate } from 'react-router-dom';
 
 const QuizCard = ({ quiz, handleDeleteQuiz }) => {
+    console.log(quiz)
 
     const [showDetails, setShowDetails] = useState(false);
     const dispatch = useDispatch();

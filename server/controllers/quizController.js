@@ -337,17 +337,34 @@ exports.getAdminQuizes = async (req, res) => {
 exports.getQuizAttempts = async (req, res) => {
   try {
     const quizId = req.params.id;
-    const attempts = await Attempt.find({ quizId }).populate(
-      "userId score",
-      "username"
+
+    // Fetch attempts with populated user details
+    const attempts = await Attempt.find({ quizId }).populate("userId", "username");
+    const quizDetails = await Quiz.findById(quizId);
+    
+    // Prepare a response with user details and scores for each attempt
+    const totalusers = await Promise.all(
+      attempts.map(async (attempt) => {
+        const user = await User.findById(attempt.userId._id);
+        return {
+          username: user.username,
+          userId:attempt.userId._id,
+          year: user.year,
+          attemptid:attempt._id,
+          department: user.dept,
+          class: user.class, // Include class if available
+          score: attempt.score, // Score for this specific attempt
+          attemptDate: attempt.createdAt, // Optional: Include attempt date
+        };
+      })
     );
-    // console.log(attempts);
-    const quizname = await Quiz.find({ _id: quizId }).select("title");
-    attempts.push(quizname[0].title);
-    // console.log(attempts);
+
+    // Send the final response
     return res.status(200).json({
       success: true,
-      data: attempts,
+      quizTitle: quizDetails.title,
+      createdAt: quizDetails.createdAt,
+      attempts: totalusers, // Rename for clarity
     });
   } catch (e) {
     console.error("ERROR FETCHING QUIZ ATTEMPTS:", e.message);
@@ -357,6 +374,8 @@ exports.getQuizAttempts = async (req, res) => {
     });
   }
 };
+
+
 // Make sure to import your Quiz model
 
 exports.Attemptedcnt = async (req, res) => {
@@ -398,7 +417,7 @@ exports.Attemptedcnt = async (req, res) => {
 };
 
 exports.Attemptdelete = async (req, res) => {
-  console.log("deletion of attempt", req.body.attemptID);
+  console.log("deletion of attempt", req.body);
   const { attemptID, userId, quizID } = req.body;
   
   if (!attemptID || !userId) {

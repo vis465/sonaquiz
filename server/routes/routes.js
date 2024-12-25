@@ -38,12 +38,12 @@ router.post('/searchUser',authMiddleware,searchUser)
 
 
 router.get("/admin-quizzes", authMiddleware, staffMiddleware, getAdminQuizes);
-router.get("/attempts/:id", authMiddleware, trainerMiddleware, getQuizAttempts);
+router.get("/attempts/:id", authMiddleware, staffMiddleware, getQuizAttempts);
 router.post("/createquizzes", authMiddleware,  staffMiddleware, createQuiz);
-router.put("/quizzes/:id", authMiddleware, trainerMiddleware, updateQuiz);
-router.delete("/quizzes/:id", authMiddleware, trainerMiddleware, deleteQuiz);
+router.put("/quizzes/:id", authMiddleware, updateQuiz);
+router.delete("/quizzes/:id", authMiddleware, staffMiddleware, deleteQuiz);
 router.post("/quizzess/attempted", authMiddleware,Attemptedcnt); // Correct route for attempted quiz
-router.post("/attempt/delete", authMiddleware,Attemptdelete); // Correct route for attempted quiz
+router.post("/attempt/delete", authMiddleware,staffMiddleware,Attemptdelete); // Correct route for attempted quiz
 
 // Question routes
 router.get("/questions/:id", authMiddleware, getQuizQuestions);
