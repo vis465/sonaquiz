@@ -3,7 +3,8 @@ import { useSelector } from "react-redux";
 import { apiConnector } from "../services/apiConnector";
 import { analyticsendpoints } from "../services/APIs";
 import toast from "react-hot-toast";
-import { CSVLink } from "react-csv";
+import Papa from 'papaparse'; // Importing PapaParse
+
 
 const UserSearchAndAnalytics = () => {
   const { token } = useSelector((state) => state.auth);
@@ -16,7 +17,7 @@ const UserSearchAndAnalytics = () => {
       toast.error("Please enter a username.");
       return;
     }
-    const payload={
+    const payload = {
       "username": keyword.trim()
     }
     setLoading(true);
@@ -29,8 +30,9 @@ const UserSearchAndAnalytics = () => {
           Authorization: `Bearer ${token}`,
         }
       );
-      
+
       setUserDetails(response.data.user);
+      // console.log(userDetails)
     } catch (error) {
       toast.error("Failed to fetch user details.");
       setUserDetails(null);
@@ -39,32 +41,52 @@ const UserSearchAndAnalytics = () => {
   };
 
   const downloadData = () => {
-    console.log("pressed")
+    console.log("pressed");
+
+    // Check if userDetails are available
     if (!userDetails) {
       toast.error("No data to download.");
       return;
     }
-    const data={
-      Username: userDetails.username,
-      Email: userDetails.email,
-      Role: userDetails.role,
-      Department: userDetails.department,
-      Year: userDetails.year,
-      Quizzes: userDetails.attemptedQuizzes?.map(
-        (quiz) => `${quiz.quizTitle} - ${quiz.score}`
-      ).join(", "),
+
+    // Prepare the data for CSV
+    const data = userDetails.attemptedQuizzes?.map(quiz => ({
+      Quiz: quiz.quizTitle,
+      Score: quiz.score,
+    })) || [];
+
+    // Check if there are any quizzes
+    if (data.length === 0) {
+      toast.error("No quizzes data available.");
+      return;
     }
-    
-    const quizscoredata=data.Quizzes
-    const quizscore=quizscoredata[quizscoredata.length-1]
-    console.log(quizscore)
-    // return [
-    //   ,
-    // ];
+
+    // Convert the data to CSV using PapaParse
+    const csv = Papa.unparse(data);
+
+    // Trigger the download with username as the file name
+    downloadCSV(csv, `${userDetails.username}_data.csv`);
   };
 
+  const downloadCSV = (csvContent, filename) => {
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+
+    if (link.download !== undefined) {
+      // Create a download link and trigger it
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+
   return (
-    <div className="search-container p-6 bg-gray-900 text-white rounded-lg shadow-lg">
+    <div className="search-container p-6 bg-gray-900 text-white rounded-lg shadow-lg text-xl">
       <h2 className="text-2xl text-center text-blue-500 font-bold mb-6">
         Search User and View Analytics
       </h2>
@@ -91,7 +113,7 @@ const UserSearchAndAnalytics = () => {
 
       {/* User Details */}
       {userDetails && (
-        <div className="user-details mt-6">
+        <div className="user-details mt-6 text-xl">
           <div className="analytics-card bg-gray-800 p-6 rounded-lg shadow-md mb-6">
             <h3 className="text-xl font-semibold text-blue-400 mb-3">
               User Details
@@ -125,14 +147,15 @@ const UserSearchAndAnalytics = () => {
           </div>
 
           {/* Download CSV */}
-          {/* <CSVLink
-            data={downloadData()}
-            filename={`${userDetails.username}_details.csv`}
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
+          <button
+            onClick={downloadData}
+            className="text-white px-4 py-2 rounded-md bg-green-600 hover:bg-green-700 transition-all duration-300"
           >
             Download CSV
-          </CSVLink> */}
-          {/* <button onClick={downloadData}>clickme</button> */}
+          </button>
+
+
+
         </div>
       )}
 
