@@ -24,7 +24,7 @@ function App() {
 <div 
   className="bg-cover bg-center text-black min-h-screen"
   style={{ backgroundImage: `url(${buildingimg})` }}
->    <div className="w-full px-5 sm:px-3 mx-auto min-h-screen">
+>    <div className="w-full px-5 sm:px-3 mx-auto min-h-screen min-w-screen">
         <Routes>
           <Route path="/" element={<LoggedInRoutes><Home /></LoggedInRoutes>} />
           <Route path="/quiz/:id" element={<LoggedInRoutes><AttemptQuiz /></LoggedInRoutes>} />
