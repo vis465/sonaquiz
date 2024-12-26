@@ -39,6 +39,10 @@ const quizSchema = new mongoose.Schema({
         type: [Number], // An array of numbers
         default: []     // Default should be an empty array
     },
+    endtime :{
+      type: Date,
+        
+    },
     department: {
         type: Array,
         

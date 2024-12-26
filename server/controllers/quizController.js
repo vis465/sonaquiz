@@ -9,7 +9,7 @@ exports.createQuiz = async (req, res) => {
   console.log("servercreate")
   try {
     console.dir(req.body, { depth: null }); 
-    const { title, description, timer, instructions, maxAttempts,year,department } = req.body;
+    const { title, description, timer, instructions, maxAttempts,year,department,endtime } = req.body;
     const user = req.user;
     console.log(year,department);
 
@@ -28,7 +28,8 @@ exports.createQuiz = async (req, res) => {
       maxAttempts: maxAttempts,
       createdBy: user.id,
       year:year,
-      department:department
+      department:department,
+      endtime:endtime,
     });
 
     return res.status(201).json({
@@ -146,7 +147,7 @@ exports.getAllQuizzess = async (req, res) => {
       
       const userAttempts = quiz.attemptCounts.get(userId) || 0  ;
       
-      return ((userAttempts < quiz.maxAttempts)&& quiz.year.includes(useryear) && quiz.department.includes(userdept));
+      return ((userAttempts < quiz.maxAttempts)&& quiz.year.includes(useryear) && quiz.department.includes(userdept)&&Date.now() < quiz.endtime);
     });
     // console.log(filteredQuizzes);
     return res.status(200).json({

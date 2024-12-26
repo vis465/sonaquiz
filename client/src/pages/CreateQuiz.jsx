@@ -68,6 +68,7 @@ const CreateQuiz = () => {
       setValue("attempts", quiz.maxAttempts)
       setValue("year",quiz.year)
       setValue("departmet",quiz.department)
+      setValue("endtime",quiz.endtime)
       
     }
 
@@ -184,6 +185,18 @@ const CreateQuiz = () => {
               max={60}
               className="w-full px-3 py-2 rounded bg-gray-700 text-white outline-none"
               {...register("timer", { required: "Timer is required" })}
+            />
+            {errors.timer && <RequiredError>{errors.timer.message}</RequiredError>}
+          </div>
+          <div className="mb-4">
+            <label htmlFor="endtime" className="block text-white mb-1">End time</label>
+            <input
+              type="datetime-local"
+              id="endtime"
+              placeholder="Enter end time"
+          
+              className="w-full px-3 py-2 rounded bg-gray-700 text-white outline-none"
+              {...register("endtime", { required: "end time is required" })}
             />
             {errors.timer && <RequiredError>{errors.timer.message}</RequiredError>}
           </div>
