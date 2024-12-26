@@ -468,3 +468,32 @@ exports.Attemptdelete = async (req, res) => {
     res.status(500).json({ error: "Failed to delete the attempt" });
   }
 };
+
+exports.departmentreport = async(req,res)=>{
+  try{
+    const {userId,quizId}=req.body
+    const quiz=await Quiz.findById(quizId)
+    const user=await User.findById(userId)
+    const attempts = await Attempt.find({ userId }).populate(
+      "quizId",
+      "title description"
+    );
+    
+    const scores=[]
+    const departmentreport=[]
+    
+    attempts.forEach(attempt => {
+      scores.push(attempt.score)
+    });
+    const maxscore=Math.max(...scores)
+    departmentreport.push({quizname:quiz.title,username:user.username,score:maxscore,department:user.dept,class:user.class})
+    console.log(departmentreport)
+    
+
+    res.status(200).json({message:"data fetch success",data:departmentreport})
+  }
+  catch(error){
+    console.error(error)
+    res.status(500).json({error:"failed to get report"})
+  }
+}
