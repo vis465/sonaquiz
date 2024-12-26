@@ -5,13 +5,22 @@ const Attempt = require("../models/Attempt");
 const User = require("../models/User");
 
 // ✅
+// Helper function to convert UTC to IST
+const convertToIST = (date) => {
+  return new Date(date.getTime() + (5.5 * 60 * 60 * 1000));
+};
+
 exports.createQuiz = async (req, res) => {
   console.log("servercreate")
   try {
-    console.dir(req.body, { depth: null }); 
-    const { title, description, timer, instructions, maxAttempts,year,department,endtime } = req.body;
+    
+    const { title, description, timer, instructions, maxAttempts, year, department, endtime } = req.body;
+    
+    // Convert endtime to IST before saving
+    const istEndTime = endtime ? convertToIST(new Date(endtime)) : null;
+    
     const user = req.user;
-    console.log(year,department);
+    console.log(year, department);
 
     if (!title || !description || !timer) {
       return res.status(400).json({
@@ -27,9 +36,9 @@ exports.createQuiz = async (req, res) => {
       instructions,
       maxAttempts: maxAttempts,
       createdBy: user.id,
-      year:year,
-      department:department,
-      endtime:endtime,
+      year: year,
+      department: department,
+      endtime: istEndTime,
     });
 
     return res.status(201).json({
@@ -45,11 +54,11 @@ exports.createQuiz = async (req, res) => {
     });
   }
 };
+// Helper function to convert UTC to IST
 
-// ✅
 exports.updateQuiz = async (req, res) => {
   try {
-    const { title, description, timer, instructions, maxAttempts } = req.body;
+    const { title, description, timer, instructions, maxAttempts, year, department, endtime } = req.body;
     const quiz = await Quiz.findById(req.params.id);
     if (!quiz) {
       return res
@@ -57,12 +66,19 @@ exports.updateQuiz = async (req, res) => {
         .json({ success: false, message: "Quiz not found" });
     }
 
+    // Convert endtime to IST before saving
+    const istEndTime = endtime ? convertToIST(new Date(endtime)) : null;
+
     quiz.title = title;
     quiz.description = description;
     quiz.timer = timer;
     quiz.instructions = instructions;
     quiz.maxAttempts = maxAttempts;
-
+    quiz.year = year;
+    quiz.department = department;
+    quiz.endtime = istEndTime;
+    
+    console.log("wedit call - IST time:", quiz.endtime)
     await quiz.save();
 
     return res.status(200).json({
@@ -146,8 +162,9 @@ exports.getAllQuizzess = async (req, res) => {
     const filteredQuizzes = quizzes.filter((quiz) => {
       
       const userAttempts = quiz.attemptCounts.get(userId) || 0  ;
+      console.log(quiz.year , quiz.department)
       
-      return ((userAttempts < quiz.maxAttempts)&& quiz.year.includes(useryear) && quiz.department.includes(userdept)&&Date.now() < quiz.endtime);
+      return ((userAttempts < quiz.maxAttempts)&& quiz.year.includes(useryear) && quiz.department.includes(userdept)&& Date.now() < quiz.endtime);
     });
     // console.log(filteredQuizzes);
     return res.status(200).json({

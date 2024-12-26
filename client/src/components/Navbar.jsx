@@ -123,7 +123,7 @@ const Navbar = () => {
                     >
                         <FaHome /> Home
                     </NavLink>
-                    <NavLink
+                    {/* <NavLink
                         to="/drives"
                         onClick={toggleMenu}
                         className={({ isActive }) =>
@@ -131,7 +131,7 @@ const Navbar = () => {
                         }
                     >
                         <FaBriefcase /> Drives
-                    </NavLink>
+                    </NavLink> */}
                     <NavLink
                         to="/dashboard"
                         onClick={toggleMenu}

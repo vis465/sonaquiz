@@ -27,51 +27,77 @@ const CreateQuiz = () => {
   const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm();
   const year = [1, 2, 3, 4]
   const submitHandler = async (data) => {
-    console.log("datasentfromFE",data)
+    console.log("datasentfromFE", data);
     setLoading(true);
     try {
-      
-        // Ensure instructions are not empty
-        data.instructions = data.instructions || "Attempt all the questions with caution. Once you submit, you cannot go back.";
-
-        if (edit) {
-            const response = await updateQuiz(data, token, quizId);
-            if (response) {
-                reset(); // Reset form on successful update
-                toast.success("Quiz Updated Successfully");
-                navigate(`/dashboard/create-quiz/${response._id}`);
-            }
-        } else {
-            const response = await createQuiz(data, token);
-            if (response) {
-                reset(); // Reset form on successful creation
-                dispatch(setQuiz(response));
-                toast.success("Quiz Created Successfully");
-                navigate(`/dashboard/create-quiz/${response._id}`);
-            }
+      // Set default instructions if empty
+      data.instructions =
+        data.instructions || "Attempt all the questions with caution. Once you submit, you cannot go back.";
+  
+      // Handle edit or create logic
+      if (edit) {
+        const response = await updateQuiz(data, token, quizId);
+        console.log("data", data.endtime);
+        console.log("quizid", quizId);
+        if (response) {
+          reset(); // Reset form after successful update
+          toast.success("Quiz Updated Successfully");
+          navigate(`/dashboard/create-quiz/${response._id}`);
         }
+      } else {
+        const response = await createQuiz(data, token);
+        if (response) {
+          reset(); // Reset form after successful creation
+          dispatch(setQuiz(response));
+          toast.success("Quiz Created Successfully");
+          navigate(`/dashboard/create-quiz/${response._id}`);
+        }
+      }
     } catch (error) {
-        console.error(error);
-        toast.error("An error occurred while processing the quiz.");
+      console.error(error);
+      toast.error("An error occurred while processing the quiz.");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
-
+  
   // Populate form fields when editing
   useEffect(() => {
     if (edit && quiz) {
+      // Set form values
       setValue("title", quiz.title || "");
       setValue("description", quiz.description || "");
       setValue("timer", quiz.timer || "");
-      setValue("instructions", quiz.instructions || "attempt all the questions with caution, once you submit question, you cannot come back ");
-      setValue("attempts", quiz.maxAttempts)
-      setValue("year",quiz.year)
-      setValue("departmet",quiz.department)
-      setValue("endtime",quiz.endtime)
-      
+      setValue("instructions", quiz.instructions || "");
+      setValue("maxAttempts", Number(quiz.maxAttempts) || 1);
+  
+      // Format and set the endtime
+      setValue(
+        "endtime",
+        quiz.endtime
+          ? new Date(quiz.endtime)
+              .toLocaleString("en-CA", { timeZone: "IST", hour12: false })
+              .replace(", ", "T")
+          : ""
+      );
+  
+      // Populate checkbox fields for year
+      if (quiz.year) {
+        year.forEach((yr) => {
+          const checkbox = document.querySelector(`input[value="${yr}"][name="year"]`);
+          if (checkbox) checkbox.checked = quiz.year.includes(yr);
+        });
+      }
+  
+      // Populate checkbox fields for department
+      if (quiz.department) {
+        departments.departments.forEach((dept) => {
+          const checkbox = document.querySelector(`input[value="${dept.abbreviation}"][name="department"]`);
+          if (checkbox) checkbox.checked = quiz.department.includes(dept.abbreviation);
+        });
+      }
     }
-
+  
     // Reset form when navigating to the create-quiz route
     if (location.pathname === "/dashboard/create-quiz" && edit) {
       dispatch(setEdit(false));
@@ -79,7 +105,8 @@ const CreateQuiz = () => {
       reset();
     }
   }, [edit, quiz, setValue, location.pathname, dispatch, reset]);
-
+  
+  
   return (
     <div className="min-h-[70vh] flex justify-center items-center flex-col gap-8">
       <h1 className="text-4xl font-bold text-center text-white">Create Quiz</h1>
