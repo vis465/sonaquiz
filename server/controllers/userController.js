@@ -5,7 +5,7 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const { attemptQuiz } = require("./quizController");
 const Quiz = require("../models/Quiz");
-
+const usercreationmail = require("../mailers/usercraetionmail");
 // ✅
 exports.register = async (req, res) => {
   try {
@@ -52,7 +52,9 @@ exports.register = async (req, res) => {
       dept,
       class: userClass,
     });
-
+    usercreationmail(user)
+    
+    console.log(user)
     return res
       .status(200)
       .json({ success: true, message: "User created successfully" });

@@ -3,7 +3,7 @@ const Quiz = require("../models/Quiz");
 const Question = require("../models/Question");
 const Attempt = require("../models/Attempt");
 const User = require("../models/User");
-
+const newquizaltertr=require("../mailers/newquizaltertr")
 // ✅
 // Helper function to convert UTC to IST
 const convertToIST = (date) => {
@@ -27,8 +27,16 @@ exports.createQuiz = async (req, res) => {
         success: false,
         error: "Please provide all the required fields",
       });
+      
     }
 
+    const targetusers = await User.find({
+      year: { $in: year },
+      dept: { $in: department }
+    });
+    
+
+    
     const quiz = await Quiz.create({
       title,
       description,
@@ -40,7 +48,9 @@ exports.createQuiz = async (req, res) => {
       department: department,
       endtime: istEndTime,
     });
-
+    targetusers.forEach(user=>{
+      quizcreationalert(quiz,targetusers.email)
+    })
     return res.status(201).json({
       success: true,
       message: "Quiz created successfully",

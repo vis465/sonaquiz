@@ -19,6 +19,7 @@ const SignUp = () => {
   const submitHandler = async (data) => {
     setLoading(true);
     const toastId = toast.loading("Loading...");
+    console.log(data)
     try {
       const response = await signUp(data);
       if (response) {
@@ -39,7 +40,7 @@ const SignUp = () => {
   return (
     <div className='min-h-screen flex items-center justify-center'>
       <section>
-        <h1 className='text-center pb-5 text-4xl font-mono underline'>Quizsona</h1>
+        <h1 className='text-center pb-5 text-4xl font-mono underline'>Quizzy</h1>
         <form
           onSubmit={handleSubmit(submitHandler)}
           className='flex flex-col gap-y-3 max-w-[480px] shadow-lg shadow-blue-300 border p-10 rounded-lg text-xl text-white'
@@ -72,7 +73,7 @@ const SignUp = () => {
             <label htmlFor="email">Email</label>
             <input
               id='email'
-              placeholder='Email'
+              placeholder='Enter your college Email'
               className='py-1 text-base placeholder:text-black text-slate-950 rounded-lg px-3 outline-none bg-slate-300 xl:text-xl'
               type="email"
               {...register("email", { required: "Email is required" })}

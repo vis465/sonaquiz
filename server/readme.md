@@ -21,4 +21,4 @@ This project is a simple quiz application with user authentication using the MER
 
 ## Additional Notes
 - **Token-Based Authentication**: Implement JWT (JSON Web Token) authentication to secure access to protected resources (quizzes). Middleware function is a must.
-- **Responsive Design**: Make all pages responsive."# Quizsona" 
+- **Responsive Design**: Make all pages responsive."# Quizzy" 
