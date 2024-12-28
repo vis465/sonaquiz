@@ -406,52 +406,78 @@ exports.getQuizAttempts = async (req, res) => {
 
 exports.getAllQuizAttempts = async (req, res) => {
   try {
-    // Retrieve filters from query parameters
     const { department, year } = req.query;
 
-    // Base query object
-    const query = {};
-    if (department) query["userId.dept"] = department;
-    if (year) query["userId.year"] = year;
+    // Fetch all attempts with populated quiz and user details
+    const attempts = await Attempt.find()
+      .populate("quizId", "title department year createdAt") // Populating quizId with title, department, year, and createdAt
+      .populate("userId", "username dept year class"); // Populating userId with username, dept, year, and class
 
-    // Fetch attempts with optional filters and populate user and quiz details
-    const attempts = await Attempt.find(query)
-      .populate("userId", "username year dept class")
-      .populate("quizId", "title createdAt");
+    // Debugging: Log all attempts
+    console.log("Fetched Attempts:", attempts);
 
-    // Group results by quizId
-    const groupedAttempts = attempts.reduce((acc, attempt) => {
-      const quizId = attempt.quizId._id.toString();
-      if (!acc[quizId]) {
-        acc[quizId] = {
-          quizId,
-          quizTitle: attempt.quizId.title,
-          quizCreatedAt: attempt.quizId.createdAt,
+    // Filter attempts by department and/or year if provided
+    const filteredAttempts = attempts.filter((attempt) => {
+      const user = attempt.userId; // Populated user
+      const quiz = attempt.quizId; // Populated quiz
+
+      // Ensure user and quiz exist
+      if (!user || !quiz) return false;
+
+      // Debug: Log filtering fields
+      console.log("Filtering User Dept:", user.dept, quiz.department.includes(department));
+      console.log("Quiz Dept:", quiz.department);
+      console.log("Filtering User Year:", user.year, quiz.year.includes(Number(year)));
+      console.log("Quiz Year:", quiz.year);
+
+      // Check if department matches (use includes to match array)
+      const matchesDepartment = department
+        ? Array.isArray(quiz.department) && quiz.department.includes(department)
+        : true;
+
+      // Check if year matches (use includes to match array)
+      const matchesYear = year
+        ? Array.isArray(quiz.year) && quiz.year.includes(Number(year)) // Ensure year is matched as a number
+        : true;
+
+      // Apply filter based on department and/or year
+      return matchesDepartment && matchesYear;
+    });
+
+    // Debugging: Log filtered attempts
+    console.log("Filtered Attempts:", filteredAttempts);
+
+    // Group attempts by quizId
+    const groupedAttempts = {};
+    filteredAttempts.forEach((attempt) => {
+      const quiz = attempt.quizId; // Populated quiz
+      const quizId = quiz._id.toString(); // Convert ObjectId to string
+
+      if (!groupedAttempts[quizId]) {
+        groupedAttempts[quizId] = {
+          quizTitle: quiz.title || "Unknown Quiz",
+          createdAt: quiz.createdAt,
           attempts: [],
         };
       }
 
-      acc[quizId].attempts.push({
-        username: attempt.userId.username,
-        userId: attempt.userId._id,
-        year: attempt.userId.year,
-        department: attempt.userId.dept,
-        class: attempt.userId.class,
-        attemptId: attempt._id,
+      groupedAttempts[quizId].attempts.push({
+        username: attempt.userId?.username || "Unknown User",
+        userId: attempt.userId?._id || "Unknown",
+        year: attempt.userId?.year || "Unknown",
+        department: attempt.userId?.dept || "Unknown",
+        class: attempt.userId?.class || "Not Specified",
         score: attempt.score,
         attemptDate: attempt.createdAt,
       });
+    });
 
-      return acc;
-    }, {});
+    // Convert grouped attempts to an array
+    const result = Object.values(groupedAttempts);
 
-    // Convert grouped results object into an array
-    const groupedResults = Object.values(groupedAttempts);
-
-    // Send the final response
     return res.status(200).json({
       success: true,
-      quizzes: groupedResults, // Grouped attempts by quiz
+      data: result,
     });
   } catch (e) {
     console.error("ERROR FETCHING GROUPED QUIZ ATTEMPTS:", e.message);
@@ -461,6 +487,7 @@ exports.getAllQuizAttempts = async (req, res) => {
     });
   }
 };
+
 
 
 
