@@ -122,7 +122,7 @@ exports.login = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log("ERROR WHILE LOGGIN IN THE USER : ", e);
+    console.log("ERROR WHILE LOGGIN IN THE USER : ", error);
     return res
       .status(500)
       .json({ success: false, error: "Internal server error" });

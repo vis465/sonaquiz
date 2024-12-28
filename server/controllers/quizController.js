@@ -48,9 +48,9 @@ exports.createQuiz = async (req, res) => {
       department: department,
       endtime: istEndTime,
     });
-    targetusers.forEach(user=>{
-      quizcreationalert(quiz,targetusers.email)
-    })
+    // targetusers.forEach(user=>{
+    //   quizcreationalert(quiz,targetusers.email)
+    // })
     return res.status(201).json({
       success: true,
       message: "Quiz created successfully",
@@ -402,6 +402,66 @@ exports.getQuizAttempts = async (req, res) => {
     });
   }
 };
+
+
+exports.getAllQuizAttempts = async (req, res) => {
+  try {
+    // Retrieve filters from query parameters
+    const { department, year } = req.query;
+
+    // Base query object
+    const query = {};
+    if (department) query["userId.dept"] = department;
+    if (year) query["userId.year"] = year;
+
+    // Fetch attempts with optional filters and populate user and quiz details
+    const attempts = await Attempt.find(query)
+      .populate("userId", "username year dept class")
+      .populate("quizId", "title createdAt");
+
+    // Group results by quizId
+    const groupedAttempts = attempts.reduce((acc, attempt) => {
+      const quizId = attempt.quizId._id.toString();
+      if (!acc[quizId]) {
+        acc[quizId] = {
+          quizId,
+          quizTitle: attempt.quizId.title,
+          quizCreatedAt: attempt.quizId.createdAt,
+          attempts: [],
+        };
+      }
+
+      acc[quizId].attempts.push({
+        username: attempt.userId.username,
+        userId: attempt.userId._id,
+        year: attempt.userId.year,
+        department: attempt.userId.dept,
+        class: attempt.userId.class,
+        attemptId: attempt._id,
+        score: attempt.score,
+        attemptDate: attempt.createdAt,
+      });
+
+      return acc;
+    }, {});
+
+    // Convert grouped results object into an array
+    const groupedResults = Object.values(groupedAttempts);
+
+    // Send the final response
+    return res.status(200).json({
+      success: true,
+      quizzes: groupedResults, // Grouped attempts by quiz
+    });
+  } catch (e) {
+    console.error("ERROR FETCHING GROUPED QUIZ ATTEMPTS:", e.message);
+    return res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};
+
 
 
 // Make sure to import your Quiz model
