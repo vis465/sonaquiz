@@ -406,8 +406,17 @@ exports.getQuizAttempts = async (req, res) => {
 
 exports.getAllQuizAttempts = async (req, res) => {
   try {
-    const { department, year } = req.query;
-
+    const { usid } = req.query;
+    let userData=null;
+    let department=null;
+    let year1=null;
+    if (usid){
+      userData=await User.findById(usid);
+      const { dept , year } = userData;
+      department = dept;
+      year1=year
+    }
+    let year=year1;
     // Fetch all attempts with populated quiz and user details
     const attempts = await Attempt.find()
       .populate("quizId", "title department year createdAt") // Populating quizId with title, department, year, and createdAt
