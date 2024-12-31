@@ -93,4 +93,9 @@ router.post("/checkattemps", authMiddleware, (req, res) => {
   res.send("Check Attempts Route");
 });
 
+
+
+const {recievemessage}= require("../Bot/telegram")
+
+router.get("/recievemessage",recievemessage)
 module.exports = router;
