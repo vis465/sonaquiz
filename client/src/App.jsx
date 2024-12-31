@@ -3,6 +3,7 @@ import Home from "./pages/Home"
 import SignUp from "./pages/SignUp"
 import LogIn from "./pages/LogIn"
 import LoggedInRoutes from "./components/LoggedInRoutes"
+import Adminroutes from "./components/Adminroutes"
 import Profile from "./pages/Profile"
 import CreateQuiz from "./pages/CreateQuiz"
 import DashboardLayout from "./components/DashboardLayout"
@@ -17,6 +18,8 @@ import BulkQuestionUpload from "./pages/BulkQuestionUpload"
 import UserManagement from "./pages/UserManagement"
 import UserSearchAndAnalytics from "./pages/UserSearchAndAnalytics"
 import Leaderboard from "./pages/Leaderboard"
+import ListManager from "./pages/ListManager"
+import ListDetails from "./pages/ListDetails"
 function App() {
 
   const { user } = useSelector(state => state.auth)
@@ -38,15 +41,18 @@ function App() {
           <Route path="/dashboard">
             <Route index element={<LoggedInRoutes><DashboardLayout><Profile /></DashboardLayout></LoggedInRoutes>} />
             <Route path="history" element={<LoggedInRoutes><DashboardLayout><History /></DashboardLayout ></LoggedInRoutes>} />
-            <Route path="create-quiz" element={<LoggedInRoutes><DashboardLayout><CreateQuiz /></DashboardLayout ></LoggedInRoutes>} />
-            <Route path="bulkupload" element={<LoggedInRoutes><DashboardLayout><BulkQuestionUpload /></DashboardLayout ></LoggedInRoutes>} />
-            <Route path="usermanagemnt" element={<LoggedInRoutes><DashboardLayout><UserManagement /></DashboardLayout ></LoggedInRoutes>} />
+            <Route path="create-quiz" element={<LoggedInRoutes>  <DashboardLayout><CreateQuiz /></DashboardLayout ></LoggedInRoutes>} />
+            <Route path="bulkupload" element={<LoggedInRoutes> <DashboardLayout><BulkQuestionUpload /></DashboardLayout ></LoggedInRoutes>} />
+            <Route path="usermanagemnt" element={<LoggedInRoutes><DashboardLayout><UserManagement /></DashboardLayout > </LoggedInRoutes>} />
             <Route path="userlookup" element={<LoggedInRoutes><DashboardLayout><UserSearchAndAnalytics/></DashboardLayout ></LoggedInRoutes>} />
             <Route path="create-quiz/:id" element={<LoggedInRoutes><DashboardLayout><CreateQuestions /></DashboardLayout ></LoggedInRoutes>} />
             <Route path="quizes" element={<LoggedInRoutes><DashboardLayout><AdminQuizes /></DashboardLayout></LoggedInRoutes>} />
             <Route path="edit-quiz/:id" element={<LoggedInRoutes><DashboardLayout><CreateQuiz /></DashboardLayout></LoggedInRoutes>} />
+            <Route path ="ListManager" element={<LoggedInRoutes><DashboardLayout><ListManager /></DashboardLayout></LoggedInRoutes>} />
           </Route>
-        </Routes>
+          <Route path="/lists" element={<ListManager />} />
+          <Route path="/listdetails/:listId" element={<ListDetails />} />
+          </Routes>
       </div>
     </div>
   )

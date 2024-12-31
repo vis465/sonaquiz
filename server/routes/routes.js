@@ -24,6 +24,14 @@ const {
   deleteQuestion,
   getQuizQuestions,
 } = require("../controllers/questionController");
+const {
+  createList,
+  addUserToList,
+  deleteUserFromList,
+  getAllLists,
+  getUsersOfList,
+  deleteList,
+} = require("../controllers/listcontrollers");
 
 const { login, register ,getUsersAndAnalytics,deleteUser,searchUser,edituserrole} = require("../controllers/userController");
 
@@ -52,6 +60,27 @@ router.get("/questions/:id", authMiddleware, getQuizQuestions);
 router.post("/createquestion", authMiddleware, staffMiddleware, createQuestion);
 router.put("/questions/:id", authMiddleware, staffMiddleware, updateQuestion);
 router.delete("/questions/:id", authMiddleware, staffMiddleware, deleteQuestion);
+
+
+// Create a new list
+router.post("/createlist", authMiddleware, staffMiddleware, createList);
+
+// Delete a list
+router.delete("/deletelist/:listid", authMiddleware, staffMiddleware, deleteList);
+
+// Add a user to a list
+router.post("/addusertolist", authMiddleware, staffMiddleware, addUserToList);
+
+// Delete a user from a list
+router.post("/deleteuserfromlist", authMiddleware, staffMiddleware, deleteUserFromList);
+
+// Get all lists with user metadata
+router.get("/getalllists", authMiddleware, staffMiddleware, getAllLists);
+
+// Get users of a specific list
+router.post("/getlistusers", authMiddleware, staffMiddleware, getUsersOfList);
+
+
 
 // Data routes
 router.get("/quizzes", authMiddleware, getAllQuizzes);

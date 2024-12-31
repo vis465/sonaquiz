@@ -1,4 +1,5 @@
 const { ObjectId } = require('mongodb');
+const Lists=require("../models/eligiblitylists")
 const Quiz = require("../models/Quiz");
 const Question = require("../models/Question");
 const Attempt = require("../models/Attempt");
@@ -173,10 +174,12 @@ exports.getAllQuizzess = async (req, res) => {
     
     // Filter quizzes based on the conditions
     const filteredQuizzes = quizzes.filter((quiz) => {
-      
       const userAttempts = quiz.attemptCounts.get(userId) || 0  ;
       console.log(quiz.year , quiz.department)
-      
+      // const isUserInQuizLists = Lists.some(
+      //   list => quiz.lists.includes(list._id) && list.users.includes(userId)
+      // );
+      // console.log("isUserInQuizLists",isUserInQuizLists);
       return ((userAttempts < quiz.maxAttempts)&& quiz.year.includes(useryear) && quiz.department.includes(userdept)&& Date.now() < quiz.endtime);
     });
     // console.log(filteredQuizzes);

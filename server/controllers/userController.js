@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const { ObjectId } = require('mongodb');
 const Attempt=require("../models/Attempt")
 const User = require("../models/User");
+const Eligiblitylist= require("../models/eligiblitylists")
 const bcrypt = require("bcrypt");
 const { attemptQuiz } = require("./quizController");
 const Quiz = require("../models/Quiz");

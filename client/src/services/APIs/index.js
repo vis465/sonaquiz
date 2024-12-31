@@ -12,6 +12,16 @@ export const analyticsendpoints ={
   
 }
 
+
+export const listEndpoints = {
+  CREATE_LIST: `${BASE_URL}/createlist`,
+  DELETE_LIST: `${BASE_URL}/deletelist`,
+  ADD_TO_LIST: `${BASE_URL}/addusertolist`,
+  REMOVE_FROM_LIST: `${BASE_URL}/deleteuserfromlist`,
+  GET_LISTS: `${BASE_URL}/getalllists`,
+  GET_USERS_FROM_LIST: `${BASE_URL}/getlistusers`,
+};
+
 export const quizEndpoints = {
   CREATE_QUIZ: `${BASE_URL}/createquizzes`,
   UPDATE_QUIZ: `${BASE_URL}/quizzes`,
