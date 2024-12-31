@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaBars, FaTimes, FaHome, FaBriefcase, FaTachometerAlt } from 'react-icons/fa';
+import { FaBars, FaTimes, FaHome, FaChartBar, FaTachometerAlt } from 'react-icons/fa';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import Button from '../components/Button';
 import { logout } from '../services/operations/AuthAPIs';
@@ -36,14 +36,14 @@ const Navbar = () => {
                     >
                         <FaHome /> Home
                     </NavLink>
-                    {/* <NavLink
-                        to="/drives"
+                    <NavLink
+                        to="/leaderboard"
                         className={({ isActive }) =>
                             `flex items-center gap-2 ${isActive ? 'text-green-600' : 'text-white hover:text-gray-200'}`
                         }
                     >
-                        <FaBriefcase /> Drives
-                    </NavLink> */}
+                        <FaChartBar /> Leaderboard
+                    </NavLink>
                     <NavLink
                         to="/dashboard"
                         className={({ isActive }) =>
@@ -123,15 +123,15 @@ const Navbar = () => {
                     >
                         <FaHome /> Home
                     </NavLink>
-                    {/* <NavLink
-                        to="/drives"
+                    <NavLink
+                        to="/Leaderboard"
                         onClick={toggleMenu}
                         className={({ isActive }) =>
                             `block py-2 px-5 flex items-center gap-2 ${isActive ? 'text-green-600' : 'text-white'}`
                         }
                     >
-                        <FaBriefcase /> Drives
-                    </NavLink> */}
+                        <FaChartBar /> Leaderboard
+                    </NavLink>
                     <NavLink
                         to="/dashboard"
                         onClick={toggleMenu}

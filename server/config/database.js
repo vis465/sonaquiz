@@ -2,7 +2,7 @@ const mongoose = require("mongoose")
 require("dotenv").config();
 
 exports.connectToDB = () => {
-    const uri = "mongodb+srv://adhi:1234@db.usshl9s.mongodb.net"; // Explicitly use IPv4 address
+    const uri = process.env.DB_URL// Explicitly use IPv4 address
     const dbName = 'testinggg';
     mongoose.connect(`${uri}/${dbName}`)
     .then(() => {
