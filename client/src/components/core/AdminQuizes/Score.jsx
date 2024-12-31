@@ -38,7 +38,6 @@ const Score = ({ quiz }) => {
             });
             toast.success(response.data.message);
 
-
             // Refresh the page after 2 seconds
             setTimeout(() => {
                 window.location.reload();

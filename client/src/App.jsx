@@ -16,6 +16,7 @@ import buildingimg from './components/nirf-ranking-2024.png'
 import BulkQuestionUpload from "./pages/BulkQuestionUpload"
 import UserManagement from "./pages/UserManagement"
 import UserSearchAndAnalytics from "./pages/UserSearchAndAnalytics"
+import Leaderboard from "./pages/Leaderboard"
 function App() {
 
   const { user } = useSelector(state => state.auth)
@@ -29,6 +30,8 @@ function App() {
           <Route path="/" element={<LoggedInRoutes><Home /></LoggedInRoutes>} />
           <Route path="/quiz/:id" element={<LoggedInRoutes><AttemptQuiz /></LoggedInRoutes>} />
           <Route path="/quiz-results" element={<LoggedInRoutes><QuizResult /></LoggedInRoutes>} />
+          <Route path="/leaderboard" element={<LoggedInRoutes><Leaderboard /></LoggedInRoutes>} />
+
           <Route path="/login" element={<LogIn />} />
         
           <Route path="/signup" element={<SignUp />} />
