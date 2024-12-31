@@ -1,6 +1,13 @@
 const mailbioler = require("./mailconfig")
 
 const quizcreationalert =(quiz,user)=>{
+	const officialendtome=quiz.endtime.toString()
+	console.log(user)
+	const quizendate=officialendtome.substr(0,10).split("-").reverse().join("-")
+	const quizendtime=officialendtome.substr(11,20).split(".")[0]
+	
+	const endtimeformat=quizendate+" till " + quizendtime
+	console.log(endtimeformat)
     const html=`<!DOCTYPE html>
 <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
 
@@ -109,7 +116,7 @@ const quizcreationalert =(quiz,user)=>{
 													<table class="heading_block block-1" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
 														<tr>
 															<td class="pad">
-																<h1 style="margin: 0; color: #7747FF; direction: ltr; font-family: Helvetica Neue, Helvetica, Arial, sans-serif; font-size: 38px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 45.6px;"><span class="tinyMce-placeholder" style="word-break: break-word;">Quizzy - New Quiz Alert</span></h1>
+																<h1 style="margin: 0; color: black; direction: ltr; font-family: Helvetica Neue, Helvetica, Arial, sans-serif; font-size: 38px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 45.6px;"><span class="tinyMce-placeholder" style="word-break: break-word;">Quizzy - New Quiz Alert</span></h1>
 															</td>
 														</tr>
 													</table>
@@ -158,7 +165,7 @@ const quizcreationalert =(quiz,user)=>{
 													<table class="heading_block block-5" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
 														<tr>
 															<td class="pad">
-																<h1 style="margin: 0; color: #7747FF; direction: ltr; font-family: Helvetica Neue, Helvetica, Arial, sans-serif; font-size: 35px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 42px;"><span class="tinyMce-placeholder" style="word-break: break-word;">The quiz is due till : ${quiz.endtime}</span></h1>
+																<h1 style="margin: 0; color: black; direction: ltr; font-family: Helvetica Neue, Helvetica, Arial, sans-serif; font-size: 25px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 42px;"><span class="tinyMce-placeholder" style="word-break: break-word;">The quiz is due on : ${endtimeformat}</span></h1>
 															</td>
 														</tr>
 													</table>
@@ -201,19 +208,7 @@ const quizcreationalert =(quiz,user)=>{
 										<tbody>
 											<tr>
 												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
-													<table class="icons_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; text-align: center; line-height: 0;">
-														<tr>
-															<td class="pad" style="vertical-align: middle; color: #1e0e4b; font-family: 'Inter', sans-serif; font-size: 15px; padding-bottom: 5px; padding-top: 5px; text-align: center;"><!--[if vml]><table align="center" cellpadding="0" cellspacing="0" role="presentation" style="display:inline-block;padding-left:0px;padding-right:0px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;"><![endif]-->
-																<!--[if !vml]><!-->
-																<table class="icons-inner" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block; padding-left: 0px; padding-right: 0px;" cellpadding="0" cellspacing="0" role="presentation"><!--<![endif]-->
-																	<tr>
-																		<td style="vertical-align: middle; text-align: center; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 6px;"><a href="http://designedwithbeefree.com/" target="_blank" style="text-decoration: none;"><img class="icon" alt="Beefree Logo" src="https://d1oco4z2z1fhwp.cloudfront.net/assets/Beefree-logo.png" height="auto" width="34" align="center" style="display: block; height: auto; margin: 0 auto; border: 0;"></a></td>
-																		<td style="font-family: 'Inter', sans-serif; font-size: 15px; font-weight: undefined; color: #1e0e4b; vertical-align: middle; letter-spacing: undefined; text-align: center; line-height: normal;"><a href="http://designedwithbeefree.com/" target="_blank" style="color: #1e0e4b; text-decoration: none;">Designed with Beefree</a></td>
-																	</tr>
-																</table>
-															</td>
-														</tr>
-													</table>
+													
 												</td>
 											</tr>
 										</tbody>
@@ -229,9 +224,9 @@ const quizcreationalert =(quiz,user)=>{
 </body>
 
 </html>`
-    const subject = `Quiz Creation Alert ${quiz.title}`
+    const subject = `Quiz Creation Alert - ${quiz.title}`
     
-const maildelivry=mailbioler(user.email,html,subject)
-console.log(maildelivry)
+mailbioler(user,html,subject)
+
 }
 module.exports=quizcreationalert;

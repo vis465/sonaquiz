@@ -4,7 +4,9 @@ const Question = require("../models/Question");
 const Attempt = require("../models/Attempt");
 const User = require("../models/User");
 const newquizaltertr=require("../mailers/newquizaltertr")
+const quizcreationalert = require("../mailers/newquizaltertr")
 // ✅
+
 // Helper function to convert UTC to IST
 const convertToIST = (date) => {
   return new Date(date.getTime() + (5.5 * 60 * 60 * 1000));
@@ -48,8 +50,9 @@ exports.createQuiz = async (req, res) => {
       department: department,
       endtime: istEndTime,
     });
+    
     targetusers.forEach(user=>{
-      quizcreationalert(quiz,targetusers.email)
+      quizcreationalert(quiz,user.email)
     })
     return res.status(201).json({
       success: true,
