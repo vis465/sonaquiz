@@ -8,7 +8,7 @@ export const createList = async (data, token) => {
     const response = await apiConnector("POST", listEndpoints.CREATE_LIST, data, {
       Authorization: `Bearer ${token}`,
     });
-    if (!response?.data?.success) throw new Error(response.data.error);
+    if (!response?.success) throw new Error(response.message);
     
     return response.data.list;
   } catch (error) {
@@ -16,14 +16,28 @@ export const createList = async (data, token) => {
     throw error;
   }
 };
+export const deleteuserfromlist = async(data,token)=>{
+  try {
+    console.log("listoperrations calls",data)
+    const response = await apiConnector("POST", listEndpoints.REMOVE_FROM_LIST, data, {
+      Authorization: `Bearer ${token}`,
+      });
+      
+      console.log(response)
+      return response
 
+}
+catch(error){
+  console.log(error)
+}
+}
 // Get all lists
 export const getLists = async (token) => {
   try {
     const response = await apiConnector("GET", listEndpoints.GET_LISTS, null, {
       Authorization: `Bearer ${token}`,
     });
-    if (!response?.data?.success) throw new Error(response.data.error);
+    if (!response?.success) throw new Error(response.message);
     return response.data.lists;
   } catch (error) {
     toast.error("Failed to fetch lists.");
@@ -42,7 +56,7 @@ export const deleteList = async (listId, token) => {
         Authorization: `Bearer ${token}`,
       }
     );
-    if (!response?.data?.success) throw new Error(response.data.error);
+    if (!response?.success) throw new Error(response.message);
     
     
 
@@ -59,7 +73,6 @@ export const getuserlist = async (listid,token)=>{
         const response=await apiConnector("POST",listEndpoints.GET_USERS_FROM_LIST,data,{
             Authorization:`Bearer ${token}`,
         })
-        console.log(response)
         return response
     }
     catch(error){
@@ -72,8 +85,9 @@ export const addUserToList = async (data, token) => {
     const response = await apiConnector("POST", listEndpoints.ADD_TO_LIST, data, {
       Authorization: `Bearer ${token}`,
     });
-    if (!response?.data?.success) throw new Error(response.data.error);
-    toast.success("User added to list successfully!");
+    console.log("Response on services",response)
+   if(response.success){
+    toast.success("User added to list successfully!");}
     return response.data;
   } catch (error) {
     toast.error("Failed to add user to list.");

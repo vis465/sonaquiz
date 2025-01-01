@@ -69,7 +69,7 @@ const ListManager = () => {
   };
 
   const handleNavigateToListDetails = (listId) => {
-    navigate(`/listdetails/${listId}`);
+    navigate(`/dashboard/listdetails/${listId}`);
   };
 
   return (

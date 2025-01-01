@@ -94,8 +94,4 @@ router.post("/checkattemps", authMiddleware, (req, res) => {
 });
 
 
-
-const {recievemessage}= require("../Bot/telegram")
-
-router.get("/recievemessage",recievemessage)
 module.exports = router;

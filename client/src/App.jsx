@@ -49,9 +49,10 @@ function App() {
             <Route path="quizes" element={<LoggedInRoutes><DashboardLayout><AdminQuizes /></DashboardLayout></LoggedInRoutes>} />
             <Route path="edit-quiz/:id" element={<LoggedInRoutes><DashboardLayout><CreateQuiz /></DashboardLayout></LoggedInRoutes>} />
             <Route path ="ListManager" element={<LoggedInRoutes><DashboardLayout><ListManager /></DashboardLayout></LoggedInRoutes>} />
+            <Route path="listdetails/:listId" element={<LoggedInRoutes><DashboardLayout><ListDetails /></DashboardLayout></LoggedInRoutes>} />
           </Route>
-          <Route path="/lists" element={<ListManager />} />
-          <Route path="/listdetails/:listId" element={<ListDetails />} />
+          
+          
           </Routes>
       </div>
     </div>
