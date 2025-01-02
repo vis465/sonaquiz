@@ -1,17 +1,29 @@
 import React, { useState } from 'react'
 import Score from './Score';
+import { useSelector } from 'react-redux';
 import { IoIosArrowUp } from "react-icons/io";
 import Button from '../../Button';
 import { useDispatch } from 'react-redux';
 import { setEdit, setQuiz } from '../../../slices/QuizSlice';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
+import { newquiznotification } from '../../../services/operations/QuizAPIs';
 const QuizCard = ({ quiz, handleDeleteQuiz }) => {
     console.log(quiz)
 
     const [showDetails, setShowDetails] = useState(false);
     const dispatch = useDispatch();
+    const { token } = useSelector((state) => state.auth);
     const navigate = useNavigate();
+
+    const notificationtrigger = async(quizid)=>{
+        
+        toast.success("sending email to target users")
+        const data={quizId:quizid,token:token}
+        
+        await newquiznotification(data,token)
+    }
 
     const handleEditQuiz = () => {
         dispatch(setQuiz(quiz))
@@ -32,7 +44,9 @@ const QuizCard = ({ quiz, handleDeleteQuiz }) => {
                         <p className='font-thin text-2xl'>Time : {quiz.timer} minutes</p>
                     </span>
                     <span className='flex gap-3 justify-end  items-center'>
+                    <Button onClick={() => notificationtrigger(quiz._id)} className='w-max bg-green-600' >Notify Users</Button>
                         <Button onClick={() => handleDeleteQuiz(quiz._id)} className='w-max' active={false} >Delete</Button>
+                        
                         <Button onClick={handleEditQuiz} className='w-max' active >Edit</Button>
                     </span>
                 </div>

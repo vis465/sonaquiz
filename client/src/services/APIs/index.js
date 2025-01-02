@@ -36,6 +36,7 @@ export const quizEndpoints = {
   POST_USER_ATTEMPTS:`${BASE_URL}/quizzess/attempted`,
   GET_ALL_QUIZESS: `${BASE_URL}/quizzess`,
   GET_FOR_DASHBOARD:  `${BASE_URL}/getAllQuizAttempts`,
+  NOTIFICATION:`${BASE_URL}/quiznotification`
 };
 
 export const questionEndpoints = {

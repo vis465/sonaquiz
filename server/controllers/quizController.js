@@ -33,11 +33,7 @@ exports.createQuiz = async (req, res) => {
       
     }
 
-    const targetusers = await User.find({
-      year: { $in: year },
-      dept: { $in: department }
-    });
-    
+   
 
     
     const quiz = await Quiz.create({
@@ -53,9 +49,7 @@ exports.createQuiz = async (req, res) => {
       lists:list
     });
     
-    targetusers.forEach(user=>{
-      quizcreationalert(quiz,user.email)
-    })
+    
     return res.status(201).json({
       success: true,
       message: "Quiz created successfully",
@@ -180,7 +174,7 @@ exports.getAllQuizzess = async (req, res) => {
         const userAttempts = quiz.attemptCounts.get(userId) || 0;
     
         let isUserEligible = true;
-    console.log("IF ELSE")
+    // console.log("IF ELSE")
         // If lists are specified, validate user eligibility
         if (quiz.lists && quiz.lists.length > 0) {
           const eligibilityChecks = await Promise.all(
@@ -193,7 +187,7 @@ exports.getAllQuizzess = async (req, res) => {
         }
     
         console.log(quiz.year, quiz.department);
-        console.log("isUserEligible", isUserEligible);
+        // console.log("isUserEligible", isUserEligible);
     
         // Return the quiz object if all conditions are met
         return (
@@ -207,7 +201,7 @@ exports.getAllQuizzess = async (req, res) => {
           : null; // Return null if conditions are not met
       })
     );
-    console.log("Userdept",userdept)
+    // console.log("Userdept",userdept)
     // Remove `null` values to get the final list of quiz objects
     const finalFilteredQuizzes = filteredQuizzes.filter((quiz) => quiz !== null);
     
@@ -640,3 +634,53 @@ exports.departmentreport = async(req,res)=>{
     res.status(500).json({error:"failed to get report"})
   }
 }
+
+exports.newquiznotification = async (req, res) => {
+  try {
+    const { quizId } = req.body;
+console.log("quizId",quizId)
+    // Fetch the quiz by ID
+    const quiz = await Quiz.findById(quizId);
+
+    // Fetch all users from the same department, excluding admins
+    const users = await User.find({ department: quiz.dept });
+    const usersWithoutAdmin = users.filter((user) => user.role !== "admin");
+
+    let eligibleUsers = [];
+
+    if (quiz.lists && quiz.lists.length > 0) {
+      // Fetch users from all lists
+      const usersFromLists = await Promise.all(
+        quiz.lists.map(async (listId) => {
+          const list = await Lists.findById(listId); // Ensure this fetches correctly
+          return list ? list.users : [];
+        })
+      );
+
+      // Flatten and deduplicate the list of users
+      const allUsersFromLists = new Set(usersFromLists.flat().map(String));
+
+      // Filter non-admin users based on list eligibility
+      eligibleUsers = usersWithoutAdmin.filter((user) =>
+        allUsersFromLists.has(user._id.toString())
+      );
+    } else {
+      // If no lists are specified, all non-admin users are eligible
+      eligibleUsers = usersWithoutAdmin;
+    }
+
+    // Log eligible users for debugging
+    console.log("Eligible users:", eligibleUsers);
+const totaleligibleusers=(eligibleUsers)
+console.log(totaleligibleusers.length)
+    // Send notifications to eligible users
+    for (const user of eligibleUsers) {
+      await quizcreationalert(quiz, user.email);
+    }
+
+    return res.status(200).json({ success: true, message: `Mail sent to ${totaleligibleusers.length} users `});
+  } catch (e) {
+    console.error("Error in newquiznotification:", e);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};

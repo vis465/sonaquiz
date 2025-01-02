@@ -15,7 +15,7 @@ const {
   getQuizAttempts,
   Attemptedcnt,
   Attemptdelete,
-  departmentreport,getAllQuizAttempts
+  departmentreport,getAllQuizAttempts,newquiznotification
 } = require("../controllers/quizController");
 
 const {
@@ -80,7 +80,7 @@ router.get("/getalllists", authMiddleware, staffMiddleware, getAllLists);
 // Get users of a specific list
 router.post("/getlistusers", authMiddleware, staffMiddleware, getUsersOfList);
 
-
+router.post("/quiznotification",authMiddleware,staffMiddleware,newquiznotification)
 
 // Data routes
 router.get("/quizzes", authMiddleware, getAllQuizzes);
