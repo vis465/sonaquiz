@@ -175,19 +175,48 @@ exports.getAllQuizzess = async (req, res) => {
     const quizzes = await Quiz.find().populate("createdBy", "username email");
     
     // Filter quizzes based on the conditions
-    const filteredQuizzes = quizzes.filter((quiz) => {
-      const userAttempts = quiz.attemptCounts.get(userId) || 0  ;
-      console.log(quiz.year , quiz.department)
-      // const isUserInQuizLists = Lists.some(
-      //   list => quiz.lists.includes(list._id) && list.users.includes(userId)
-      // );
-      // console.log("isUserInQuizLists",isUserInQuizLists);
-      return ((userAttempts < quiz.maxAttempts)&& quiz.year.includes(useryear) && quiz.department.includes(userdept)&& Date.now() < quiz.endtime);
-    });
+    const filteredQuizzes = await Promise.all(
+      quizzes.map(async (quiz) => {
+        const userAttempts = quiz.attemptCounts.get(userId) || 0;
+    
+        let isUserEligible = true;
+    console.log("IF ELSE")
+        // If lists are specified, validate user eligibility
+        if (quiz.lists && quiz.lists.length > 0) {
+          const eligibilityChecks = await Promise.all(
+            quiz.lists.map(async (listId) => {
+              const list = await Lists.findOne({ _id: listId });
+              return list && list.users.includes(userId);
+            })
+          );
+          isUserEligible = eligibilityChecks.some((isEligible) => isEligible);
+        }
+    
+        console.log(quiz.year, quiz.department);
+        console.log("isUserEligible", isUserEligible);
+    
+        // Return the quiz object if all conditions are met
+        return (
+          userAttempts < quiz.maxAttempts &&
+          quiz.year.includes(useryear) &&
+          quiz.department.includes(userdept) &&
+          Date.now() < quiz.endtime &&
+          isUserEligible
+        )
+          ? quiz
+          : null; // Return null if conditions are not met
+      })
+    );
+    console.log("Userdept",userdept)
+    // Remove `null` values to get the final list of quiz objects
+    const finalFilteredQuizzes = filteredQuizzes.filter((quiz) => quiz !== null);
+    
+    // console.log(finalFilteredQuizzes)
+    
     // console.log(filteredQuizzes);
     return res.status(200).json({
       success: true,
-      data: filteredQuizzes,
+      data: finalFilteredQuizzes,
     });
   } catch (e) {
     console.log("ERROR GETTING QUIZZES: ", e);
