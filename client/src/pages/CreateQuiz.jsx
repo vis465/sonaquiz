@@ -34,12 +34,13 @@ const CreateQuiz = () => {
       // Set default instructions if empty
       data.instructions =
         data.instructions || "Attempt all the questions with caution. Once you submit, you cannot go back.";
-
+      
+      // Include selected lists in the payload
+      data.list = data.list || [];
+  
       // Handle edit or create logic
       if (edit) {
         const response = await updateQuiz(data, token, quizId);
-        console.log("data", data.endtime);
-        console.log("quizid", quizId);
         if (response) {
           reset(); // Reset form after successful update
           toast.success("Quiz Updated Successfully");
@@ -70,7 +71,7 @@ const CreateQuiz = () => {
         Setlists(response);
 
         list.forEach(element => {
-          console.log(element._id)
+          console.log(element)
         });  // Assuming lists are returned in the 'lists' field
       } else {
         toast.error("Failed to fetch lists.");
@@ -84,7 +85,6 @@ const CreateQuiz = () => {
   useEffect(() => {
     fetchLists()
   }, [])
-
   useEffect(() => {
     if (edit && quiz) {
 
@@ -113,11 +113,12 @@ const CreateQuiz = () => {
         });
       }
       if (quiz.list) {
-        year.forEach((listitem) => {
-          const checkbox = document.querySelector(`input[value="${listitem}"][name="listitem"]`);
-          if (checkbox) checkbox.checked = quiz.list.includes(listitem);
+        list.forEach((listitem) => {
+          const checkbox = document.querySelector(`input[value="${listitem.listname}"][name="list"]`);
+          if (checkbox) checkbox.checked = quiz.list.includes(listitem.listname);
         });
       }
+    
       // Populate checkbox fields for department
       if (quiz.department) {
         departments.departments.forEach((dept) => {
@@ -133,7 +134,7 @@ const CreateQuiz = () => {
       dispatch(setQuiz(null));
       reset();
     }
-  }, [edit, quiz, setValue, location.pathname, dispatch, reset]);
+  }, [edit, quiz, setValue, location.pathname, dispatch, reset,list]);
 
 
   return (
@@ -227,26 +228,25 @@ const CreateQuiz = () => {
                 </label>
               ))}
             </div>
-            {errors?.department && <RequiredError>{errors.department.message}</RequiredError>}
           </div>
 
-          <div className='mb-4'>
-            <label htmlFor="list" className="block text-white mb-1">List</label>
-            <div className='flex-wrap text-white'>
-              {list.map((lis) => (
-                <label key={lis._id} className='flex items-center mr-6'>
-                  <input
-                    type='checkbox'
-                    value={lis.listname}
-                    {...register("department", { required: "List is required" })}
-                    className='w-5 h-5 border-2 border-gray-300 rounded-sm checked:bg-green-500 checked:border-green-500 focus:ring-0 cursor-pointer'
-                  />
-                  <span className='ml-2'>{lis.listname}</span>
-                </label>
-              ))}
-            </div>
-            {errors?.list && <RequiredError>{errors.list.message}</RequiredError>}
-          </div>
+          <div className="mb-4">
+  <label htmlFor="list" className="block text-white mb-1">List</label>
+  <div className="flex-wrap text-white">
+    {list.map((lis) => (
+      <label key={lis._id} className="flex items-center mr-6">
+        <input
+          type="checkbox"
+          value={lis._id}
+          {...register("list")}
+          className="w-5 h-5 border-2 border-gray-300 rounded-sm checked:bg-green-500 checked:border-green-500 focus:ring-0 cursor-pointer"
+        />
+        <span className="ml-2">{lis.listname}</span>
+      </label>
+    ))}
+  </div>
+  {errors?.list && <RequiredError>{errors.list.message}</RequiredError>}
+</div>
 
 
           {/* Timer */}

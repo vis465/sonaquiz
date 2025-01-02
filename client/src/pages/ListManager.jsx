@@ -19,15 +19,15 @@ const ListManager = () => {
   const fetchLists = async () => {
     try {
       const response = await getLists(token)
-      console.log(response)
+      // console.log(response)
       if (response) {
         setLists(response); // Assuming lists are returned in the 'lists' field
       } else {
-        toast.error("Failed to fetch lists.");
+        // toast.error("Failed to fetch lists.");
       }
     } catch (error) {
       console.error("Error fetching lists:", error);
-      toast.error("Failed to fetch lists.");
+      // toast.error("Failed to fetch lists.");
     }
   };
 
@@ -64,7 +64,7 @@ const ListManager = () => {
       }
     } catch (error) {
       console.error("Error deleting list:", error);
-      toast.error("Failed to delete listtttt.");
+      // toast.error("Failed to delete listtttt.");
     }
   };
 

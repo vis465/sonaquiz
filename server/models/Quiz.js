@@ -31,7 +31,7 @@ const quizSchema = new mongoose.Schema({
         ref: 'User',
     }],
     lists:[{
-        type:mongoose.Schema.Types.ObjectId,
+        type:[mongoose.Schema.Types.ObjectId],
         ref:'Eligiblitylist'
     }],
     attemptCounts: {

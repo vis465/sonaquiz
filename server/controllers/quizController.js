@@ -17,7 +17,7 @@ exports.createQuiz = async (req, res) => {
   console.log("servercreate")
   try {
     
-    const { title, description, timer, instructions, maxAttempts, year, department, endtime } = req.body;
+    const { title, description, timer, instructions, maxAttempts, year, department, endtime,list } = req.body;
     
     // Convert endtime to IST before saving
     const istEndTime = endtime ? convertToIST(new Date(endtime)) : null;
@@ -50,6 +50,7 @@ exports.createQuiz = async (req, res) => {
       year: year,
       department: department,
       endtime: istEndTime,
+      lists:list
     });
     
     targetusers.forEach(user=>{
@@ -72,7 +73,7 @@ exports.createQuiz = async (req, res) => {
 
 exports.updateQuiz = async (req, res) => {
   try {
-    const { title, description, timer, instructions, maxAttempts, year, department, endtime } = req.body;
+    const { title, description, timer, instructions, maxAttempts, year, department, endtime,list } = req.body;
     const quiz = await Quiz.findById(req.params.id);
     if (!quiz) {
       return res
@@ -91,6 +92,7 @@ exports.updateQuiz = async (req, res) => {
     quiz.year = year;
     quiz.department = department;
     quiz.endtime = istEndTime;
+    quiz.lists=list
     
     console.log("wedit call - IST time:", quiz.endtime)
     await quiz.save();

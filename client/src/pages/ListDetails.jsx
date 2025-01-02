@@ -11,7 +11,7 @@ const ListDetails = () => {
   const { token } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
-  const [bulkFile, setBulkFileState] = useState(null); // To hold the bulk file
+  const [bulkFile, setBulkFileState] = useState(null);
   const [email, Setemail] = useState("")
 
   useEffect(() => {
@@ -70,35 +70,74 @@ const ListDetails = () => {
     }
 
   };
-
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    console.log("Selected File:", selectedFile); // Debugging log
+    const allowedTypes = [
+      "text/csv",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ];
+  
+    if (selectedFile && allowedTypes.includes(selectedFile.type)) {
+      setBulkFileState(selectedFile);
+    } else {
+      setError("Please upload a valid CSV or Excel file.");
+    }
+  };
+  
   // Handle CSV bulk upload
-  const handleBulkUpload = async (e) => {
-    const file = e.target.files[0];
+  const handleBulkUpload = async () => {
+    console.log("Upload pressed");
+    
+    const file = bulkFile;
     if (!file) {
-      toast.error('No file selected');
+      toast.error("No file selected");
       return;
     }
-
-    setBulkFileState(file);
-
-    Papa.parse(file, {
-      complete: async (result) => {
-        const usersData = result.data;
-        const emailList = usersData.map((user) => user[0]); // Assuming email is in the first column
-
-        try {
-          for (const email of emailList) {
-            await axios.post(ADD_TO_LIST, { email });
+  
+    const reader = new FileReader();
+  
+    reader.onload = () => {
+      Papa.parse(reader.result, {
+        header: true, // Treat the first row as headers
+        skipEmptyLines: true, // Ignore empty rows
+        complete: (results) => {
+          console.log("Parsed Results:", results);
+  
+          if (results.data && results.data.length > 0) {
+            const validData = results.data.filter((row) =>
+              Object.values(row).some((val) => val)
+            ); // Exclude rows where all values are empty
+  
+            // Process each row
+            for (const row of validData) {
+              console.log("Row Data:", row);
+  
+              // Example: Send to another function
+              // sendDataToFunction(row);
+            }
+          } else {
+            toast.error("No valid data found in the CSV file.");
           }
-
-        } catch (error) {
-          console.error('Error uploading users:', error);
-          toast.error('Failed to upload users');
-        }
-      },
-      header: false,
-    });
+        },
+        error: (error) => {
+          console.error("Parsing error:", error);
+          toast.error("Error parsing the CSV file.");
+        },
+      });
+    };
+  
+    reader.onerror = () => {
+      console.error("File reading error:", reader.error);
+      toast.error("Error reading the file.");
+    };
+  
+    reader.readAsText(file); // Read file as text
   };
+  
+  
+  
 
   return (
     <div className="container mx-auto p-6">
@@ -137,15 +176,13 @@ const ListDetails = () => {
           >
             <input
               type="file"
-              id="file-upload"
-              onChange={(e) => setBulkFile(e.target.files[0])}
-              className="hidden"
+              accept=".csv, .xls, .xlsx"
+              onChange={(e)=>handleFileChange(e)}
+              className="block mb-4 w-full p-3 bg-gray-700 text-white rounded-md border-2 border-blue-500"
             />
-            <div className="flex-1 py-3 px-4 rounded-lg border-2 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 outline-none transition duration-200 bg-gray-100 text-gray-700 text-sm">
-              {bulkFile ? bulkFile.name : "Choose CSV File"}
-            </div>
+
             <button
-              onClick={handleBulkUpload}
+              onClick={ handleBulkUpload}
               className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
             >
               Upload

@@ -37,7 +37,8 @@ export const getLists = async (token) => {
     const response = await apiConnector("GET", listEndpoints.GET_LISTS, null, {
       Authorization: `Bearer ${token}`,
     });
-    if (!response?.success) throw new Error(response.message);
+    // if (!response?.success) throw new Error(response.message);
+    // console.log("response")
     return response.data.lists;
   } catch (error) {
     toast.error("Failed to fetch lists.");
@@ -56,7 +57,7 @@ export const deleteList = async (listId, token) => {
         Authorization: `Bearer ${token}`,
       }
     );
-    if (!response?.success) throw new Error(response.message);
+    
     
     
 
