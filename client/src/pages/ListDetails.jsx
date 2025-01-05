@@ -13,6 +13,7 @@ const ListDetails = () => {
   const [users, setUsers] = useState([]);
   const [bulkFile, setBulkFileState] = useState(null);
   const [email, Setemail] = useState("")
+  const user = (JSON.parse(localStorage.getItem('user')));
 
   useEffect(() => {
     console.log("listid", listId)
@@ -78,42 +79,42 @@ const ListDetails = () => {
       "application/vnd.ms-excel",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     ];
-  
+
     if (selectedFile && allowedTypes.includes(selectedFile.type)) {
       setBulkFileState(selectedFile);
     } else {
       setError("Please upload a valid CSV or Excel file.");
     }
   };
-  
+
   // Handle CSV bulk upload
   const handleBulkUpload = async () => {
     console.log("Upload pressed");
-    
+
     const file = bulkFile;
     if (!file) {
       toast.error("No file selected");
       return;
     }
-  
+
     const reader = new FileReader();
-  
+
     reader.onload = () => {
       Papa.parse(reader.result, {
         header: true, // Treat the first row as headers
         skipEmptyLines: true, // Ignore empty rows
         complete: (results) => {
           console.log("Parsed Results:", results);
-  
+
           if (results.data && results.data.length > 0) {
             const validData = results.data.filter((row) =>
               Object.values(row).some((val) => val)
             ); // Exclude rows where all values are empty
-  
+
             // Process each row
             for (const row of validData) {
               console.log("Row Data:", row);
-  
+
               // Example: Send to another function
               // sendDataToFunction(row);
             }
@@ -127,69 +128,82 @@ const ListDetails = () => {
         },
       });
     };
-  
+
     reader.onerror = () => {
       console.error("File reading error:", reader.error);
       toast.error("Error reading the file.");
     };
-  
+
     reader.readAsText(file); // Read file as text
   };
-  
-  
-  
+
+
+
 
   return (
     <div className="container mx-auto p-6">
       <Toaster />
-      <h1 className="text-4xl font-extrabold text-center text-gradient bg-gradient-to-r from-indigo-600 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-10">
-        Manage List Details
-      </h1>
+      {user.role === 'admin' || user.role === 'trainer' ?
+        <h1 className="text-4xl  text-center text-white mb-10">
+          Manage List Details
+        </h1>
+        :
+        <h1 className="text-4xl  text-center text-white mb-10">
+          View List Details
+        </h1>
+      }
+      {user.role === 'admin' || user.role === 'trainer' ?
+        <div>
+          <div className="bg-white shadow-md rounded-lg p-6 mb-8">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Add a User</h2>
+            <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
+              <input
+                id="email"
+                placeholder="Enter user email"
+                className="flex-1 py-3 px-4 rounded-lg border-2 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 outline-none transition duration-200"
+                type="email"
+                onChange={(e) => Setemail(e.target.value)}
+              />
+              <button
+                onClick={() => handleAddUser(email)}
+                className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
+              >
+                Add User
+              </button>
+            </div>
+          </div>
+
+          {/* Bulk Upload Section */}
+          <div className="bg-white shadow-md rounded-lg p-6 mb-8">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Bulk Upload</h2>
+            <div className="flex flex-col space-y-4">
+              <label
+                htmlFor="file-upload"
+                className="flex items-center space-x-4 cursor-pointer"
+              >
+                <input
+                  type="file"
+                  accept=".csv, .xls, .xlsx"
+                  onChange={(e) => handleFileChange(e)}
+                  className="block mb-4 w-full p-3 bg-gray-700 text-white rounded-md border-2 border-blue-500"
+                />
+
+                <button
+                  onClick={handleBulkUpload}
+                  className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
+                >
+                  Upload
+                </button>
+              </label>
+            </div>
+          </div>
+        </div>
+        :
+        <></>
+      }
 
       {/* Add Single User Section */}
-      <div className="bg-white shadow-md rounded-lg p-6 mb-8">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Add a User</h2>
-        <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
-          <input
-            id="email"
-            placeholder="Enter user email"
-            className="flex-1 py-3 px-4 rounded-lg border-2 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 outline-none transition duration-200"
-            type="email"
-            onChange={(e) => Setemail(e.target.value)}
-          />
-          <button
-            onClick={() => handleAddUser(email)}
-            className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
-          >
-            Add User
-          </button>
-        </div>
-      </div>
 
-      {/* Bulk Upload Section */}
-      <div className="bg-white shadow-md rounded-lg p-6 mb-8">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Bulk Upload</h2>
-        <div className="flex flex-col space-y-4">
-          <label
-            htmlFor="file-upload"
-            className="flex items-center space-x-4 cursor-pointer"
-          >
-            <input
-              type="file"
-              accept=".csv, .xls, .xlsx"
-              onChange={(e)=>handleFileChange(e)}
-              className="block mb-4 w-full p-3 bg-gray-700 text-white rounded-md border-2 border-blue-500"
-            />
-
-            <button
-              onClick={ handleBulkUpload}
-              className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
-            >
-              Upload
-            </button>
-          </label>
-        </div>
-      </div>
 
       {/* Users List Display */}
       <div className="bg-white shadow-md rounded-lg p-6 mb-8">
@@ -207,14 +221,16 @@ const ListDetails = () => {
                 <p className="text-sm text-gray-300 mb-4">
                   {user.year} year, {user.dept}
                 </p>
-                <div className="flex justify-end">
+                {user.role === 'admin' || user.role === 'trainer' ? <div className="flex justify-end">
                   <button
                     className="bg-red-500 text-white px-4 py-2 rounded-md text-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 transition duration-200"
                     onClick={() => handleDeleteUser(user._id)}
                   >
                     Remove
                   </button>
-                </div>
+                </div> :
+                  <></>}
+
               </div>
             ))}
           </div>

@@ -5,14 +5,16 @@ import toast from "react-hot-toast";
 // Create a new list
 export const createList = async (data, token) => {
   try {
+    
     const response = await apiConnector("POST", listEndpoints.CREATE_LIST, data, {
       Authorization: `Bearer ${token}`,
     });
-    if (!response?.success) throw new Error(response.message);
+    console.log(response.data)
     
-    return response.data.list;
+    
+    return (response.data);
   } catch (error) {
-    toast.error("Failed to create list.");
+    
     throw error;
   }
 };

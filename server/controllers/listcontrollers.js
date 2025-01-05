@@ -19,6 +19,7 @@ exports.createList = async (req, res) => {
 
     // Create a new list
     const list = await Eligiblitylist.create({ listname, createdBy });
+    console.log("LIST",list)
     return res.status(201).json({ success: true, list });
   } catch (error) {
     return res.status(500).json({ success: false, error: error.message });

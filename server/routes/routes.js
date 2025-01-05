@@ -75,10 +75,10 @@ router.post("/addusertolist", authMiddleware, staffMiddleware, addUserToList);
 router.post("/deleteuserfromlist", authMiddleware, staffMiddleware, deleteUserFromList);
 
 // Get all lists with user metadata
-router.get("/getalllists", authMiddleware, staffMiddleware, getAllLists);
+router.get("/getalllists", authMiddleware, getAllLists);
 
 // Get users of a specific list
-router.post("/getlistusers", authMiddleware, staffMiddleware, getUsersOfList);
+router.post("/getlistusers", authMiddleware, getUsersOfList);
 
 router.post("/quiznotification",authMiddleware,staffMiddleware,newquiznotification)
 
