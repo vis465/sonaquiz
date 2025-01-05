@@ -2,34 +2,34 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import toast, { Toaster } from "react-hot-toast";
-import { getuserlist } from "../services/operations/listoperations";
-import { apiConnector } from "../services/apiConnector";
-import { listEndpoints } from "../services/APIs";
-import { addUserToList, deleteuserfromlist } from "../services/operations/listoperations"
+import { getuserlist, addUserToList, deleteuserfromlist } from "../services/operations/listoperations";
+import Papa from "papaparse";
+import * as XLSX from "xlsx";
+
 const ListDetails = () => {
-  const { listId } = useParams(); // Get the listId from the route parameter
+  const { listId } = useParams();
   const { token } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [bulkFile, setBulkFileState] = useState(null);
-  const [email, Setemail] = useState("")
-  const user = (JSON.parse(localStorage.getItem('user')));
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState(null);
+  const localuser = JSON.parse(localStorage.getItem("user"));
+  const[userlen,Setuserlen]=useState(0)
 
   useEffect(() => {
-    console.log("listid", listId)
     if (listId) {
-
       fetchUsers(listId);
-
     }
-  }, []);
+  }, [listId]);
 
   const fetchUsers = async (listId) => {
     try {
       const response = await getuserlist(listId, token);
+      Setuserlen(response.data.users.length)
+      
       if (response) {
-        setUsers(response.data.users); // Assuming users are in the 'users' field of the response
-
+        setUsers(response.data.users);
       }
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -39,41 +39,35 @@ const ListDetails = () => {
 
   const handleDeleteUser = async (userId) => {
     try {
-      const data = { userid: userId, listid: listId }
-
-      const response = await deleteuserfromlist(data, token)
-
+      const data = { userid: userId, listid: listId };
+      const response = await deleteuserfromlist(data, token);
       if (response.success) {
-        toast.success(
-          "User deleted successfully"
-        )
+        toast.success("User deleted successfully");
+        fetchUsers(listId); // Refresh users list after deletion
       }
-      window.location.reload()
-
     } catch (error) {
       console.log("Error deleting user:", error);
+      toast.error("Failed to delete user.");
     }
   };
 
   const handleAddUser = async (email) => {
-    console.log("adduser", email)
-
     try {
-      const data = { email: email, listid: listId }
-      console.log("posting", data)
-      const response = await addUserToList(data, token)
-      console.log("response", response)
-      toast.success(response.message || 'User added successfully');
-      Setemail('');
-      window.location.reload()
+      const data = { email: email, listid: listId };
+      await addUserToList(data, token);
+      
+      toast.success( "User added successfully");
+      setEmail("");
+      fetchUsers(listId); // Refresh users list after adding a new user
     } catch (error) {
-      console.log('Error adding user:', error);
+      console.log("Error adding user:", error);
+      toast.error("Failed to add user.");
     }
-
   };
+
   const handleFileChange = (e) => {
+    setError(null);
     const selectedFile = e.target.files[0];
-    console.log("Selected File:", selectedFile); // Debugging log
     const allowedTypes = [
       "text/csv",
       "application/vnd.ms-excel",
@@ -86,73 +80,84 @@ const ListDetails = () => {
       setError("Please upload a valid CSV or Excel file.");
     }
   };
+ const handleSampleDownload = () => {
+    const sampleData = [
+      {
+        email:"samplemail@mail.com"
+      }
+    ];
 
-  // Handle CSV bulk upload
+    const worksheet = XLSX.utils.json_to_sheet(sampleData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "sampleemailfile");
+
+    XLSX.writeFile(workbook, "sampleemailfile.xlsx");
+  };
   const handleBulkUpload = async () => {
-    console.log("Upload pressed");
-
-    const file = bulkFile;
-    if (!file) {
+    if (!bulkFile) {
       toast.error("No file selected");
       return;
     }
 
     const reader = new FileReader();
 
-    reader.onload = () => {
-      Papa.parse(reader.result, {
-        header: true, // Treat the first row as headers
-        skipEmptyLines: true, // Ignore empty rows
-        complete: (results) => {
-          console.log("Parsed Results:", results);
-
-          if (results.data && results.data.length > 0) {
-            const validData = results.data.filter((row) =>
-              Object.values(row).some((val) => val)
-            ); // Exclude rows where all values are empty
-
-            // Process each row
-            for (const row of validData) {
-              console.log("Row Data:", row);
-
-              // Example: Send to another function
-              // sendDataToFunction(row);
+    if (bulkFile.type === "text/csv") {
+      reader.onload = () => {
+        Papa.parse(reader.result, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            if (results.data && results.data.length > 0) {
+              const emails=results.data
+              // Handle bulk data (e.g., adding users to the list)
+              emails.forEach(email =>{
+                // console.log(email.email)
+                handleAddUser(email.email)
+              })
+              // You can add logic here to add parsed users to the list.
+            } else {
+              setError("No valid data found in the CSV file.");
             }
-          } else {
-            toast.error("No valid data found in the CSV file.");
-          }
-        },
-        error: (error) => {
-          console.error("Parsing error:", error);
-          toast.error("Error parsing the CSV file.");
-        },
-      });
-    };
-
-    reader.onerror = () => {
-      console.error("File reading error:", reader.error);
-      toast.error("Error reading the file.");
-    };
-
-    reader.readAsText(file); // Read file as text
+          },
+        });
+      };
+      reader.readAsText(bulkFile);
+    } else if (
+      bulkFile.type === "application/vnd.ms-excel" ||
+      bulkFile.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    ) {
+      reader.onload = () => {
+        const workbook = XLSX.read(reader.result, { type: "binary" });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const data = XLSX.utils.sheet_to_json(sheet);
+        if (data.length > 0) {
+          const emails=data
+          // Handle bulk data (e.g., adding users to the list)
+          emails.forEach(email =>{
+            
+            handleAddUser(email.email)
+          })
+          // You can add logic here to add parsed users to the list.
+        } else {
+          setError("No valid data found in the Excel file.");
+        }
+      };
+      reader.readAsBinaryString(bulkFile);
+    }
   };
-
-
-
 
   return (
     <div className="container mx-auto p-6">
       <Toaster />
-      {user.role === 'admin' || user.role === 'trainer' ?
-        <h1 className="text-4xl  text-center text-white mb-10">
-          Manage List Details
-        </h1>
-        :
-        <h1 className="text-4xl  text-center text-white mb-10">
-          View List Details
-        </h1>
-      }
-      {user.role === 'admin' || user.role === 'trainer' ?
+      {localuser.role === "admin" || localuser.role === "trainer" ? (
+        <h1 className="text-4xl text-center text-white mb-10">Manage List Details</h1>
+      ) : (
+        <h1 className="text-4xl text-center text-white mb-10">View List Details</h1>
+      )}
+
+      {/* Add a User */}
+      {localuser.role === "admin" || localuser.role === "trainer" ? (
         <div>
           <div className="bg-white shadow-md rounded-lg p-6 mb-8">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">Add a User</h2>
@@ -162,7 +167,8 @@ const ListDetails = () => {
                 placeholder="Enter user email"
                 className="flex-1 py-3 px-4 rounded-lg border-2 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 outline-none transition duration-200"
                 type="email"
-                onChange={(e) => Setemail(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
               <button
                 onClick={() => handleAddUser(email)}
@@ -173,21 +179,23 @@ const ListDetails = () => {
             </div>
           </div>
 
-          {/* Bulk Upload Section */}
+          {/* Bulk Upload */}
           <div className="bg-white shadow-md rounded-lg p-6 mb-8">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">Bulk Upload</h2>
             <div className="flex flex-col space-y-4">
-              <label
-                htmlFor="file-upload"
-                className="flex items-center space-x-4 cursor-pointer"
-              >
+            <button
+      onClick={handleSampleDownload}
+      className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-md mb-4 transition-all duration-300"
+    >
+      Download Sample File
+    </button>
+              <label htmlFor="file-upload" className="flex items-center space-x-4 cursor-pointer">
                 <input
                   type="file"
                   accept=".csv, .xls, .xlsx"
-                  onChange={(e) => handleFileChange(e)}
+                  onChange={handleFileChange}
                   className="block mb-4 w-full p-3 bg-gray-700 text-white rounded-md border-2 border-blue-500"
                 />
-
                 <button
                   onClick={handleBulkUpload}
                   className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
@@ -195,19 +203,18 @@ const ListDetails = () => {
                   Upload
                 </button>
               </label>
+              {error && <p className="text-red-500 text-sm">{error}</p>}
             </div>
           </div>
         </div>
-        :
+      ) : (
         <></>
-      }
+      )}
 
-      {/* Add Single User Section */}
-
-
-      {/* Users List Display */}
+      {/* Users List */}
       <div className="bg-white shadow-md rounded-lg p-6 mb-8">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Users in List</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4"> Users in List</h2>
+        <p className="text-l font-semibold text-gray-800 mb-4"> {userlen} Users in total</p>
         {users.length === 0 ? (
           <p className="text-center text-gray-500 text-lg">No users in this list yet.</p>
         ) : (
@@ -221,16 +228,18 @@ const ListDetails = () => {
                 <p className="text-sm text-gray-300 mb-4">
                   {user.year} year, {user.dept}
                 </p>
-                {user.role === 'admin' || user.role === 'trainer' ? <div className="flex justify-end">
-                  <button
-                    className="bg-red-500 text-white px-4 py-2 rounded-md text-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 transition duration-200"
-                    onClick={() => handleDeleteUser(user._id)}
-                  >
-                    Remove
-                  </button>
-                </div> :
-                  <></>}
-
+                {localuser.role === "admin" || localuser.role === "trainer" ? (
+                  <div className="flex justify-end">
+                    <button
+                      className="bg-red-500 text-white px-4 py-2 rounded-md text-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 transition duration-200"
+                      onClick={() => handleDeleteUser(user._id)}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <></>
+                )}
               </div>
             ))}
           </div>
@@ -247,7 +256,7 @@ const ListDetails = () => {
         </button>
       </div>
     </div>
+  );
+};
 
-  )
-}
 export default ListDetails;

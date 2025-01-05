@@ -71,7 +71,7 @@ exports.addUserToList = async (req, res) => {
       .status(200)
       .json({ success: true, message: "User added to list", list });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ success: false, error: "user mail not found" });
   }
 };
 exports.getAllLists = async (req, res) => {

@@ -34,7 +34,7 @@ function App() {
           <Route path="/quiz/:id" element={<LoggedInRoutes><AttemptQuiz /></LoggedInRoutes>} />
           <Route path="/quiz-results" element={<LoggedInRoutes><QuizResult /></LoggedInRoutes>} />
           <Route path="/leaderboard" element={<LoggedInRoutes><Leaderboard /></LoggedInRoutes>} />
-
+          
           <Route path="/login" element={<LogIn />} />
 
           <Route path="/signup" element={<SignUp />} />

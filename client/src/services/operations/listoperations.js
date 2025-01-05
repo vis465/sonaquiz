@@ -79,7 +79,7 @@ export const getuserlist = async (listid,token)=>{
         return response
     }
     catch(error){
-        toast.error("Failed to fetch user list");
+        toast.error("No users in this list");
     }
 }
 // Add a user to a list
@@ -88,12 +88,16 @@ export const addUserToList = async (data, token) => {
     const response = await apiConnector("POST", listEndpoints.ADD_TO_LIST, data, {
       Authorization: `Bearer ${token}`,
     });
-    console.log("Response on services",response)
+    
    if(response.success){
-    toast.success("User added to list successfully!");}
-    return response.data;
+    toast.success("User added to list successfully!");
+    return response.data;}
+    else{
+      toast.error("User not found in the list");
+      return response.data
+    }
   } catch (error) {
-    toast.error("Failed to add user to list.");
+    
     throw error;
   }
 };
