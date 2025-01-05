@@ -15,7 +15,7 @@ app.use(express.json());
 // Route to trigger Telegram notification
 app.post("/notify-quiz", async (req, res) => {
     const { quizTitle, quizLink , messageText} = req.body; // Expecting quizTitle and quizLink in request body
-
+    console.log(req.body)
     if (!quizTitle || !quizLink) {
         return res.status(400).send("quizTitle and quizLink are required!");
     }
