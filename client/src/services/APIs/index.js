@@ -3,6 +3,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 export const authEndpoints = {
   SIGNUP: `${BASE_URL}/register`,
   LOGIN: `${BASE_URL}/login`,
+  DEPTS:`${BASE_URL}/departments`
 };
 export const analyticsendpoints ={
   GET_ANALYTICS: `${BASE_URL}/users`,

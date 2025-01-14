@@ -7,65 +7,97 @@ const bcrypt = require("bcrypt");
 const { attemptQuiz } = require("./quizController");
 const Quiz = require("../models/Quiz");
 const usercreationmail = require("../mailers/usercraetionmail");
-// ✅
+const Department=require('../models/department')
+
 exports.register = async (req, res) => {
   try {
-    const { email, username, password, confirmPassword, role, regnNumber, year, dept, class: userClass } = req.body;
-
-    if (!username || !email || !password || !confirmPassword || !role || !regnNumber || !year || !dept || !userClass) {
-      return res
-        .status(400)
-        .json({ success: false, error: "Please fill all the fields" });
-    }
-
-    if (password !== confirmPassword) {
-      return res.status(400).json({
-        success: false,
-        error: "Password and Confirm Password should be same",
-      });
-    }
-
-    const emailExists = await User.findOne({ email });
-    
-    if (emailExists) {
-      return res
-        .status(400)
-        .json({ success: false, error: "Email is already registered, Please log in" });
-    }
-
-    const usernameExists = await User.findOne({ username });
-
-    if (usernameExists) {
-      return res
-        .status(400)
-        .json({ success: false, error: "Username already exists" });
-    }
-
-    const hashedPasssword = await bcrypt.hash(password, 10);
-
-    const user = await User.create({
-      username,
+    const {
       email,
-      password: hashedPasssword,
+      username,
+      password,
+      confirmPassword,
       role,
       regnNumber,
       year,
       dept,
       class: userClass,
+      cgpa, // New fields
+      arrears,
+      admissionCategory,
+      hostelStatus,
+      lateralEntry,
+      gender,
+    } = req.body;
+
+    // Check if required fields are present
+    if (
+      !username || !email || !password || !confirmPassword || !role || 
+      !regnNumber || !year || !dept || !userClass || !arrears || 
+      !admissionCategory || !hostelStatus || lateralEntry === undefined || !gender
+    ) {
+      return res.status(400).json({ success: false, error: "Please fill all the fields" });
+    }
+
+    // Check if password and confirmPassword match
+    if (password !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        error: "Password and Confirm Password should be the same",
+      });
+    }
+
+    // Check if email already exists
+    const emailExists = await User.findOne({ email });
+    if (emailExists) {
+      return res.status(400).json({ success: false, error: "Email is already registered, Please log in" });
+    }
+
+    // Check if username already exists
+    const usernameExists = await User.findOne({ username });
+    if (usernameExists) {
+      return res.status(400).json({ success: false, error: "Username already exists" });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new user document
+    const user = await User.create({
+      username,
+      email,
+      password: hashedPassword,
+      role,
+      regnNumber,
+      year,
+      dept,
+      class: userClass,
+      cgpa, // Saving CGPA for each semester
+      arrears,
+      admissionCategory,
+      hostelStatus,
+      lateralEntry,
+      gender,
     });
-    usercreationmail(user)
+
+    // Send user creation email (assuming the function is defined elsewhere)
+    usercreationmail(user);
     
-    console.log(user)
-    return res
-      .status(200)
-      .json({ success: true, message: "User created successfully" });
+    console.log(user);
+    
+    return res.status(200).json({ success: true, message: "User created successfully" });
   } catch (error) {
     console.log("ERROR WHILE REGISTERING THE NEW USER : ", error);
-    return res
-      .status(500)
-      .json({ success: false, error: "Internal server error" });
+    return res.status(500).json({ success: false, error: "Internal server error" });
   }
-};
+}
+exports.departments = async (req,res)=>{
+  try {
+    const departments = await Department.find();
+    res.status(200).json(departments);
+  } catch (error) {
+    res.status(500).json({ success: false, error: "Error fetching departments" });
+  }
+}
 
 
 // ✅

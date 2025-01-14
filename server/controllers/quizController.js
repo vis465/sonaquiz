@@ -710,18 +710,18 @@ exports.newquiznotification = async (req, res) => {
       
       console.log("BODY", bodyFormData);
       
-      await axios({
-        method: "post",
-        url: `${process.env.BOTURL}/notify-quiz`,
-        data: bodyFormData,
-        headers: { "Content-Type": "application/json" }, // Use application/json
-      })
-        .then(function (response) {
-          console.log(response.data);
-        })
-        .catch(function (response) {
-          console.log(response.body);
-        });
+      // await axios({
+      //   method: "post",
+      //   url: `${process.env.BOTURL}/notify-quiz`,
+      //   data: bodyFormData,
+      //   headers: { "Content-Type": "application/json" }, // Use application/json
+      // })
+      //   .then(function (response) {
+      //     console.log(response.data);
+      //   })
+      //   .catch(function (response) {
+      //     console.log(response.body);
+      //   });
     }
 
     return res

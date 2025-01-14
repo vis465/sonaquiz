@@ -19,6 +19,7 @@ import UserManagement from "./pages/UserManagement"
 import UserSearchAndAnalytics from "./pages/UserSearchAndAnalytics"
 import Leaderboard from "./pages/Leaderboard"
 import ListManager from "./pages/ListManager"
+import DepartmentManagement from "./pages/departmentmanagement"
 import ListDetails from "./pages/ListDetails"
 function App() {
 
@@ -44,6 +45,7 @@ function App() {
             <Route path="create-quiz" element={<LoggedInRoutes> <Adminroutes> <DashboardLayout><CreateQuiz /></DashboardLayout ></Adminroutes></LoggedInRoutes>} />
             <Route path="bulkupload" element={<LoggedInRoutes><Adminroutes> <DashboardLayout><BulkQuestionUpload /></DashboardLayout ></Adminroutes></LoggedInRoutes>} />
             <Route path="usermanagemnt" element={<LoggedInRoutes><Adminroutes><DashboardLayout><UserManagement /></DashboardLayout > </Adminroutes></LoggedInRoutes>} />
+            <Route path="dept" element={<LoggedInRoutes><Adminroutes><DashboardLayout><DepartmentManagement/></DashboardLayout > </Adminroutes></LoggedInRoutes>} />
             <Route path="userlookup" element={<LoggedInRoutes><DashboardLayout><UserSearchAndAnalytics /></DashboardLayout ></LoggedInRoutes>} />
             <Route path="create-quiz/:id" element={<LoggedInRoutes><Adminroutes><DashboardLayout><CreateQuestions /></DashboardLayout ></Adminroutes></LoggedInRoutes>} />
             <Route path="quizes" element={<LoggedInRoutes><Adminroutes><DashboardLayout><AdminQuizes /></DashboardLayout></Adminroutes></LoggedInRoutes>} />
