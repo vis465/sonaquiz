@@ -39,7 +39,12 @@ const DepartmentManagement = () => {
 
   // Handle user deletion
   const handleDelete = async (userId) => {
-    console.log(userId)
+    
+    console.log("deletecalled",userId)
+    
+    let response = await axios.post("http://localhost:4000/api/v1/deletedept",{deptid:userId});
+    toast.success(response.data.message)
+    window.location.reload()
   };
   const handleedit = async (userId, data) => {
     console.log(userId)
@@ -56,19 +61,19 @@ const DepartmentManagement = () => {
       {!loading && (
         <>
           {/* User List Section */}
-          <h3 className="text-xl mb-4 text-blue-400">All Users</h3>
+          <h3 className="text-3xl mb-4 text-blue-400">All Users</h3>
           <button className={"bg-green-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md mb-5"}>
             add dept
           </button>
-          <div className="user-list grid gap-4 w-full">
+          <div className="user-list grid gap-4  display-flex">
             {users.map((user) => (
               <div
                 key={user._id}
-                className="user-card bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center analytics-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                className="user-card bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center analytics-grid grid grid-cols-2 sm:grid-cols-1 lg:grid-cols-3 gap-6"
               >
                 <div className="user-info text-white ">
-                  <h4 className="text-lg font-semibold">{user.name}</h4>
-                  <p className="text-gray-400">Role: {user.abbreviation}</p>
+                  <h4 className="text-lg font-semibold">Name : {user.name}</h4>
+                  <p className="text-gray-400">Abbreviation : {user.abbreviation}</p>
                 </div>
                 <div className="actions flex gap-4">
                   <button
