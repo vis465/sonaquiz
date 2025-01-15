@@ -4,7 +4,7 @@ const Question = require("../models/Question");
 exports.createQuestion = async (req, res) => {
   try {
     const { questionText, options, answers, quizId, questionType, questionImage, questionFormat } = req.body;
-    // console.log("req.body", questionImage);
+    
 
     // Validate required fields
     if (!questionType || !quizId ) {

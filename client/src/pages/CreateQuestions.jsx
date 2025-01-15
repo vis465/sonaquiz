@@ -102,14 +102,24 @@ const CreateQuestions = () => {
                 )}
                 {!loading && questions.length > 0 && (
                     questions.map((ques) => (
-                        <QuestionCard
-                            deleteQuestionHandler={deleteQuestionHandler}
-                            key={ques._id}
-                            question={ques}
-                            quiz={quiz}
-                            setCreateQuestionModalData={setCreateQuestionModalData}
-                            setQuestions={setQuestions}
-                        />
+                        <div key={ques._id} className="flex flex-col gap-3 bg-white p-4 rounded shadow">
+                            {ques.questionFormat === "IMAGE" ? (
+                                <img
+                                    src={ques.questionImage}
+                                    alt="Question"
+                                    className="max-w-[200px] max-h-[200px] object-contain rounded-md"
+                                    />
+                            ) : (
+                                <p className="text-xl">{ques.questionText}</p>
+                            )}
+                            <QuestionCard
+                                deleteQuestionHandler={deleteQuestionHandler}
+                                question={ques}
+                                quiz={quiz}
+                                setCreateQuestionModalData={setCreateQuestionModalData}
+                                setQuestions={setQuestions}
+                            />
+                        </div>
                     ))
                 )}
             </div>
