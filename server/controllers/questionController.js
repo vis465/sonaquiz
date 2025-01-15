@@ -3,16 +3,18 @@ const Question = require("../models/Question");
 // ✅
 exports.createQuestion = async (req, res) => {
   try {
-    const { questionText, options, answers, quizId, questionType } = req.body;
-    console.log(req.body);
+    const { questionText, options, answers, quizId, questionType, questionImage, questionFormat } = req.body;
+    // console.log("req.body", questionImage);
 
-    if (!questionText || !questionType || !quizId) {
+    // Validate required fields
+    if (!questionType || !quizId ) {
       return res.status(400).json({
         success: false,
         error: "Please provide all the required fields",
       });
     }
 
+    // Validate MCQ-specific fields
     if (questionType === "MCQ") {
       if (!options || !Array.isArray(options) || options.length < 2) {
         return res.status(400).json({
@@ -21,17 +23,17 @@ exports.createQuestion = async (req, res) => {
         });
       }
       for (const option of options) {
-        if (
-          typeof option.text !== "string" ||
-          typeof option.isCorrect !== "boolean"
-        ) {
+        if (typeof option.text !== "string" || typeof option.isCorrect !== "boolean") {
           return res.status(400).json({
             success: false,
             error: "Each option should have 'text' as string and 'isCorrect' as boolean.",
           });
         }
       }
-    } else if (questionType === "FIB") {
+    }
+
+    // Validate FIB-specific fields
+    if (questionType === "FIB") {
       if (!answers || !Array.isArray(answers) || answers.length < 1) {
         return res.status(400).json({
           success: false,
@@ -48,27 +50,45 @@ exports.createQuestion = async (req, res) => {
       }
     }
 
+    // Validate optional fields
+    if (questionImage && typeof questionImage !== "string") {
+      return res.status(400).json({
+        success: false,
+        error: "Image must be provided as a base64 string.",
+      });
+    }
+    if (questionFormat && typeof questionFormat !== "string") {
+      return res.status(400).json({
+        success: false,
+        error: "questionFormat must be a string.",
+      });
+    }
+
+    // Create question
     const question = await Question.create({
       quizId,
       questionText,
       questionType,
       options: questionType === "MCQ" ? options : undefined,
       answers: questionType === "FIB" ? answers : undefined,
+      questionImage, // Optional image field
+      questionFormat, // Optional formatting field
     });
-
+    console.log("question")
     return res.status(201).json({
       success: true,
       message: "Question created successfully",
       data: question,
     });
   } catch (e) {
-    console.log("ERROR CREATING QUESTION: ", e);
+    console.error("ERROR CREATING QUESTION: ", e);
     return res.status(500).json({
       success: false,
       error: "Internal server error",
     });
   }
 };
+
 
 
 // ✅
