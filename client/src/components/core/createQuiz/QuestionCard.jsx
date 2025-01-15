@@ -4,7 +4,7 @@ import Button from '../../Button';
 const QuestionCard = ({ question, deleteQuestionHandler }) => {
 function renderfib() {
   question.map(items=>
-    console.log(items.answers)
+    console.log(items)
   )
 }
 
@@ -17,14 +17,30 @@ function renderfib() {
         {question.questionType === "MCQ" ? (
           <div>
             {question.options.map(option => (
-              <div
+              <>
+              {option.imageUrl?(
+                <div
+                className='border border-slate-600 bg-[#e0fbfc] mt-2 p-3 rounded-lg relative overflow-hidden '
+                key={option._id}
+                style={{ color: option.isCorrect ? "green" : "black", fontWeight: option.isCorrect ? "bold" : "normal" }}
+              >
+                <img
+                        src={option.imageUrl}
+                        alt="Question"
+                        className="max-w-[200px] max-h-[200px] object-contain rounded-md"
+                    /> {option.isCorrect && "(Correct)"}
+              </div>
+              ):(
+                <div
                 className='border border-slate-600 bg-[#e0fbfc] mt-2 p-3 rounded-lg relative overflow-hidden'
                 key={option._id}
                 style={{ color: option.isCorrect ? "green" : "black", fontWeight: option.isCorrect ? "bold" : "normal" }}
               >
                 {option.text} {option.isCorrect && "(Correct)"}
               </div>
-
+              )}
+              
+              </>
             ))}
           </div>
         ) : (

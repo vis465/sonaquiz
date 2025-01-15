@@ -58,7 +58,7 @@ const CreateQuestionModal = ({ quiz, setQuestions, setCreateQuestionModalData })
   };
 
   return (
-    <div className="absolute top-[50%] max-w-[480px] mx-auto translate-y-[-50%] flex flex-col p-5 gap-5 items-center bg-white shadow-lg rounded-lg inset-0">
+    <div className="absolute top-[50%] max-w-[1000px] h-full mx-auto translate-y-[-50%] flex flex-col p-5 gap-5 items-center bg-white shadow-lg rounded-lg inset-0">
       <h3 className="text-2xl font-semibold">Create a Question</h3>
       <form onSubmit={handleSubmit(submitHandler)} className="w-full flex flex-col gap-4">
         {/* Question Type */}

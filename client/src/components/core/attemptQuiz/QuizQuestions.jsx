@@ -35,7 +35,7 @@ const QuizQuestions = ({ quizDetails, quizQuestions }) => {
     }, [quizStarted, remainingTime]);
 
     const handleAnswerChange = useCallback((questionId, answer, questionType) => {
-        console.log("answeratsubmission",answer)
+        // console.log("answeratsubmission",answer)
         setUserAnswers((prevAnswers) => {
             const updatedAnswers = prevAnswers.filter(
                 (ans) => ans.questionId !== questionId

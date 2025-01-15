@@ -15,7 +15,7 @@ const QuestionCard = React.memo(({ question, onAnswerChange }) => {
 
         // Pass the correct answer (plain text or ID) to parent
         onAnswerChange(answer, question.questionType);
-        console.log(answer);
+        // console.log(answer);
     };
 
     return (
@@ -26,7 +26,7 @@ const QuestionCard = React.memo(({ question, onAnswerChange }) => {
                     {question.questionText}
                 </h3>
             )}
-
+    
             {/* Render question image if present */}
             {question.questionFormat === 'IMAGE' && question.questionImage && (
                 <div className="flex justify-center items-center mb-3">
@@ -37,7 +37,7 @@ const QuestionCard = React.memo(({ question, onAnswerChange }) => {
                     />
                 </div>
             )}
-
+    
             {/* Render options or input field based on question type */}
             {question.questionType === 'MCQ' ? (
                 <div className="flex flex-col md:flex-row gap-6">
@@ -51,8 +51,17 @@ const QuestionCard = React.memo(({ question, onAnswerChange }) => {
                                 name={question._id}
                                 value={option._id}
                                 onChange={handleAnswerChange}
+                                className="mr-2"
                             />
-                            {option.text}
+                            {option.imageUrl ? (
+                                <img
+                                    src={option.imageUrl}
+                                    alt="Option"
+                                    className="max-w-[100px] max-h-[100px] object-contain rounded-md"
+                                />
+                            ) : (
+                                <span>{option.text}</span>
+                            )}
                         </label>
                     ))}
                 </div>
@@ -69,6 +78,5 @@ const QuestionCard = React.memo(({ question, onAnswerChange }) => {
             )}
         </div>
     );
-});
-
+})    
 export default QuestionCard;
