@@ -12,36 +12,47 @@ const Department = require("../models/department");
 exports.register = async (req, res) => {
   try {
     const {
+      year,
       email,
       username,
       password,
       confirmPassword,
       role,
-      regnNumber,
-      year,
+      registerNumber, // Updated field name
       dept,
       class: userClass,
-      cgpa, // New fields
+      marks10,
+      marks12,
       arrears,
-      admissionCategory,
+      cgpa,
+      admissionType, // Updated field name
       hostelStatus,
       lateralEntry,
       gender,
     } = req.body;
 
-    // Check if required fields are present
+    
+
+    // Perform validations
+    if (!email || !username || !password || !confirmPassword) {
+      return res.status(400).json({ error: "Missing required fields." });
+    }
+    if (password !== confirmPassword) {
+      return res.status(400).json({ error: "Passwords do not match." });
+    }
+   // Check if required fields are present
     if (
       !username ||
       !email ||
       !password ||
       !confirmPassword ||
       !role ||
-      !regnNumber ||
+      !registerNumber ||
       !year ||
       !dept ||
       !userClass ||
       !arrears ||
-      !admissionCategory ||
+      !admissionType ||
       !hostelStatus ||
       lateralEntry === undefined ||
       !gender
@@ -62,12 +73,10 @@ exports.register = async (req, res) => {
     // Check if email already exists
     const emailExists = await User.findOne({ email });
     if (emailExists) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error: "Email is already registered, Please log in",
-        });
+      return res.status(400).json({
+        success: false,
+        error: "Email is already registered, Please log in",
+      });
     }
 
     // Check if username already exists
@@ -83,20 +92,23 @@ exports.register = async (req, res) => {
 
     // Create a new user document
     const user = await User.create({
-      username,
       email,
-      password: hashedPassword,
-      role,
-      regnNumber,
+      username,
+      password:hashedPassword,
       year,
+      confirmPassword,
+      role,
+      registerNumber,
       dept,
-      class: userClass,
-      cgpa, // Saving CGPA for each semester
+      class:userClass,
+      marks10,
+      marks12,
       arrears,
-      admissionCategory,
+      cgpa,
+      admissionType,
       hostelStatus,
       lateralEntry,
-      gender,
+      gender
     });
 
     // Send user creation email (assuming the function is defined elsewhere)
@@ -109,6 +121,32 @@ exports.register = async (req, res) => {
       .json({ success: true, message: "User created successfully" });
   } catch (error) {
     console.log("ERROR WHILE REGISTERING THE NEW USER : ", error);
+    return res
+      .status(500)
+      .json({ success: false, error: "Internal server error" });
+  }
+};
+exports.adddepartment = async (req, res) => {
+  try {
+    console.log(req.body)
+    // const deptname=req.body.name;
+    // const deptabbr=req.body.abbr
+    // if (!deptname || !deptabbr) {
+    //   throw new Error("Both name and abbreviation are required.");
+    // }
+    
+    
+    const testDepartment = await Department.create({ name: "Test Department", abbreviation: "TEST" });
+console.log("Created department:", testDepartment);
+
+    if(newDepartment){
+      console.log("newdept")
+    }
+    return res
+      .status(200)
+      .json({ success: true, message: "Department created successfully" });
+  } catch (error) {
+    console.log("ERROR WHILE ADDING THE NEW DEPARTMENT : ", error);
     return res
       .status(500)
       .json({ success: false, error: "Internal server error" });
@@ -142,18 +180,23 @@ exports.deletedept = async (req, res) => {
   }
 };
 exports.updatedept = async (req, res) => {
+  console.log("updatecalled");
   const deptid = req.body.deptid;
   const deptname = req.body.deptname;
   const abbr = req.body.abbr;
+  console.log(deptid, deptname, abbr);
   try {
-    const reponse = await Department.updateOne(deptid, { deptname, abbr });
+    const reponse = await Department.updateOne(
+      { _id: deptid },
+      { $set: { name: deptname, abbreviation: abbr } }
+    );
     if (reponse) {
       res
         .status(200)
         .json({ success: true, message: "Department updated successfully" });
     }
   } catch (error) {
-    res.status(500).json({ success: false, error: "error deleting message" });
+    res.status(500).json({ success: false, error: "error updating message" });
   }
 };
 

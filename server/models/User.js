@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
 
 const userSchema = new mongoose.Schema(
   {
@@ -22,7 +21,7 @@ const userSchema = new mongoose.Schema(
       enum: ["admin", "user", "trainer"],
       required: true,
     },
-    regnNumber: {
+    registerNumber: {
       type: String,
       required: true,
     },
@@ -33,39 +32,35 @@ const userSchema = new mongoose.Schema(
     },
     dept: {
       type: String,
-      enum: [
-        "CSE", "IT", "EEE", "CE", "ECE", "MCT", "BME", "ADS", "FT", "CSD", "AIML", "MECH"
-      ],
       required: true,
     },
     class: {
       type: String,
-      enum: ["A", "B", "C", "D", "E"],
       required: true,
     },
     cgpa: {
-      // Store CGPA for each semester, optional
-      sem1: { type: Number, min: 0, max: 10 },
-      sem2: { type: Number, min: 0, max: 10 },
-      sem3: { type: Number, min: 0, max: 10 },
-      sem4: { type: Number, min: 0, max: 10 },
-      sem5: { type: Number, min: 0, max: 10 },
-      sem6: { type: Number, min: 0, max: 10 },
-      sem7: { type: Number, min: 0, max: 10 },
-      sem8: { type: Number, min: 0, max: 10 },
+      type: [Number],
+      validate: {
+        validator: function (v) {
+          return v.every(c => c >= 0 && c <= 10);
+        },
+        message: "CGPA values must be between 0 and 10",
+      },
+      default: [],
     },
     arrears: {
       type: Number,
       required: true,
+      default: 0,
     },
-    admissionCategory: {
+    admissionType: {
       type: String,
-      enum: ["SWS", "MGMGT"],
+      enum: ["sws", "mgmt"],
       required: true,
     },
     hostelStatus: {
       type: String,
-      enum: ["HOSTELER", "DAYSCHOLAR"],
+      enum: ["hosteler", "dayscholar"],
       required: true,
     },
     lateralEntry: {
@@ -75,6 +70,14 @@ const userSchema = new mongoose.Schema(
     gender: {
       type: String,
       enum: ["Male", "Female", "Other"],
+      required: true,
+    },
+    marks10: {
+      type: Number,
+      required: true,
+    },
+    marks12: {
+      type: Number,
       required: true,
     },
     attemptedQuizes: [

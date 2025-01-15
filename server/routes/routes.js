@@ -33,10 +33,11 @@ const {
   deleteList,
 } = require("../controllers/listcontrollers");
 
-const { login, register ,getUsersAndAnalytics,deleteUser,searchUser,edituserrole,departments,updatedept,deletedept} = require("../controllers/userController");
+const {adddepartment, login, register ,getUsersAndAnalytics,deleteUser,searchUser,edituserrole,departments,updatedept,deletedept} = require("../controllers/userController");
 router.post('/deletedept',deletedept);
 router.post('/updatedept',updatedept);
 router.get("/departments",departments);
+router.post("/adddept",adddepartment);
 // User Authentication
 router.post("/login", login);
 router.post("/register", register);
