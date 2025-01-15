@@ -9,7 +9,7 @@ import RequiredError from '../components/RequiredError';
 import toast from 'react-hot-toast';
 import { IoMdArrowForward } from 'react-icons/io';
 import { getLists } from '../services/operations/listoperations';
-import departments from '../components/departments.json'
+
 const CreateQuiz = () => {
   const [loading, setLoading] = useState(false);
   // const departments=departments.sort()
@@ -21,9 +21,16 @@ const CreateQuiz = () => {
 
   // Redux State
   const [list, Setlists] = useState([])
+  const [departments, setDepartments] = useState([]);
+  
   const { token } = useSelector((state) => state.auth);
   const { edit, quiz } = useSelector((state) => state.quiz);
-
+  useEffect(() => {
+    axios.get('http://localhost:4000/api/v1/departments')
+      .then(response => setDepartments(response.data))
+      .catch(err => console.error('Error fetching departments:', err));
+  }, []);
+  
   // React Hook Form
   const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm();
   const year = [1, 2, 3, 4]
