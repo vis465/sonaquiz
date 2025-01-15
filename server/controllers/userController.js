@@ -378,7 +378,15 @@ exports.searchUser = async (req, res) => {
         role: user.role,
         department: user.dept,
         year: user.year,
-        attemptedQuizzes, // Include quiz details with score
+        attemptedQuizzes,
+        admissionType:user.admissionType,
+        hostelStatus:user.hostelStatus,
+        gender:user.gender,
+        lateralEntry:user.lateralEntry,
+        marks10:user.marks10,
+        marks12:user.marks12,
+        cgpa:user.cgpa,
+
       },
     });
   } catch (error) {

@@ -11,6 +11,7 @@ const UserSearchAndAnalytics = () => {
   const [keyword, setKeyword] = useState("");
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { user } = useSelector(state => state.auth);
 
   const handleSearch = async () => {
     if (!keyword.trim()) {
@@ -21,6 +22,7 @@ const UserSearchAndAnalytics = () => {
       "username": keyword.trim()
     }
     setLoading(true);
+
     try {
       const response = await apiConnector(
         "POST",
@@ -32,7 +34,7 @@ const UserSearchAndAnalytics = () => {
       );
 
       setUserDetails(response.data.user);
-      // console.log(userDetails)
+      console.log(userDetails)
     } catch (error) {
       toast.error("Failed to fetch user details.");
       setUserDetails(null);
@@ -124,6 +126,31 @@ const UserSearchAndAnalytics = () => {
             <p><strong>Department:</strong> {userDetails.department}</p>
             <p><strong>Year:</strong> {userDetails.year}</p>
           </div>
+          {user.role === "admin" || user.role === "trainer" ?(<>
+             <h3 className="text-xl font-semibold text-blue-400 mb-3">
+                user performace data
+              </h3>
+            <div className="analytics-card bg-gray-800 p-6 rounded-lg shadow-md mb-6 columns-3 row-span-5">
+             
+              <p><strong>class 10 marks:</strong> {userDetails.marks10}</p>
+              <p><strong>class 12 marks:</strong> {userDetails.marks12}</p>
+              <p><strong>admission type:</strong> {userDetails.admissionType}</p>
+              <p><strong>hostel Status:</strong> {userDetails.hostelStatus}</p>
+              <p><strong>lateralEntry:</strong> {userDetails.lateralEntry?"Yes":"No"}</p>
+              
+              <p><strong>Sem 1 GPA:</strong> {userDetails.cgpa[0]}</p>
+              <p><strong>Sem 2 GPA:</strong> {userDetails.cgpa[1]}</p>
+              <p><strong>Sem 3 GPA:</strong> {userDetails.cgpa[2]}</p>
+              <p><strong>Sem 4 GPA:</strong> {userDetails.cgpa[3]}</p>
+              <p><strong>Sem 5 GPA:</strong> {userDetails.cgpa[4]}</p>
+              <p><strong>Sem 6 GPA:</strong> {userDetails.cgpa[5]}</p>
+              <p><strong>Sem 7 GPA:</strong> {userDetails.cgpa[6]}</p>
+              <p><strong>Sem 8 GPA:</strong> {userDetails.cgpa[7]}</p>
+
+              </div>
+              </>
+          ) : 
+          (<> </>)}
 
           <div className="analytics-card bg-gray-800 p-6 rounded-lg shadow-md mb-6">
             <h3 className="text-xl font-semibold text-blue-400 mb-3">
