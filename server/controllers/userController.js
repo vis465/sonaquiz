@@ -4,6 +4,7 @@ const Attempt = require("../models/Attempt");
 const User = require("../models/User");
 const Eligiblitylist = require("../models/eligiblitylists");
 const bcrypt = require("bcrypt");
+const client = require("../config/redis");
 const { attemptQuiz } = require("./quizController");
 const Quiz = require("../models/Quiz");
 const usercreationmail = require("../mailers/usercraetionmail");
@@ -31,8 +32,6 @@ exports.register = async (req, res) => {
       gender,
     } = req.body;
 
-    
-
     // Perform validations
     if (!email || !username || !password || !confirmPassword) {
       return res.status(400).json({ error: "Missing required fields." });
@@ -40,7 +39,7 @@ exports.register = async (req, res) => {
     if (password !== confirmPassword) {
       return res.status(400).json({ error: "Passwords do not match." });
     }
-   // Check if required fields are present
+    // Check if required fields are present
     if (
       !username ||
       !email ||
@@ -94,13 +93,13 @@ exports.register = async (req, res) => {
     const user = await User.create({
       email,
       username,
-      password:hashedPassword,
+      password: hashedPassword,
       year,
       confirmPassword,
       role,
       registerNumber,
       dept,
-      class:userClass,
+      class: userClass,
       marks10,
       marks12,
       arrears,
@@ -108,7 +107,7 @@ exports.register = async (req, res) => {
       admissionType,
       hostelStatus,
       lateralEntry,
-      gender
+      gender,
     });
 
     // Send user creation email (assuming the function is defined elsewhere)
@@ -128,19 +127,21 @@ exports.register = async (req, res) => {
 };
 exports.adddepartment = async (req, res) => {
   try {
-    console.log(req.body)
+    console.log(req.body);
     // const deptname=req.body.name;
     // const deptabbr=req.body.abbr
     // if (!deptname || !deptabbr) {
     //   throw new Error("Both name and abbreviation are required.");
     // }
-    
-    
-    const testDepartment = await Department.create({ name: "Test Department", abbreviation: "TEST" });
-console.log("Created department:", testDepartment);
 
-    if(newDepartment){
-      console.log("newdept")
+    const testDepartment = await Department.create({
+      name: "Test Department",
+      abbreviation: "TEST",
+    });
+    console.log("Created department:", testDepartment);
+
+    if (newDepartment) {
+      console.log("newdept");
     }
     return res
       .status(200)
@@ -211,11 +212,60 @@ exports.login = async (req, res) => {
         .json({ success: false, error: "Please fill all the fields" });
     }
 
+    // Check Redis cache
+    let redisoutput = await client.get(`user_detail_for_${email}`);
+    if (redisoutput) {
+      redisoutput = JSON.parse(redisoutput); // Parse Redis data
+
+      // Validate password
+      const isMatch = await bcrypt.compare(password, redisoutput.password);
+      if (!isMatch) {
+        return res
+          .status(400)
+          .json({ success: false, error: "Invalid credentials" });
+      }
+
+      const token = jwt.sign(
+        { id: redisoutput._id, email: redisoutput.email, role: redisoutput.role },
+        process.env.JWT_SECRET,
+        { expiresIn: "7d" }
+      );
+
+      // Create cookie
+      const options = {
+        expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+        httpOnly: true,
+      };
+
+      return res
+        .cookie("token", token, options)
+        .status(200)
+        .json({
+          success: true,
+          message: "User logged in successfully",
+          data: {
+            token,
+            user: {
+              id: redisoutput._id,
+              email: redisoutput.email,
+              username: redisoutput.username,
+              role: redisoutput.role,
+              createdAt: redisoutput.createdAt,
+              attemptedQuizzes: redisoutput.attemptedQuizzes || [],
+              year: redisoutput.year,
+              dept: redisoutput.dept,
+            },
+          },
+        });
+    }
+
+    // Fetch user from database
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ success: false, error: "User not found" });
     }
 
+    // Validate password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res
@@ -223,15 +273,20 @@ exports.login = async (req, res) => {
         .json({ success: false, error: "Invalid credentials" });
     }
 
+    // Cache user details in Redis
+    await client.setEx(
+      `user_detail_for_${email}`,
+      259200, // 3 days in seconds
+      JSON.stringify(user)
+    );
+
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      }
+      { expiresIn: "7d" }
     );
 
-    // create cookie and send res
+    // Create cookie
     const options = {
       expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
       httpOnly: true,
@@ -251,19 +306,20 @@ exports.login = async (req, res) => {
             username: user.username,
             role: user.role,
             createdAt: user.createdAt,
-            attemptedQuizzes: user?.attemptedQuizes || [],
+            attemptedQuizzes: user.attemptedQuizzes || [],
             year: user.year,
             dept: user.dept,
           },
         },
       });
   } catch (error) {
-    console.log("ERROR WHILE LOGGIN IN THE USER : ", error);
+    console.log("ERROR WHILE LOGGING IN THE USER: ", error);
     return res
       .status(500)
       .json({ success: false, error: "Internal server error" });
   }
 };
+
 
 // Fetch all users and analytics
 exports.getUsersAndAnalytics = async (req, res) => {
@@ -379,14 +435,13 @@ exports.searchUser = async (req, res) => {
         department: user.dept,
         year: user.year,
         attemptedQuizzes,
-        admissionType:user.admissionType,
-        hostelStatus:user.hostelStatus,
-        gender:user.gender,
-        lateralEntry:user.lateralEntry,
-        marks10:user.marks10,
-        marks12:user.marks12,
-        cgpa:user.cgpa,
-
+        admissionType: user.admissionType,
+        hostelStatus: user.hostelStatus,
+        gender: user.gender,
+        lateralEntry: user.lateralEntry,
+        marks10: user.marks10,
+        marks12: user.marks12,
+        cgpa: user.cgpa,
       },
     });
   } catch (error) {

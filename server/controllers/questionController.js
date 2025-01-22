@@ -1,13 +1,23 @@
+const { json } = require("express");
+const client = require("../config/redis");
 const Question = require("../models/Question");
+require("dotenv").config();
 
 // ✅
 exports.createQuestion = async (req, res) => {
   try {
-    const { questionText, options, answers, quizId, questionType, questionImage, questionFormat } = req.body;
-    
+    const {
+      questionText,
+      options,
+      answers,
+      quizId,
+      questionType,
+      questionImage,
+      questionFormat,
+    } = req.body;
 
     // Validate required fields
-    if (!questionType || !quizId ) {
+    if (!questionType || !quizId) {
       return res.status(400).json({
         success: false,
         error: "Please provide all the required fields",
@@ -23,10 +33,14 @@ exports.createQuestion = async (req, res) => {
         });
       }
       for (const option of options) {
-        if (typeof option.text !== "string" || typeof option.isCorrect !== "boolean") {
+        if (
+          typeof option.text !== "string" ||
+          typeof option.isCorrect !== "boolean"
+        ) {
           return res.status(400).json({
             success: false,
-            error: "Each option should have 'text' as string and 'isCorrect' as boolean.",
+            error:
+              "Each option should have 'text' as string and 'isCorrect' as boolean.",
           });
         }
       }
@@ -74,7 +88,7 @@ exports.createQuestion = async (req, res) => {
       questionImage, // Optional image field
       questionFormat, // Optional formatting field
     });
-    console.log("question")
+    console.log("question");
     return res.status(201).json({
       success: true,
       message: "Question created successfully",
@@ -88,8 +102,6 @@ exports.createQuestion = async (req, res) => {
     });
   }
 };
-
-
 
 // ✅
 exports.updateQuestion = async (req, res) => {
@@ -185,8 +197,23 @@ exports.deleteQuestion = async (req, res) => {
 // ✅
 exports.getQuizQuestions = async (req, res) => {
   try {
+    const ttl = process.env.REDDISTTL;
     const quizId = req.params.id;
-    const questions = await Question.find({ quizId });
+
+    const redisoutput = await client.get(`quiz:${quizId}`);
+
+    let questions;
+
+    if (redisoutput) {
+      console.log(`Cache hit for ${quizId}`);
+      questions = JSON.parse(redisoutput);
+    } else {
+
+      questions = await Question.find({ quizId });
+      console.log(`caching questions for quiz ${quizId}`)
+      client.setEx(`quiz:${quizId}`, ttl, JSON.stringify(questions));
+    }
+
     return res.status(200).json({
       success: true,
       data: questions,
@@ -199,3 +226,4 @@ exports.getQuizQuestions = async (req, res) => {
     });
   }
 };
+

@@ -59,7 +59,8 @@ router.post("/quizzess/attempted", authMiddleware,Attemptedcnt); // Correct rout
 router.post("/attempt/delete", authMiddleware,staffMiddleware,Attemptdelete); // Correct route for attempted quiz
 
 // Question routes
-router.get("/questions/:id", authMiddleware, getQuizQuestions);
+router.get("/questions/:id", getQuizQuestions);
+// router.get("/questions/:id", authMiddleware, getQuizQuestions);
 router.post("/createquestion", authMiddleware, staffMiddleware, createQuestion);
 router.put("/questions/:id", authMiddleware, staffMiddleware, updateQuestion);
 router.delete("/questions/:id", authMiddleware, staffMiddleware, deleteQuestion);
