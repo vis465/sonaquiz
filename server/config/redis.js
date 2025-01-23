@@ -1,8 +1,8 @@
 // config/redisClient.js
 const { createClient } = require('@redis/client');
-
+require("dotenv").config();
 // Create the Redis client and connect it
-const client = createClient({ url: 'redis://127.0.0.1:6000' });
+const client = createClient({ url: process.env.REDIS });
 
 (async () => {
   try {

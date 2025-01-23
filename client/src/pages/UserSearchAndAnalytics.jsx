@@ -22,8 +22,10 @@ const UserSearchAndAnalytics = () => {
       "username": keyword.trim()
     }
     setLoading(true);
-
+    console.log(payload)
+    
     try {
+      console.log("api onanalytics")
       const response = await apiConnector(
         "POST",
         `${analyticsendpoints.SEARCH_USER}`,
@@ -32,9 +34,9 @@ const UserSearchAndAnalytics = () => {
           Authorization: `Bearer ${token}`,
         }
       );
-
+      console.log("response",response)
       setUserDetails(response.data.user);
-      console.log(userDetails)
+      
     } catch (error) {
       toast.error("Failed to fetch user details.");
       setUserDetails(null);

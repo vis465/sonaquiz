@@ -33,7 +33,7 @@ const QuestionCard = React.memo(({ question, onAnswerChange }) => {
                     <img
                         src={question.questionImage}
                         alt="Question"
-                        className="max-w-[200px] max-h-[200px] object-contain rounded-md"
+                        className="max-w-[500px] max-h-[500px] object-contain rounded-md"
                     />
                 </div>
             )}
@@ -57,7 +57,7 @@ const QuestionCard = React.memo(({ question, onAnswerChange }) => {
                                 <img
                                     src={option.imageUrl}
                                     alt="Option"
-                                    className="max-w-[100px] max-h-[100px] object-contain rounded-md"
+                                    className="max-w-[500px] max-h-[500px] object-contain rounded-md"
                                 />
                             ) : (
                                 <span>{option.text}</span>

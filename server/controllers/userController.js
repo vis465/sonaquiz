@@ -397,9 +397,10 @@ exports.deleteUser = async (req, res) => {
 };
 
 exports.searchUser = async (req, res) => {
+  console.log("called")
   try {
     const { username } = req.body;
-
+    
     if (!username) {
       return res
         .status(400)

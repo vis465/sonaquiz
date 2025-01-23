@@ -9,6 +9,7 @@ import RequiredError from '../components/RequiredError';
 import toast from 'react-hot-toast';
 import { IoMdArrowForward } from 'react-icons/io';
 import { getLists } from '../services/operations/listoperations';
+import axios from 'axios';
 
 const CreateQuiz = () => {
   const [loading, setLoading] = useState(false);
@@ -26,9 +27,11 @@ const CreateQuiz = () => {
   const { token } = useSelector((state) => state.auth);
   const { edit, quiz } = useSelector((state) => state.quiz);
   useEffect(() => {
+    
     axios.get('http://localhost:4000/api/v1/departments')
       .then(response => setDepartments(response.data))
       .catch(err => console.error('Error fetching departments:', err));
+      
   }, []);
   
   // React Hook Form
@@ -76,10 +79,6 @@ const CreateQuiz = () => {
 
       if (response) {
         Setlists(response);
-
-        list.forEach(element => {
-          console.log(element)
-        });  // Assuming lists are returned in the 'lists' field
       } else {
         toast.error("Failed to fetch lists.");
       }
@@ -128,7 +127,7 @@ const CreateQuiz = () => {
     
       // Populate checkbox fields for department
       if (quiz.department) {
-        departments.departments.forEach((dept) => {
+        departments.forEach((dept) => {
           const checkbox = document.querySelector(`input[value="${dept.abbreviation}"][name="department"]`);
           if (checkbox) checkbox.checked = quiz.department.includes(dept.abbreviation);
         });
@@ -223,7 +222,7 @@ const CreateQuiz = () => {
           <div className='mb-4'>
             <label htmlFor="Department" className="block text-white mb-1">Department</label>
             <div className=' flex-wrap text-white'>
-              {departments.departments.map((dept) => (
+              {departments.map((dept) => (
                 <label key={dept.abbreviation} className='flex items-center mr-6'>
                   <input
                     type='checkbox'
