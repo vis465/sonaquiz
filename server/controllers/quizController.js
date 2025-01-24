@@ -736,8 +736,10 @@ exports.newquiznotification = async (req, res) => {
 
 exports.attemptnotcomplete = async (req, res) => {
   try {
-    const { quizid } = req.body;
+    const  quizid  = req.params.id;
+    // console.log(quizid)
     const quiz = await Quiz.findById(quizid);
+    // console.log(quiz)
     if (!quiz) {
       return res.status(404).json({ success: false, message: "Quiz not found" });
     }
@@ -751,6 +753,7 @@ exports.attemptnotcomplete = async (req, res) => {
         return await User.findById(user); // Fetch detailed user data
       })
     );
+    
     res.status(200).json({
       success: true,
       data: datatosend,

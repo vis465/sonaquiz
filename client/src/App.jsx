@@ -21,6 +21,8 @@ import Leaderboard from "./pages/Leaderboard"
 import ListManager from "./pages/ListManager"
 import DepartmentManagement from "./pages/departmentmanagement"
 import ListDetails from "./pages/ListDetails"
+import Fourzerofour from "./pages/fourzerofour"
+import Unauth from "./pages/unauth"
 function App() {
 
   const { user } = useSelector(state => state.auth)
@@ -28,7 +30,7 @@ function App() {
   return (
     <div
       className="bg-cover bg-center text-black min-h-screen"
-      style={{ backgroundImage: `url(${buildingimg})` }}
+      style={{ backgroundColor: 'white' }}
     >    <div className="w-full px-5 sm:px-3 mx-auto min-h-screen min-w-screen">
         <Routes>
           <Route path="/" element={<LoggedInRoutes><Home /></LoggedInRoutes>}/>
@@ -53,7 +55,8 @@ function App() {
             <Route path="ListManager" element={<LoggedInRoutes><DashboardLayout><ListManager /></DashboardLayout></LoggedInRoutes>} />
             <Route path="listdetails/:listId" element={<LoggedInRoutes><DashboardLayout><ListDetails /></DashboardLayout></LoggedInRoutes>} />
           </Route>
-
+          <Route path="*" element={<Fourzerofour />} />
+          <Route path="/unauthorized" element={<Unauth />} />
 
         </Routes>
       </div>
