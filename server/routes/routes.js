@@ -15,7 +15,8 @@ const {
   getQuizAttempts,
   Attemptedcnt,
   Attemptdelete,
-  departmentreport,getAllQuizAttempts,newquiznotification
+  departmentreport,getAllQuizAttempts,newquiznotification,
+  attemptnotcomplete
 } = require("../controllers/quizController");
 
 const {
@@ -34,10 +35,10 @@ const {
 } = require("../controllers/listcontrollers");
 
 const {adddepartment, login, register ,getUsersAndAnalytics,deleteUser,searchUser,edituserrole,departments,updatedept,deletedept} = require("../controllers/userController");
-router.post('/deletedept',deletedept);
-router.post('/updatedept',updatedept);
-router.get("/departments",departments);
-router.post("/adddept",adddepartment);
+router.post('/deletedept',authMiddleware,staffMiddleware,deletedept);
+router.post('/updatedept',authMiddleware,staffMiddleware,updatedept);
+router.get("/departments",authMiddleware,staffMiddleware,departments);
+router.post("/adddept",authMiddleware,staffMiddleware,adddepartment);
 // User Authentication
 router.post("/login", login);
 router.post("/register", register);
@@ -57,7 +58,7 @@ router.put("/quizzes/:id", authMiddleware, updateQuiz);
 router.delete("/quizzes/:id", authMiddleware, staffMiddleware, deleteQuiz);
 router.post("/quizzess/attempted", authMiddleware,Attemptedcnt); // Correct route for attempted quiz
 router.post("/attempt/delete", authMiddleware,staffMiddleware,Attemptdelete); // Correct route for attempted quiz
-
+router.get("/attemptnotcomplete",authMiddleware,attemptnotcomplete)
 // Question routes
 router.get("/questions/:id", getQuizQuestions);
 // router.get("/questions/:id", authMiddleware, getQuizQuestions);

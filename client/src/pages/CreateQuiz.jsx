@@ -10,6 +10,8 @@ import toast from 'react-hot-toast';
 import { IoMdArrowForward } from 'react-icons/io';
 import { getLists } from '../services/operations/listoperations';
 import axios from 'axios';
+import { apiConnector } from '../services/apiConnector';
+import { departmentendpoint } from '../services/APIs';
 
 const CreateQuiz = () => {
   const [loading, setLoading] = useState(false);
@@ -27,12 +29,24 @@ const CreateQuiz = () => {
   const { token } = useSelector((state) => state.auth);
   const { edit, quiz } = useSelector((state) => state.quiz);
   useEffect(() => {
-    
-    axios.get('http://localhost:4000/api/v1/departments')
-      .then(response => setDepartments(response.data))
-      .catch(err => console.error('Error fetching departments:', err));
-      
-  }, []);
+    const fetchDepartments = async () => {
+      setLoading(true);
+      try {
+        
+        const response = await apiConnector("GET", departmentendpoint.GET_DEPT, null, {
+          Authorization: `Bearer ${token}`,
+        });
+        
+        setDepartments(response.data); // State update
+      } catch (error) {
+        console.error("Error fetching departments:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDepartments();
+  }, [token]);
+  
   
   // React Hook Form
   const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm();

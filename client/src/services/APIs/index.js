@@ -37,7 +37,8 @@ export const quizEndpoints = {
   POST_USER_ATTEMPTS:`${BASE_URL}/quizzess/attempted`,
   GET_ALL_QUIZESS: `${BASE_URL}/quizzess`,
   GET_FOR_DASHBOARD:  `${BASE_URL}/getAllQuizAttempts`,
-  NOTIFICATION:`${BASE_URL}/quiznotification`
+  NOTIFICATION:`${BASE_URL}/quiznotification`,
+  attemptnotcomplete:`${BASE_URL}/attemptnotcomplete`
 };
 
 export const questionEndpoints = {
@@ -46,3 +47,9 @@ export const questionEndpoints = {
   DELETE_QUESTION: `${BASE_URL}/questions`,
   GET_QUIZ_QUESTIONS: `${BASE_URL}/questions`,
 };
+export const departmentendpoint ={
+  GET_DEPT:`${BASE_URL}/departments`,
+  DELETE_DEPT:`${BASE_URL}/deletedept`,
+  UPDATE_DEPT:`${BASE_URL}/updatedept`,
+  ADD_DEPT:`${BASE_URL}/adddept`
+}

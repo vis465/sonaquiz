@@ -126,23 +126,22 @@ exports.register = async (req, res) => {
   }
 };
 exports.adddepartment = async (req, res) => {
+  
   try {
     console.log(req.body);
-    // const deptname=req.body.name;
-    // const deptabbr=req.body.abbr
-    // if (!deptname || !deptabbr) {
-    //   throw new Error("Both name and abbreviation are required.");
-    // }
+    const deptname=req.body.name;
+    const deptabbr=req.body.abbreviation
+    if (!deptname || !deptabbr) {
+      throw new Error("Both name and abbreviation are required.");
+    }
 
     const testDepartment = await Department.create({
-      name: "Test Department",
-      abbreviation: "TEST",
+      name: deptname,
+      abbreviation: deptabbr,
     });
     console.log("Created department:", testDepartment);
 
-    if (newDepartment) {
-      console.log("newdept");
-    }
+   
     return res
       .status(200)
       .json({ success: true, message: "Department created successfully" });
@@ -155,6 +154,7 @@ exports.adddepartment = async (req, res) => {
 };
 exports.departments = async (req, res) => {
   try {
+    console.log("fetch")
     const departments = await Department.find();
     res.status(200).json(departments);
   } catch (error) {

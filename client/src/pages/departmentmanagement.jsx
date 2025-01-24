@@ -3,6 +3,8 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from 'axios';
+import { apiConnector } from "../services/apiConnector";
+import { departmentendpoint } from "../services/APIs";
 
 const DepartmentManagement = () => {
   const { token } = useSelector((state) => state.auth);
@@ -17,10 +19,11 @@ const DepartmentManagement = () => {
     const fetchDepts = async () => {
       setLoading(true);
       try {
-        axios.get("http://localhost:4000/api/v1/departments")
-          .then(response => {
-            setUsers(response.data);
-          });
+        const response=await apiConnector("GET",departmentendpoint.GET_DEPT,null,{
+          Authorization: `Bearer ${token}`
+        })
+        
+        setUsers(response.data)
       } catch (error) {
         toast.error("Failed to load departments.");
       }
@@ -40,10 +43,14 @@ const DepartmentManagement = () => {
   const handleAddDept = async () => {
     // Handle Add department logic (API call)
     if (deptForm.name && deptForm.abbreviation) {
-      // Trigger API call here to add department
+      const data={name:deptForm.name,abbreviation:deptForm.abbreviation}
+      const response= await apiConnector("POST",departmentendpoint.ADD_DEPT,data,{
+        Authorization: `Bearer ${token}`
+      })
+      if(response.success){
       toast.success("Department added successfully!");
-      setDeptForm({ name: "", abbreviation: "" });
-      // Reload or update department list
+      setDeptForm({ name: "", abbreviation: "" });}
+      window.location.reload()
     } else {
       toast.error("Please fill in both fields.");
     }
@@ -56,7 +63,11 @@ const DepartmentManagement = () => {
       let deptname=deptForm.name;
       let abbr=deptForm.abbreviation;
       console.log(editingDept,abbr)
-      let response = await axios.post("http://localhost:4000/api/v1/updatedept", { deptid: editingDept,deptname:deptname,abbr:abbr })
+      const data={ deptid: editingDept,deptname:deptname,abbr:abbr }
+      let response = await apiConnector("POST",departmentendpoint.UPDATE_DEPT,data,{
+        Authorization: `Bearer ${token}`
+
+      })
       console.log(response)
       toast.success("Department updated successfully!");
       setEditingDept(null);
@@ -70,8 +81,10 @@ const DepartmentManagement = () => {
 
   // Handle user deletion
   const handleDelete = async (userId) => {
-    console.log("delete called", userId);
-    let response = await axios.post("http://localhost:4000/api/v1/deletedept", { deptid: userId });
+    const data={ deptid: userId }
+    let response = await apiConnector("POST",departmentendpoint.DELETE_DEPT,data,{
+      Authorization: `Bearer ${token}`
+    })
     toast.success(response.data.message);
     window.location.reload();
   };

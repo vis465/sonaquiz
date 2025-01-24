@@ -556,8 +556,6 @@ exports.getAllQuizAttempts = async (req, res) => {
 
 exports.Attemptedcnt = async (req, res) => {
   try {
-    console.log("method called");
-    console.log("Payload received:", req.body);
 
     const { quizId, userID } = req.body;
 
@@ -710,18 +708,18 @@ exports.newquiznotification = async (req, res) => {
       
       console.log("BODY", bodyFormData);
       
-      // await axios({
-      //   method: "post",
-      //   url: `${process.env.BOTURL}/notify-quiz`,
-      //   data: bodyFormData,
-      //   headers: { "Content-Type": "application/json" }, // Use application/json
-      // })
-      //   .then(function (response) {
-      //     console.log(response.data);
-      //   })
-      //   .catch(function (response) {
-      //     console.log(response.body);
-      //   });
+      await axios({
+        method: "post",
+        url: `${process.env.BOTURL}/notify-quiz`,
+        data: bodyFormData,
+        headers: { "Content-Type": "application/json" }, // Use application/json
+      })
+        .then(function (response) {
+          console.log(response.data);
+        })
+        .catch(function (response) {
+          console.log(response.body);
+        });
     }
 
     return res
@@ -733,5 +731,32 @@ exports.newquiznotification = async (req, res) => {
   } catch (e) {
     console.error("Error in newquiznotification:", e);
     return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+exports.attemptnotcomplete = async (req, res) => {
+  try {
+    const { quizid } = req.body;
+    const quiz = await Quiz.findById(quizid);
+    if (!quiz) {
+      return res.status(404).json({ success: false, message: "Quiz not found" });
+    }
+    const attemptCounts = Array.from(quiz.attemptCounts.keys()); 
+    const completedAttempts = await Attempt.find({ quizId: quizid }).select("userId"); 
+    const completedUserIds = completedAttempts.map((attempt) => attempt.userId.toString());
+    const usersNotCompleted = attemptCounts.filter((userId) => !completedUserIds.includes(userId));
+    console.log(usersNotCompleted)
+    const datatosend = await Promise.all(
+      usersNotCompleted.map(async (user) => {
+        return await User.findById(user); // Fetch detailed user data
+      })
+    );
+    res.status(200).json({
+      success: true,
+      data: datatosend,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
