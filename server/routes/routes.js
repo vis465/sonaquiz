@@ -88,7 +88,7 @@ router.post("/getlistusers", authMiddleware, getUsersOfList);
 router.post("/quiznotification",authMiddleware,staffMiddleware,newquiznotification)
 
 // Data routes
-router.get("/quizzes", authMiddleware, getAllQuizzes);
+router.get("/quizzes",authMiddleware, getAllQuizzes);
 router.get("/quizzess/:id", authMiddleware, getAllQuizzess);
 router.get("/quizzes/:id", authMiddleware, getQuizById);
 router.post("/quizzes/:id/attempt", authMiddleware, attemptQuiz);

@@ -215,7 +215,15 @@ exports.getQuizQuestions = async (req, res) => {
       console.log(`caching questions for quiz ${quizId}`)
       client.setEx(`quiz:${quizId}`, ttl, JSON.stringify(questions));
     }
-
+    console.log(questions);
+    if (!questions.some(q => "section" in q)) {
+      for (let question of questions) {
+        question.section = "Quiz";
+      }
+    }
+    
+    grp=Object.groupBy(questions,({section})=>section);
+    console.log(grp);
     return res.status(200).json({
       success: true,
       data: questions,

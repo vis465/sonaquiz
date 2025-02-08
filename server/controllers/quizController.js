@@ -221,7 +221,7 @@ exports.getAllQuizzess = async (req, res) => {
       (quiz) => quiz !== null
     );
 
-    // console.log(finalFilteredQuizzes)
+    console.log(finalFilteredQuizzes)
 
     // console.log(filteredQuizzes);
     return res.status(200).json({
@@ -251,6 +251,7 @@ exports.getQuizById = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Quiz not found" });
     }
+    console.log("quiz", quiz);
     return res.status(200).json({
       success: true,
       data: quiz,
