@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 import {useNavigate, useLocation } from "react-router-dom";  // Import useLocation for state access
@@ -20,6 +20,9 @@ const BulkQuestionUpload = () => {
   const { id: quizId } = location.state || {};  // Access quizId from state
   
   console.log("Quiz ID:", quizId);  // Log quizId for debugging
+  useEffect(() => {
+    console.log("Parsed Questions:", questions);
+  }, [questions]);
 
   const handleFileChange = (e) => {
     setError(null);
@@ -55,6 +58,7 @@ const BulkQuestionUpload = () => {
           complete: (results) => {
             if (results.data && results.data.length > 0) {
               setQuestions(results.data);
+              console.log(questions)
               setError(null);
             } else {
               setError("No valid data found in the CSV file.");
@@ -71,6 +75,7 @@ const BulkQuestionUpload = () => {
         const data = XLSX.utils.sheet_to_json(sheet);
         if (data.length > 0) {
           setQuestions(data);
+          console.log(questions)
           setError(null);
         } else {
           setError("No valid data found in the Excel file.");
@@ -78,6 +83,7 @@ const BulkQuestionUpload = () => {
       };
       reader.readAsBinaryString(file);
     }
+    
   };
 
   const handleSampleDownload = () => {
@@ -254,6 +260,7 @@ const BulkQuestionUpload = () => {
                       </span>
                     </li>
                   ))}
+                  <p>Section: {question.section}</p>
                 </ul>
               </div>
             ) : (
@@ -264,6 +271,7 @@ const BulkQuestionUpload = () => {
                     <li key={idx} className="text-green-400">{answer.text}</li>
                   ))}
                 </ul>
+                <p>Section: {question.section}</p>
               </div>
             )}
           </div>

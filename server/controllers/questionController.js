@@ -14,6 +14,7 @@ exports.createQuestion = async (req, res) => {
       questionType,
       questionImage,
       questionFormat,
+      section
     } = req.body;
 
     // Validate required fields
@@ -87,6 +88,7 @@ exports.createQuestion = async (req, res) => {
       answers: questionType === "FIB" ? answers : undefined,
       questionImage, // Optional image field
       questionFormat, // Optional formatting field
+      section
     });
     console.log("question");
     return res.status(201).json({

@@ -20,12 +20,13 @@ const questionSchema = new mongoose.Schema({
     enum: ["MCQ", "FIB", "IMAGE_MCQ"], // Added IMAGE_MCQ type
     required: true 
   },
+  section:String,
   options: [optionSchema], // For MCQ and IMAGE_MCQ
   answers: [answerSchema], // For FIB
   questionFormat: {
     type: String,
     enum: ["TEXT", "IMAGE", "BOTH"], // To specify if it's text, image, or both
-    required: true
+    required: false
   }
 });
 
