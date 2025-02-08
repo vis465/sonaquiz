@@ -8,8 +8,11 @@ import Button from '../components/Button';
 import RequiredError from '../components/RequiredError';
 import toast from 'react-hot-toast';
 import { IoMdArrowForward } from 'react-icons/io';
+import { getLists } from '../services/operations/listoperations';
+import axios from 'axios';
+import { apiConnector } from '../services/apiConnector';
+import { departmentendpoint } from '../services/APIs';
 
-import departments from '../components/departments.json'
 const CreateQuiz = () => {
   const [loading, setLoading] = useState(false);
   // const departments=departments.sort()
@@ -20,9 +23,31 @@ const CreateQuiz = () => {
   const { id: quizId } = useParams();
 
   // Redux State
+  const [list, Setlists] = useState([])
+  const [departments, setDepartments] = useState([]);
+  
   const { token } = useSelector((state) => state.auth);
   const { edit, quiz } = useSelector((state) => state.quiz);
-
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      setLoading(true);
+      try {
+        
+        const response = await apiConnector("GET", departmentendpoint.GET_DEPT, null, {
+          Authorization: `Bearer ${token}`,
+        });
+        
+        setDepartments(response.data); // State update
+      } catch (error) {
+        console.error("Error fetching departments:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDepartments();
+  }, [token]);
+  
+  
   // React Hook Form
   const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm();
   const year = [1, 2, 3, 4]
@@ -33,12 +58,13 @@ const CreateQuiz = () => {
       // Set default instructions if empty
       data.instructions =
         data.instructions || "Attempt all the questions with caution. Once you submit, you cannot go back.";
+      
+      // Include selected lists in the payload
+      data.list = data.list || [];
   
       // Handle edit or create logic
       if (edit) {
         const response = await updateQuiz(data, token, quizId);
-        console.log("data", data.endtime);
-        console.log("quizid", quizId);
         if (response) {
           reset(); // Reset form after successful update
           toast.success("Quiz Updated Successfully");
@@ -60,27 +86,45 @@ const CreateQuiz = () => {
       setLoading(false);
     }
   };
-  
+  const fetchLists = async () => {
+
+    try {
+      const response = await getLists(token)
+
+      if (response) {
+        Setlists(response);
+      } else {
+        toast.error("Failed to fetch lists.");
+      }
+    } catch (error) {
+      console.error("Error fetching lists:", error);
+      toast.error("Failed to fetch lists.");
+    }
+  };
   // Populate form fields when editing
   useEffect(() => {
+    fetchLists()
+  }, [])
+  useEffect(() => {
     if (edit && quiz) {
+
       // Set form values
       setValue("title", quiz.title || "");
       setValue("description", quiz.description || "");
       setValue("timer", quiz.timer || "");
       setValue("instructions", quiz.instructions || "");
       setValue("maxAttempts", Number(quiz.maxAttempts) || 1);
-  
+
       // Format and set the endtime
       setValue(
         "endtime",
         quiz.endtime
           ? new Date(quiz.endtime)
-              .toLocaleString("en-CA", { timeZone: "IST", hour12: false })
-              .replace(", ", "T")
+            .toLocaleString("en-CA", { timeZone: "IST", hour12: false })
+            .replace(", ", "T")
           : ""
       );
-  
+
       // Populate checkbox fields for year
       if (quiz.year) {
         year.forEach((yr) => {
@@ -88,25 +132,31 @@ const CreateQuiz = () => {
           if (checkbox) checkbox.checked = quiz.year.includes(yr);
         });
       }
-  
+      if (quiz.list) {
+        list.forEach((listitem) => {
+          const checkbox = document.querySelector(`input[value="${listitem.listname}"][name="list"]`);
+          if (checkbox) checkbox.checked = quiz.list.includes(listitem.listname);
+        });
+      }
+    
       // Populate checkbox fields for department
       if (quiz.department) {
-        departments.departments.forEach((dept) => {
+        departments.forEach((dept) => {
           const checkbox = document.querySelector(`input[value="${dept.abbreviation}"][name="department"]`);
           if (checkbox) checkbox.checked = quiz.department.includes(dept.abbreviation);
         });
       }
     }
-  
+
     // Reset form when navigating to the create-quiz route
     if (location.pathname === "/dashboard/create-quiz" && edit) {
       dispatch(setEdit(false));
       dispatch(setQuiz(null));
       reset();
     }
-  }, [edit, quiz, setValue, location.pathname, dispatch, reset]);
-  
-  
+  }, [edit, quiz, setValue, location.pathname, dispatch, reset,list]);
+
+
   return (
     <div className="min-h-[70vh] flex justify-center items-center flex-col gap-8">
       <h1 className="text-4xl font-bold text-center text-white">Create Quiz</h1>
@@ -186,7 +236,7 @@ const CreateQuiz = () => {
           <div className='mb-4'>
             <label htmlFor="Department" className="block text-white mb-1">Department</label>
             <div className=' flex-wrap text-white'>
-              {departments.departments.map((dept) => (
+              {departments.map((dept) => (
                 <label key={dept.abbreviation} className='flex items-center mr-6'>
                   <input
                     type='checkbox'
@@ -198,8 +248,26 @@ const CreateQuiz = () => {
                 </label>
               ))}
             </div>
-            {errors?.department && <RequiredError>{errors.department.message}</RequiredError>}
           </div>
+
+          <div className="mb-4">
+  <label htmlFor="list" className="block text-white mb-1">List</label>
+  <div className="flex-wrap text-white">
+    {list.map((lis) => (
+      <label key={lis._id} className="flex items-center mr-6">
+        <input
+          type="checkbox"
+          value={lis._id}
+          {...register("list")}
+          className="w-5 h-5 border-2 border-gray-300 rounded-sm checked:bg-green-500 checked:border-green-500 focus:ring-0 cursor-pointer"
+        />
+        <span className="ml-2">{lis.listname}</span>
+      </label>
+    ))}
+  </div>
+  {errors?.list && <RequiredError>{errors.list.message}</RequiredError>}
+</div>
+
 
           {/* Timer */}
           <div className="mb-4">
@@ -221,7 +289,7 @@ const CreateQuiz = () => {
               type="datetime-local"
               id="endtime"
               placeholder="Enter end time"
-          
+
               className="w-full px-3 py-2 rounded bg-gray-700 text-white outline-none"
               {...register("endtime", { required: "end time is required" })}
             />

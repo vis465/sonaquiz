@@ -15,7 +15,8 @@ const {
   getQuizAttempts,
   Attemptedcnt,
   Attemptdelete,
-  departmentreport,getAllQuizAttempts
+  departmentreport,getAllQuizAttempts,newquiznotification,
+  attemptnotcomplete
 } = require("../controllers/quizController");
 
 const {
@@ -24,9 +25,20 @@ const {
   deleteQuestion,
   getQuizQuestions,
 } = require("../controllers/questionController");
+const {
+  createList,
+  addUserToList,
+  deleteUserFromList,
+  getAllLists,
+  getUsersOfList,
+  deleteList,
+} = require("../controllers/listcontrollers");
 
-const { login, register ,getUsersAndAnalytics,deleteUser,searchUser,edituserrole} = require("../controllers/userController");
-
+const {adddepartment, login, register ,getUsersAndAnalytics,deleteUser,searchUser,edituserrole,departments,updatedept,deletedept} = require("../controllers/userController");
+router.post('/deletedept',authMiddleware,staffMiddleware,deletedept);
+router.post('/updatedept',authMiddleware,staffMiddleware,updatedept);
+router.get("/departments",authMiddleware,staffMiddleware,departments);
+router.post("/adddept",authMiddleware,staffMiddleware,adddepartment);
 // User Authentication
 router.post("/login", login);
 router.post("/register", register);
@@ -46,12 +58,34 @@ router.put("/quizzes/:id", authMiddleware, updateQuiz);
 router.delete("/quizzes/:id", authMiddleware, staffMiddleware, deleteQuiz);
 router.post("/quizzess/attempted", authMiddleware,Attemptedcnt); // Correct route for attempted quiz
 router.post("/attempt/delete", authMiddleware,staffMiddleware,Attemptdelete); // Correct route for attempted quiz
-
+router.get("/attemptnotcomplete/:id",authMiddleware,attemptnotcomplete)
 // Question routes
-router.get("/questions/:id", authMiddleware, getQuizQuestions);
+router.get("/questions/:id", getQuizQuestions);
+// router.get("/questions/:id", authMiddleware, getQuizQuestions);
 router.post("/createquestion", authMiddleware, staffMiddleware, createQuestion);
 router.put("/questions/:id", authMiddleware, staffMiddleware, updateQuestion);
 router.delete("/questions/:id", authMiddleware, staffMiddleware, deleteQuestion);
+
+
+// Create a new list
+router.post("/createlist", authMiddleware, staffMiddleware, createList);
+
+// Delete a list
+router.delete("/deletelist/:listid", authMiddleware, staffMiddleware, deleteList);
+
+// Add a user to a list
+router.post("/addusertolist", authMiddleware, staffMiddleware, addUserToList);
+
+// Delete a user from a list
+router.post("/deleteuserfromlist", authMiddleware, staffMiddleware, deleteUserFromList);
+
+// Get all lists with user metadata
+router.get("/getalllists", authMiddleware, getAllLists);
+
+// Get users of a specific list
+router.post("/getlistusers", authMiddleware, getUsersOfList);
+
+router.post("/quiznotification",authMiddleware,staffMiddleware,newquiznotification)
 
 // Data routes
 router.get("/quizzes", authMiddleware, getAllQuizzes);
@@ -63,5 +97,6 @@ router.post("/checkattemps", authMiddleware, (req, res) => {
   // Implement the check attempts logic here
   res.send("Check Attempts Route");
 });
+
 
 module.exports = router;

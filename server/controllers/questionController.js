@@ -1,18 +1,30 @@
+const { json } = require("express");
+const client = require("../config/redis");
 const Question = require("../models/Question");
+require("dotenv").config();
 
 // ✅
 exports.createQuestion = async (req, res) => {
   try {
-    const { questionText, options, answers, quizId, questionType } = req.body;
-    console.log(req.body);
+    const {
+      questionText,
+      options,
+      answers,
+      quizId,
+      questionType,
+      questionImage,
+      questionFormat,
+    } = req.body;
 
-    if (!questionText || !questionType || !quizId) {
+    // Validate required fields
+    if (!questionType || !quizId) {
       return res.status(400).json({
         success: false,
         error: "Please provide all the required fields",
       });
     }
 
+    // Validate MCQ-specific fields
     if (questionType === "MCQ") {
       if (!options || !Array.isArray(options) || options.length < 2) {
         return res.status(400).json({
@@ -27,11 +39,15 @@ exports.createQuestion = async (req, res) => {
         ) {
           return res.status(400).json({
             success: false,
-            error: "Each option should have 'text' as string and 'isCorrect' as boolean.",
+            error:
+              "Each option should have 'text' as string and 'isCorrect' as boolean.",
           });
         }
       }
-    } else if (questionType === "FIB") {
+    }
+
+    // Validate FIB-specific fields
+    if (questionType === "FIB") {
       if (!answers || !Array.isArray(answers) || answers.length < 1) {
         return res.status(400).json({
           success: false,
@@ -48,28 +64,44 @@ exports.createQuestion = async (req, res) => {
       }
     }
 
+    // Validate optional fields
+    if (questionImage && typeof questionImage !== "string") {
+      return res.status(400).json({
+        success: false,
+        error: "Image must be provided as a base64 string.",
+      });
+    }
+    if (questionFormat && typeof questionFormat !== "string") {
+      return res.status(400).json({
+        success: false,
+        error: "questionFormat must be a string.",
+      });
+    }
+
+    // Create question
     const question = await Question.create({
       quizId,
       questionText,
       questionType,
       options: questionType === "MCQ" ? options : undefined,
       answers: questionType === "FIB" ? answers : undefined,
+      questionImage, // Optional image field
+      questionFormat, // Optional formatting field
     });
-
+    console.log("question");
     return res.status(201).json({
       success: true,
       message: "Question created successfully",
       data: question,
     });
   } catch (e) {
-    console.log("ERROR CREATING QUESTION: ", e);
+    console.error("ERROR CREATING QUESTION: ", e);
     return res.status(500).json({
       success: false,
       error: "Internal server error",
     });
   }
 };
-
 
 // ✅
 exports.updateQuestion = async (req, res) => {
@@ -165,8 +197,23 @@ exports.deleteQuestion = async (req, res) => {
 // ✅
 exports.getQuizQuestions = async (req, res) => {
   try {
+    const ttl = process.env.REDDISTTL;
     const quizId = req.params.id;
-    const questions = await Question.find({ quizId });
+
+    const redisoutput = await client.get(`quiz:${quizId}`);
+
+    let questions;
+
+    if (redisoutput) {
+      console.log(`Cache hit for ${quizId}`);
+      questions = JSON.parse(redisoutput);
+    } else {
+
+      questions = await Question.find({ quizId });
+      console.log(`caching questions for quiz ${quizId}`)
+      client.setEx(`quiz:${quizId}`, ttl, JSON.stringify(questions));
+    }
+
     return res.status(200).json({
       success: true,
       data: questions,
@@ -179,3 +226,4 @@ exports.getQuizQuestions = async (req, res) => {
     });
   }
 };
+

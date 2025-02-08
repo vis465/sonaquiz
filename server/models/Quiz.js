@@ -30,6 +30,10 @@ const quizSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
     }],
+    lists:[{
+        type:[mongoose.Schema.Types.ObjectId],
+        ref:'Eligiblitylist'
+    }],
     attemptCounts: {
         type: Map,
         of: Number, // Map where key is userID and value is attempt count

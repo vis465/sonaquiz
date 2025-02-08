@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
 
 const userSchema = new mongoose.Schema(
   {
@@ -19,10 +18,10 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["admin", "user","trainer"],
+      enum: ["admin", "user", "trainer"],
       required: true,
     },
-    regnNumber: {
+    registerNumber: {
       type: String,
       required: true,
     },
@@ -33,16 +32,55 @@ const userSchema = new mongoose.Schema(
     },
     dept: {
       type: String,
-      enum: ["CSE", "IT", "EEE", "CE","ECE","MCT","BME","ADS",'FT','CSD','AIML', "MECH"],
       required: true,
     },
     class: {
       type: String,
-      enum: ["A", "B", "C", "D", "E"],
+      required: true,
+    },
+    cgpa: {
+      type: [Number],
+      validate: {
+        validator: function (v) {
+          return v.every(c => c >= 0 && c <= 10);
+        },
+        message: "CGPA values must be between 0 and 10",
+      },
+      default: [],
+    },
+    arrears: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    admissionType: {
+      type: String,
+      enum: ["sws", "mgmt"],
+      required: true,
+    },
+    hostelStatus: {
+      type: String,
+      enum: ["hosteler", "dayscholar"],
+      required: true,
+    },
+    lateralEntry: {
+      type: Boolean,
+      required: true,
+    },
+    gender: {
+      type: String,
+      enum: ["Male", "Female", "Other"],
+      required: true,
+    },
+    marks10: {
+      type: Number,
+      required: true,
+    },
+    marks12: {
+      type: Number,
       required: true,
     },
     attemptedQuizes: [
-      
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Quiz",

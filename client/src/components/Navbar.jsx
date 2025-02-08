@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaBars, FaTimes, FaHome, FaBriefcase, FaTachometerAlt } from 'react-icons/fa';
+import { FaBars, FaTimes, FaHome, FaChartBar, FaTachometerAlt } from 'react-icons/fa';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import Button from '../components/Button';
 import { logout } from '../services/operations/AuthAPIs';
@@ -16,7 +16,7 @@ const Navbar = () => {
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
     return (
-        <nav className="bg-[#1E4175] text-white w-full fixed top-0 left-0 z-50">
+        <nav className="bg-[#334155] text-white w-full fixed top-0 left-0 z-50">
             <div className="max-w-[1200px] mx-auto px-5 sm:px-3 flex items-center justify-between py-3">
                 {/* Logo and Title */}
                 <div className="flex items-center gap-3">
@@ -31,23 +31,23 @@ const Navbar = () => {
                     <NavLink
                         to="/"
                         className={({ isActive }) =>
-                            `flex items-center gap-2 ${isActive ? 'text-green-600' : 'text-white hover:text-gray-200'}`
+                            `flex items-center gap-2 ${isActive ? 'text-[#F78166]' : 'text-white hover:text-[#F78166]'}`
                         }
                     >
                         <FaHome /> Home
                     </NavLink>
-                    {/* <NavLink
-                        to="/drives"
+                    <NavLink
+                        to="/leaderboard"
                         className={({ isActive }) =>
-                            `flex items-center gap-2 ${isActive ? 'text-green-600' : 'text-white hover:text-gray-200'}`
+                            `flex items-center gap-2 ${isActive ? 'text-[#F78166]' : 'text-white hover:text-[#F78166]'}`
                         }
                     >
-                        <FaBriefcase /> Drives
-                    </NavLink> */}
+                        <FaChartBar /> Leaderboard
+                    </NavLink>
                     <NavLink
                         to="/dashboard"
                         className={({ isActive }) =>
-                            `flex items-center gap-2 ${isActive ? 'text-green-600' : 'text-white hover:text-gray-200'}`
+                            `flex items-center gap-2 ${isActive ? 'text-[#F78166]' : 'text-white hover:text-[#F78166]'}`
                         }
                     >
                         <FaTachometerAlt /> Dashboard
@@ -57,7 +57,7 @@ const Navbar = () => {
                     <div className="flex items-center gap-3  px-3 py-1 rounded-lg border border-slate-600">
                         <NavLink
                             to="/dashboard"
-                            className={`hover:bg-slate-700 transition-all duration-300 px-3 py-1 rounded-full ${location.pathname === '/dashboard' && 'bg-green-500'}`}
+                            className={`hover:bg-[#F78166] transition-all duration-300 px-3 py-1 rounded-full ${location.pathname === '/dashboard' && 'bg-green-500'}`}
                         >
                             Profile
                         </NavLink>
@@ -83,7 +83,7 @@ const Navbar = () => {
                         ) : (
                             <NavLink
                                 to="/dashboard/history"
-                                className={`hover:bg-slate-700 transition-all duration-300 px-3 py-1 rounded ${
+                                className={`hover:bg-[#F78166] transition-all duration-300 px-3 py-1 rounded ${
                                     location.pathname.includes('history') && 'bg-green-500'
                                 }`}
                             >
@@ -118,25 +118,25 @@ const Navbar = () => {
                         to="/"
                         onClick={toggleMenu}
                         className={({ isActive }) =>
-                            `block py-2 px-5 flex items-center gap-2 ${isActive ? 'text-green-600' : 'text-white'}`
+                            `block py-2 px-5 flex items-center gap-2 ${isActive ? 'text-[#F78166]' : 'text-white'}`
                         }
                     >
                         <FaHome /> Home
                     </NavLink>
-                    {/* <NavLink
-                        to="/drives"
+                    <NavLink
+                        to="/Leaderboard"
                         onClick={toggleMenu}
                         className={({ isActive }) =>
-                            `block py-2 px-5 flex items-center gap-2 ${isActive ? 'text-green-600' : 'text-white'}`
+                            `block py-2 px-5 flex items-center gap-2 ${isActive ? 'text-[#F78166]' : 'text-white'}`
                         }
                     >
-                        <FaBriefcase /> Drives
-                    </NavLink> */}
+                        <FaChartBar /> Leaderboard
+                    </NavLink>
                     <NavLink
                         to="/dashboard"
                         onClick={toggleMenu}
                         className={({ isActive }) =>
-                            `block py-2 px-5 flex items-center gap-2 ${isActive ? 'text-green-600' : 'text-white'}`
+                            `block py-2 px-5 flex items-center gap-2 ${isActive ? 'text-[#F78166]' : 'text-white'}`
                         }
                     >
                         <FaTachometerAlt /> Dashboard
@@ -146,7 +146,7 @@ const Navbar = () => {
                     <div className="py-2 px-5">
                         <NavLink
                             to="/dashboard"
-                                className={`hover:bg-slate-700 transition-all duration-300 px-3 py-1 rounded ${
+                                className={`hover:bg-[#F78166] transition-all duration-300 px-3 py-1 rounded ${
                                 location.pathname === '/dashboard' && 'bg-[green]'
                             }`}
                             onClick={toggleMenu}
@@ -157,7 +157,7 @@ const Navbar = () => {
                             <>
                                 <NavLink
                                     to="/dashboard/create-quiz"
-                                    className={`block hover:bg-slate-700 transition-all duration-300 px-3 py-1 rounded ${
+                                    className={`block hover:bg-[#F78166] transition-all duration-300 px-3 py-1 rounded ${
                                         location.pathname.includes('create') && 'bg-[green]'
                                     }`}
                                     onClick={toggleMenu}
@@ -166,7 +166,7 @@ const Navbar = () => {
                                 </NavLink>
                                 <NavLink
                                     to="/dashboard/quizes"
-                                    className={`block hover:bg-slate-700 transition-all duration-300 px-3 py-1 rounded ${
+                                    className={`block hover:bg-[#F78166] transition-all duration-300 px-3 py-1 rounded ${
                                         location.pathname.includes('quizes') && 'bg-[green]'
                                     }`}
                                     onClick={toggleMenu}
@@ -177,7 +177,7 @@ const Navbar = () => {
                         ) : (
                             <NavLink
                                 to="/dashboard/history"
-                                className={`block hover:bg-slate-700 transition-all duration-300 px-3 py-1 rounded-full ${
+                                className={`block hover:bg-[#F78166] transition-all duration-300 px-3 py-1 rounded-full ${
                                     location.pathname.includes('history') && 'bg-[green]'
                                 }`}
                                 onClick={toggleMenu}

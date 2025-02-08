@@ -1,33 +1,24 @@
-const { MongoClient } = require("mongodb");
 
-const uri = "mongodb+srv://adhi:1234@db.usshl9s.mongodb.net"; // Explicitly use IPv4 address
-const dbName = 'testinggg'; // Replace with your database name
 
-const findNullValues = async () => {
-  const client = new MongoClient(uri);
+app.post('/sample', async (req, res) => {
   try {
-    await client.connect();
-    const db = client.db(dbName);
-    const collections = await db.listCollections().toArray();
 
-    for (const { name } of collections) {
-      const collection = db.collection(name);
-      const nullDocs = await collection.find({ 
-        $or: [
-          { quizId: null },
-          { userId: null },
-          { someOtherField: null }
-        ] 
-      }).toArray();
+    const data = await client.get('sample');
 
-      if (nullDocs.length > 0) {
-        console.log(`Collection: ${name}`);
-        console.log(JSON.stringify(nullDocs, null, 2));
-      }
+    if (data) {
+      console.log('Cache hit: Returning data from Redis.');
+      return res.send(data);  
     }
-  } finally {
-    await client.close();
-  }
-};
 
-findNullValues().catch(console.error);
+    
+    const freshData = await axios.get("https://jsonplaceholder.typicode.com/photos");
+    await client.setEx('sample', 1000, JSON.stringify(freshData.data));  
+    res.json(freshData.data);  
+  } catch (error) {
+    console.error('Error during Redis operation:', error);
+    res.status(500).send('Something went wrong!');
+  }
+});
+
+
+app.listen(3000, () => console.log('Server is listening on port 3000'));

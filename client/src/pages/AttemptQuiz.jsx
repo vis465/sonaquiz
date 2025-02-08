@@ -28,6 +28,7 @@
                 
 
                 setQuisQuestions(response?.data?.data);
+                console.log("quizQuestions",quizQuestions)
             } catch (error) {
                 console.log('Error fetching quiz details:', error);
             } finally {

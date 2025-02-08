@@ -3,7 +3,7 @@ import { apiConnector } from "../apiConnector";
 import toast from "react-hot-toast";
 import { setToken, setUser } from "../../slices/AuthSlice";
 
-const { SIGNUP, LOGIN } = authEndpoints;
+const { SIGNUP, LOGIN, DEPTS } = authEndpoints;
 
 export const signUp = async (data) => {
   try {
@@ -23,7 +23,19 @@ export const signUp = async (data) => {
   }
   return false;
 };
-
+export const department = async (req, res) => {
+  const response = await apiConnector("GET", DEPTS, null);
+  let repooo = response.data;
+  // console.log("response",repooo)
+  let array = [];
+  repooo.forEach((element) => {
+    array.push({
+      name: element.name,
+      short: element.abbreviation,
+    });
+  });
+  return array;
+};
 export const login = async (data, dispatch) => {
   try {
     const response = await apiConnector("POST", LOGIN, data);
@@ -38,7 +50,7 @@ export const login = async (data, dispatch) => {
     localStorage.setItem("user", JSON.stringify(response?.data?.data?.user));
     dispatch(setToken(response?.data?.data?.token));
     dispatch(setUser(response?.data?.data?.user));
-    
+
     toast.success("Logged In Successfully");
     return true;
   } catch (e) {
@@ -55,11 +67,11 @@ export const logout = async (dispatch, navigate) => {
     dispatch(setToken(null));
     dispatch(setUser(null));
     toast.success("Logged Out Successfully");
-    navigate("/login")
+    navigate("/login");
     return true;
   } catch (e) {
     console.log("ERROR WHILE LOGGING OUT : ", e);
     toast.error("Logout failed");
   }
   return false;
-};  
+};

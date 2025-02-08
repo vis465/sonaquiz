@@ -46,13 +46,27 @@ const Profile = () => {
         >
           <FaUserAlt /> User Lookup
         </button>
+        <button
+          onClick={() => navigate('/dashboard/listmanager')}
+          className="flex gap-2 items-center px-6 py-2 text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-md transition-all duration-300"
+        >
+          <FaUserAlt /> User Lists
+        </button>
         {user.role === "admin" && (
+          <>
           <button
             onClick={() => navigate('/dashboard/usermanagemnt')}
             className="flex gap-2 items-center px-6 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-md transition-all duration-300"
           >
             <FaUserAlt /> User Management
           </button>
+          <button
+            onClick={() => navigate('/dashboard/dept')}
+            className="flex gap-2 items-center px-6 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-md transition-all duration-300"
+          >
+            <FaUserAlt /> Department Management
+          </button>
+          </>
         )}
       </div>
     </section>

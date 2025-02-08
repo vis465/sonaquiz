@@ -2,7 +2,7 @@ import { apiConnector } from "../apiConnector";
 import { quizEndpoints } from "../APIs";
 import toast from "react-hot-toast";
 
-const { CREATE_QUIZ, UPDATE_QUIZ, DELETE_QUIZ,DELETE_ATTEMPT } = quizEndpoints;
+const { CREATE_QUIZ, UPDATE_QUIZ, DELETE_QUIZ,DELETE_ATTEMPT,NOTIFICATION } = quizEndpoints;
 
 export const deleteattempt = async (attemptid, token) => {
   try {
@@ -27,6 +27,23 @@ export const deleteattempt = async (attemptid, token) => {
   }
   return false;
 };
+export const newquiznotification = async(data,token)=>{
+  console.log(data)
+  try {
+    const response = await apiConnector("POST",NOTIFICATION,{quizId:data.quizId},{
+      Authorization: `Bearer ${token}`,
+    })
+    if(response.data.success){
+      
+      toast.success(response.data.message)
+    }
+    
+    
+}
+catch(e){
+  console.log("ERROR WHILE SENDING NOTIFICATION : ",e)
+}
+}
 
 export const createQuiz = async (data, token) => {
   console.log(data)

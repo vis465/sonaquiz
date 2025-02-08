@@ -1,24 +1,38 @@
-const { ObjectId } = require('mongodb');
+const { ObjectId } = require("mongodb");
+const Lists = require("../models/eligiblitylists");
 const Quiz = require("../models/Quiz");
 const Question = require("../models/Question");
 const Attempt = require("../models/Attempt");
 const User = require("../models/User");
-const newquizaltertr=require("../mailers/newquizaltertr")
+const newquizaltertr = require("../mailers/newquizaltertr");
+const quizcreationalert = require("../mailers/newquizaltertr");
+const axios = require("axios");
+
 // ✅
+
 // Helper function to convert UTC to IST
 const convertToIST = (date) => {
-  return new Date(date.getTime() + (5.5 * 60 * 60 * 1000));
+  return new Date(date.getTime() + 5.5 * 60 * 60 * 1000);
 };
 
 exports.createQuiz = async (req, res) => {
-  console.log("servercreate")
+  console.log("servercreate");
   try {
-    
-    const { title, description, timer, instructions, maxAttempts, year, department, endtime } = req.body;
-    
+    const {
+      title,
+      description,
+      timer,
+      instructions,
+      maxAttempts,
+      year,
+      department,
+      endtime,
+      list,
+    } = req.body;
+
     // Convert endtime to IST before saving
     const istEndTime = endtime ? convertToIST(new Date(endtime)) : null;
-    
+
     const user = req.user;
     console.log(year, department);
 
@@ -27,16 +41,8 @@ exports.createQuiz = async (req, res) => {
         success: false,
         error: "Please provide all the required fields",
       });
-      
     }
 
-    const targetusers = await User.find({
-      year: { $in: year },
-      dept: { $in: department }
-    });
-    
-
-    
     const quiz = await Quiz.create({
       title,
       description,
@@ -47,10 +53,9 @@ exports.createQuiz = async (req, res) => {
       year: year,
       department: department,
       endtime: istEndTime,
+      lists: list,
     });
-    // targetusers.forEach(user=>{
-    //   quizcreationalert(quiz,targetusers.email)
-    // })
+
     return res.status(201).json({
       success: true,
       message: "Quiz created successfully",
@@ -68,7 +73,17 @@ exports.createQuiz = async (req, res) => {
 
 exports.updateQuiz = async (req, res) => {
   try {
-    const { title, description, timer, instructions, maxAttempts, year, department, endtime } = req.body;
+    const {
+      title,
+      description,
+      timer,
+      instructions,
+      maxAttempts,
+      year,
+      department,
+      endtime,
+      list,
+    } = req.body;
     const quiz = await Quiz.findById(req.params.id);
     if (!quiz) {
       return res
@@ -87,8 +102,9 @@ exports.updateQuiz = async (req, res) => {
     quiz.year = year;
     quiz.department = department;
     quiz.endtime = istEndTime;
-    
-    console.log("wedit call - IST time:", quiz.endtime)
+    quiz.lists = list;
+
+    console.log("wedit call - IST time:", quiz.endtime);
     await quiz.save();
 
     return res.status(200).json({
@@ -156,30 +172,61 @@ exports.getAllQuizzes = async (req, res) => {
 exports.getAllQuizzess = async (req, res) => {
   try {
     const userId = req.params.id; // Get the user ID from request parameters
-    
+
     if (!userId) {
       return res.status(400).json({
         success: false,
         error: "User ID is required",
       });
     }
-    const user=await User.findById(userId)
-    const useryear=user.year
-    const userdept=user.dept
+    const user = await User.findById(userId);
+    const useryear = user.year;
+    const userdept = user.dept;
     const quizzes = await Quiz.find().populate("createdBy", "username email");
-    
+
     // Filter quizzes based on the conditions
-    const filteredQuizzes = quizzes.filter((quiz) => {
-      
-      const userAttempts = quiz.attemptCounts.get(userId) || 0  ;
-      console.log(quiz.year , quiz.department)
-      
-      return ((userAttempts < quiz.maxAttempts)&& quiz.year.includes(useryear) && quiz.department.includes(userdept)&& Date.now() < quiz.endtime);
-    });
+    const filteredQuizzes = await Promise.all(
+      quizzes.map(async (quiz) => {
+        const userAttempts = quiz.attemptCounts.get(userId) || 0;
+
+        let isUserEligible = true;
+        // console.log("IF ELSE")
+        // If lists are specified, validate user eligibility
+        if (quiz.lists && quiz.lists.length > 0) {
+          const eligibilityChecks = await Promise.all(
+            quiz.lists.map(async (listId) => {
+              const list = await Lists.findOne({ _id: listId });
+              return list && list.users.includes(userId);
+            })
+          );
+          isUserEligible = eligibilityChecks.some((isEligible) => isEligible);
+        }
+
+        console.log(quiz.year, quiz.department);
+        // console.log("isUserEligible", isUserEligible);
+
+        // Return the quiz object if all conditions are met
+        return userAttempts < quiz.maxAttempts &&
+          quiz.year.includes(useryear) &&
+          quiz.department.includes(userdept) &&
+          Date.now() < quiz.endtime &&
+          isUserEligible
+          ? quiz
+          : null; // Return null if conditions are not met
+      })
+    );
+    // console.log("Userdept",userdept)
+    // Remove `null` values to get the final list of quiz objects
+    const finalFilteredQuizzes = filteredQuizzes.filter(
+      (quiz) => quiz !== null
+    );
+
+    // console.log(finalFilteredQuizzes)
+
     // console.log(filteredQuizzes);
     return res.status(200).json({
       success: true,
-      data: filteredQuizzes,
+      data: finalFilteredQuizzes,
     });
   } catch (e) {
     console.log("ERROR GETTING QUIZZES: ", e);
@@ -222,7 +269,7 @@ exports.attemptQuiz = async (req, res) => {
   try {
     const userId = req.user.id;
     const { quizId, answers } = req.body;
-    
+
     const quiz = await Quiz.findById(quizId);
 
     if (!quiz) {
@@ -238,8 +285,7 @@ exports.attemptQuiz = async (req, res) => {
       const userAnswer = answers.find(
         (ans) => ans.questionId === question._id.toString()
       );
-      
-    
+
       if (userAnswer) {
         if (question.questionType === "MCQ") {
           // Handle MCQ
@@ -255,39 +301,38 @@ exports.attemptQuiz = async (req, res) => {
           // console.log("answersArray", answersArray);
         } else if (question.questionType === "FIB") {
           // console.log("enter FIB");
-      
+
           // Extract correct answers (normalized)
           const correctAnswers = question.answers
-              .filter((ans) => ans.isCorrect)
-              .map((ans) => ans.text.toLowerCase().trim());
-      
+            .filter((ans) => ans.isCorrect)
+            .map((ans) => ans.text.toLowerCase().trim());
+
           // Normalize the user-provided answer (ensure it’s text)
           const userProvidedAnswer = userAnswer.answer
-              ? userAnswer.answer.toLowerCase().trim()
-              : null;
-      
+            ? userAnswer.answer.toLowerCase().trim()
+            : null;
+
           // console.log(
           //     "useranswer in FIB",
           //     userProvidedAnswer,
           //     "machine answer",
           //     correctAnswers
           // );
-      
-          if (userProvidedAnswer && correctAnswers.includes(userProvidedAnswer)) {
-              score += 1;
+
+          if (
+            userProvidedAnswer &&
+            correctAnswers.includes(userProvidedAnswer)
+          ) {
+            score += 1;
           }
-      
+
           answersArray.push({
-              questionId: question._id,
-              answer: userAnswer.answer, // Store the original answer (text)
+            questionId: question._id,
+            answer: userAnswer.answer, // Store the original answer (text)
           });
-      }
-      
-      
+        }
       }
     }
-    
-    
 
     const attempt = new Attempt({
       userId,
@@ -367,18 +412,21 @@ exports.getQuizAttempts = async (req, res) => {
     const quizId = req.params.id;
 
     // Fetch attempts with populated user details
-    const attempts = await Attempt.find({ quizId }).populate("userId", "username");
+    const attempts = await Attempt.find({ quizId }).populate(
+      "userId",
+      "username"
+    );
     const quizDetails = await Quiz.findById(quizId);
-    
+
     // Prepare a response with user details and scores for each attempt
     const totalusers = await Promise.all(
       attempts.map(async (attempt) => {
         const user = await User.findById(attempt.userId._id);
         return {
           username: user.username,
-          userId:attempt.userId._id,
+          userId: attempt.userId._id,
           year: user.year,
-          attemptid:attempt._id,
+          attemptid: attempt._id,
           department: user.dept,
           class: user.class, // Include class if available
           score: attempt.score, // Score for this specific attempt
@@ -403,20 +451,19 @@ exports.getQuizAttempts = async (req, res) => {
   }
 };
 
-
 exports.getAllQuizAttempts = async (req, res) => {
   try {
     const { usid } = req.query;
-    let userData=null;
-    let department=null;
-    let year1=null;
-    if (usid){
-      userData=await User.findById(usid);
-      const { dept , year } = userData;
+    let userData = null;
+    let department = null;
+    let year1 = null;
+    if (usid) {
+      userData = await User.findById(usid);
+      const { dept, year } = userData;
       department = dept;
-      year1=year
+      year1 = year;
     }
-    let year=year1;
+    let year = year1;
     // Fetch all attempts with populated quiz and user details
     const attempts = await Attempt.find()
       .populate("quizId", "title department year createdAt") // Populating quizId with title, department, year, and createdAt
@@ -434,9 +481,17 @@ exports.getAllQuizAttempts = async (req, res) => {
       if (!user || !quiz) return false;
 
       // Debug: Log filtering fields
-      console.log("Filtering User Dept:", user.dept, quiz.department.includes(department));
+      console.log(
+        "Filtering User Dept:",
+        user.dept,
+        quiz.department.includes(department)
+      );
       console.log("Quiz Dept:", quiz.department);
-      console.log("Filtering User Year:", user.year, quiz.year.includes(Number(year)));
+      console.log(
+        "Filtering User Year:",
+        user.year,
+        quiz.year.includes(Number(year))
+      );
       console.log("Quiz Year:", quiz.year);
 
       // Check if department matches (use includes to match array)
@@ -497,15 +552,10 @@ exports.getAllQuizAttempts = async (req, res) => {
   }
 };
 
-
-
-
 // Make sure to import your Quiz model
 
 exports.Attemptedcnt = async (req, res) => {
   try {
-    console.log("method called");
-    console.log("Payload received:", req.body);
 
     const { quizId, userID } = req.body;
 
@@ -543,11 +593,11 @@ exports.Attemptedcnt = async (req, res) => {
 exports.Attemptdelete = async (req, res) => {
   console.log("deletion of attempt", req.body);
   const { attemptID, userId, quizID } = req.body;
-  
+
   if (!attemptID || !userId) {
     return res.status(400).json({ error: "attemptID and userID are required" });
   }
-  console.log("AB")
+  console.log("AB");
   try {
     // Validate if userId is a valid ObjectId format
     if (!ObjectId.isValid(userId)) {
@@ -558,15 +608,14 @@ exports.Attemptdelete = async (req, res) => {
     await Attempt.deleteOne({ _id: new ObjectId(attemptID) });
 
     // Update the quiz document
-    
+
     await Quiz.updateOne(
       { _id: new ObjectId(quizID) },
       {
-        $inc: { [`attemptCounts.${userId}`]: -1 },  // Decrement attempt count by 1
-        $pull: { attemptedUsers: new ObjectId(userId) },  // Convert userId to ObjectId
+        $inc: { [`attemptCounts.${userId}`]: -1 }, // Decrement attempt count by 1
+        $pull: { attemptedUsers: new ObjectId(userId) }, // Convert userId to ObjectId
       }
     );
-    
 
     res.status(200).json({ message: "Attempt deleted successfully" });
   } catch (error) {
@@ -575,31 +624,142 @@ exports.Attemptdelete = async (req, res) => {
   }
 };
 
-exports.departmentreport = async(req,res)=>{
-  try{
-    const {userId,quizId}=req.body
-    const quiz=await Quiz.findById(quizId)
-    const user=await User.findById(userId)
+exports.departmentreport = async (req, res) => {
+  try {
+    const { userId, quizId } = req.body;
+    const quiz = await Quiz.findById(quizId);
+    const user = await User.findById(userId);
     const attempts = await Attempt.find({ userId }).populate(
       "quizId",
       "title description"
     );
-    
-    const scores=[]
-    const departmentreport=[]
-    
-    attempts.forEach(attempt => {
-      scores.push(attempt.score)
-    });
-    const maxscore=Math.max(...scores)
-    departmentreport.push({quizname:quiz.title,username:user.username,score:maxscore,department:user.dept,class:user.class})
-    console.log(departmentreport)
-    
 
-    res.status(200).json({message:"data fetch success",data:departmentreport})
+    const scores = [];
+    const departmentreport = [];
+
+    attempts.forEach((attempt) => {
+      scores.push(attempt.score);
+    });
+    const maxscore = Math.max(...scores);
+    departmentreport.push({
+      quizname: quiz.title,
+      username: user.username,
+      score: maxscore,
+      department: user.dept,
+      class: user.class,
+    });
+    console.log(departmentreport);
+
+    res
+      .status(200)
+      .json({ message: "data fetch success", data: departmentreport });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "failed to get report" });
   }
-  catch(error){
-    console.error(error)
-    res.status(500).json({error:"failed to get report"})
+};
+
+exports.newquiznotification = async (req, res) => {
+  try {
+    const { quizId } = req.body;
+    console.log("quizId", quizId);
+    // Fetch the quiz by ID
+    const quiz = await Quiz.findById(quizId);
+
+    // Fetch all users from the same department, excluding admins
+    const users = await User.find({ department: quiz.dept });
+    const usersWithoutAdmin = users.filter((user) => user.role !== "admin");
+
+    let eligibleUsers = [];
+
+    if (quiz.lists && quiz.lists.length > 0) {
+      // Fetch users from all lists
+      const usersFromLists = await Promise.all(
+        quiz.lists.map(async (listId) => {
+          const list = await Lists.findById(listId); // Ensure this fetches correctly
+          return list ? list.users : [];
+        })
+      );
+
+      // Flatten and deduplicate the list of users
+      const allUsersFromLists = new Set(usersFromLists.flat().map(String));
+
+      // Filter non-admin users based on list eligibility
+      eligibleUsers = usersWithoutAdmin.filter((user) =>
+        allUsersFromLists.has(user._id.toString())
+      );
+    } else {
+      // If no lists are specified, all non-admin users are eligible
+      eligibleUsers = usersWithoutAdmin;
+    }
+
+    // Log eligible users for debugging
+    console.log("Eligible users:", eligibleUsers);
+    const totaleligibleusers = eligibleUsers;
+    console.log(totaleligibleusers.length);
+    // Send notifications to eligible users
+    for (const user of eligibleUsers) {
+      quizcreationalert(quiz, user.email);
+      const bodyFormData = {
+        quizTitle: quiz.title,
+        quizLink: "www.google.com",
+        messageText: `New Test Creation alert: ${quiz.title} has been created. You will receive an email if you are eligible for the test.`,
+      };
+      
+      console.log("BODY", bodyFormData);
+      
+      await axios({
+        method: "post",
+        url: `${process.env.BOTURL}/notify-quiz`,
+        data: bodyFormData,
+        headers: { "Content-Type": "application/json" }, // Use application/json
+      })
+        .then(function (response) {
+          console.log(response.data);
+        })
+        .catch(function (response) {
+          console.log(response.body);
+        });
+    }
+
+    return res
+      .status(200)
+      .json({
+        success: true,
+        message: `Mail sent to ${totaleligibleusers.length} users `,
+      });
+  } catch (e) {
+    console.error("Error in newquiznotification:", e);
+    return res.status(500).json({ success: false, message: "Server error" });
   }
-}
+};
+
+exports.attemptnotcomplete = async (req, res) => {
+  try {
+    const  quizid  = req.params.id;
+    // console.log(quizid)
+    const quiz = await Quiz.findById(quizid);
+    // console.log(quiz)
+    if (!quiz) {
+      return res.status(404).json({ success: false, message: "Quiz not found" });
+    }
+    const attemptCounts = Array.from(quiz.attemptCounts.keys()); 
+    const completedAttempts = await Attempt.find({ quizId: quizid }).select("userId"); 
+    const completedUserIds = completedAttempts.map((attempt) => attempt.userId.toString());
+    const usersNotCompleted = attemptCounts.filter((userId) => !completedUserIds.includes(userId));
+    console.log(usersNotCompleted)
+    const datatosend = await Promise.all(
+      usersNotCompleted.map(async (user) => {
+        return await User.findById(user); // Fetch detailed user data
+      })
+    );
+    
+    res.status(200).json({
+      success: true,
+      data: datatosend,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
