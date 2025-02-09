@@ -7,6 +7,7 @@ import axios from 'axios';
 import Button from '../components/Button';
 import RequiredError from '../components/RequiredError';
 import { signUp } from '../services/operations/AuthAPIs';
+import { apiConnector } from '../services/apiConnector';
 
 const SignUp = () => {
   const [step, setStep] = useState(1);
@@ -19,12 +20,19 @@ const SignUp = () => {
 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm();
   const navigate = useNavigate();
-
   useEffect(() => {
-    axios.get('http://localhost:4000/api/v1/departments')
-      .then(response => setDepartments(response.data))
-      .catch(err => console.error('Error fetching departments:', err));
-  }, []);
+    const fetchDepartments = async () => {
+      try {
+        const response = await apiConnector("GET", authEndpoints.DEPTS)
+        setDepartments(response.data);
+      }
+      catch (error) {
+        console.error(error);
+      }
+    }
+    fetchDepartments();
+  }, [])
+
 
   useEffect(() => {
     setValue('role', 'user');
@@ -129,7 +137,7 @@ const SignUp = () => {
                 <select
                   id="year"
                   className="w-full border rounded p-2"
-                  {...register('year', { 
+                  {...register('year', {
                     required: 'Year is required',
                     setValueAs: v => parseInt(v)
                   })}
@@ -164,7 +172,7 @@ const SignUp = () => {
                   id="marks10"
                   type="number"
                   className="w-full border rounded p-2"
-                  {...register('marks10', { 
+                  {...register('marks10', {
                     required: 'Class 10 marks are required',
                     setValueAs: v => parseInt(v)
                   })}
@@ -177,7 +185,7 @@ const SignUp = () => {
                   id="marks12"
                   type="number"
                   className="w-full border rounded p-2"
-                  {...register('marks12', { 
+                  {...register('marks12', {
                     required: 'Class 12 marks are required',
                     setValueAs: v => parseInt(v)
                   })}
@@ -190,7 +198,7 @@ const SignUp = () => {
                   id="arrears"
                   type="number"
                   className="w-full border rounded p-2"
-                  {...register('arrears', { 
+                  {...register('arrears', {
                     required: 'Number of arrears is required',
                     setValueAs: v => parseInt(v)
                   })}
@@ -206,7 +214,7 @@ const SignUp = () => {
                       type="number"
                       step="0.01"
                       className="w-full border rounded p-2"
-                      {...register(`cgpa.${i}`, { 
+                      {...register(`cgpa.${i}`, {
                         setValueAs: v => v === '' ? 0 : parseFloat(v)
                       })}
                     />
@@ -251,7 +259,7 @@ const SignUp = () => {
                 <select
                   id="lateralEntry"
                   className="w-full border rounded p-2"
-                  {...register('lateralEntry', { 
+                  {...register('lateralEntry', {
                     required: 'This field is required',
                     setValueAs: v => v === 'true'
                   })}
