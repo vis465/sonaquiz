@@ -21,7 +21,7 @@ const QuizCard = ({ quiz }) => {
             <span className='font-thin'>
                 <p className='line-clamp-2'>{quiz.description}</p>
                 <span className='flex gap-3'>
-                    <p>{quiz.createdBy.username}</p>
+                    {/* <p>{quiz.createdBy.username}</p> */}
                     |
                     <p>{formatDistanceToNow(new Date(quiz.createdAt), { addSuffix: true })}</p>
                 </span>

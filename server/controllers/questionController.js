@@ -222,7 +222,14 @@ exports.getQuizQuestions = async (req, res) => {
       }
     }
     
-    grp=Object.groupBy(questions,({section})=>section);
+    const grp = questions.reduce((acc, question) => {
+      const { section } = question;
+      if (!acc[section]) {
+        acc[section] = [];
+      }
+      acc[section].push(question);
+      return acc;
+    }, {});
     console.log(grp);
     return res.status(200).json({
       success: true,

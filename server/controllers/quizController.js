@@ -295,6 +295,7 @@ exports.attemptQuiz = async (req, res) => {
           if (selectedOption && selectedOption.isCorrect) {
             score += 1;
           }
+          
           answersArray.push({
             questionId: question._id,
             selectedOption: userAnswer.selectedOption,
@@ -334,7 +335,7 @@ exports.attemptQuiz = async (req, res) => {
         }
       }
     }
-
+    console.log(score)
     const attempt = new Attempt({
       userId,
       quizId,
