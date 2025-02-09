@@ -85,8 +85,13 @@ const QuizQuestions = ({ quizDetails, quizQuestions }) => {
 
     const submitQuiz = async () => {
         try {
-            console.log(`${quizEndpoints.ATTEMMP_QUIZ}/${quizDetails._id}/attempt`)
-            await apiConnector('POST', `${quizEndpoints.ATTEMMP_QUIZ}/${quizDetails._id}/attempt`, { quizId: quizDetails._id, answers: userAnswers }, { Authorization: `Bearer ${token}` });
+
+            let data={ quizId: quizDetails._id, answers: userAnswers }
+            console.log(data)
+            console.log(`${quizEndpoints.ATTEMP_QUIZ}/${quizDetails._id}/attempt`)
+            await apiConnector('POST', `${quizEndpoints.ATTEMP_QUIZ}/${quizDetails._id}/attempt`, { quizId: quizDetails._id, answers: userAnswers }, { Authorization: `Bearer ${token}` });
+            console.log("posted")
+
             navigate('/quiz-results');
         } catch (error) {
             console.error('Error submitting quiz:', error);
