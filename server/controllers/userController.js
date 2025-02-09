@@ -215,6 +215,7 @@ exports.login = async (req, res) => {
     // Check Redis cache
     let redisoutput = await client.get(`user_detail_for_${email}`);
     if (redisoutput) {
+      console.log("cache HIT")
       redisoutput = JSON.parse(redisoutput); // Parse Redis data
 
       // Validate password
@@ -272,7 +273,7 @@ exports.login = async (req, res) => {
         .status(400)
         .json({ success: false, error: "Invalid credentials" });
     }
-
+    console.log("cache Miss")
     // Cache user details in Redis
     await client.setEx(
       `user_detail_for_${email}`,
