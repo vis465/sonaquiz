@@ -19,9 +19,7 @@ const CreateQuestions = () => {
     const dispatch = useDispatch();
     const { id } = useParams();
 
-    useEffect(() => {
-        console.log("Questions state updated:", questions);
-    }, [questions]);
+    const [sections,setSections] = useState([]);
 
     const finishHandler = () => {
         navigate("/dashboard/create-quiz");
@@ -61,6 +59,9 @@ const CreateQuestions = () => {
             
             if (response?.data?.data) {
                 setQuestions(response.data.data);
+                const sections1 = Object.keys(questions);
+                setSections(sections1);
+                console.log("sections",Object.keys(questions));
             } else {
                 console.warn("No questions found in API response.");
                 setQuestions([]);
@@ -116,12 +117,16 @@ const CreateQuestions = () => {
                     <div className="w-full text-lg text-black bg-[#E0FBFC] flex justify-center items-center min-h-[50vh]">
                         Loading questions...
                     </div>
-                ) : questions.length === 0 ? (
+                ) : sections.length === 0 ? (
                     <div className="w-full text-lg text-black bg-[#E0FBFC] flex justify-center items-center min-h-[50vh]">
                         No questions found
                     </div>
                 ) : (
-                    questions.map((ques) => (
+                    sections.map((sectionName,index) => (
+                        <div key={index}>
+                            <strong><h1>{sectionName}</h1></strong>
+                            
+                   { questions[sectionName].map((ques) => (
                         <div key={ques._id} className="flex flex-col gap-3 bg-white p-4 rounded shadow">
                             {ques.questionFormat === "IMAGE" ? (
                                 <img
@@ -141,6 +146,7 @@ const CreateQuestions = () => {
                             />
                         </div>
                     ))
+                 } </div>))
                 )}
             </div>
             <Button onClick={finishHandler} className="self-end text-4xl px-6 py-3 bg-green-600">
