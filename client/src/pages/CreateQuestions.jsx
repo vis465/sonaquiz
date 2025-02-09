@@ -12,13 +12,16 @@ import { setQuiz, setEdit } from '../slices/QuizSlice';
 const CreateQuestions = () => {
     const { quiz, edit } = useSelector(state => state.quiz);
     const { token } = useSelector(state => state.auth);
-
     const [questions, setQuestions] = useState([]);
     const [createQuestionModalData, setCreateQuestionModalData] = useState(null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { id } = useParams();
+
+    useEffect(() => {
+        console.log("Questions state updated:", questions);
+    }, [questions]);
 
     const finishHandler = () => {
         navigate("/dashboard/create-quiz");
@@ -37,21 +40,34 @@ const CreateQuestions = () => {
                 setQuestions(prev => prev.filter(q => q._id !== question._id));
             }
         } catch (e) {
-            console.log("Error deleting question:", e);
+            console.error("Error deleting question:", e);
         }
     };
 
     const fetchQuestions = async () => {
+        if (!id || !token) {
+            console.warn("Quiz ID or token is missing, skipping API call.");
+            return;
+        }
+
         setLoading(true);
         try {
+            console.log("Fetching quiz questions for quiz:", id);
             const response = await apiConnector("GET", `${questionEndpoints.GET_QUIZ_QUESTIONS}/${id}`, null, {
                 Authorization: `Bearer ${token}`
             });
-            if (response) {
-                setQuestions(response?.data?.data);
+            
+            console.log("Fetched quizQuestions:", response?.data?.data);
+            
+            if (response?.data?.data) {
+                setQuestions(response.data.data);
+            } else {
+                console.warn("No questions found in API response.");
+                setQuestions([]);
             }
         } catch (error) {
-            console.log("Error fetching questions:", error);
+            console.error("Error fetching quiz questions:", error);
+            setQuestions([]);
         } finally {
             setLoading(false);
         }
@@ -61,13 +77,14 @@ const CreateQuestions = () => {
         if (quiz === null) {
             navigate("/dashboard/create-quiz");
         }
-    }, []);
+    }, [quiz, navigate]);
 
     useEffect(() => {
-        if (edit) {
+        if (edit && id && token) {
+            console.log("Fetching questions for quiz:", id);
             fetchQuestions();
         }
-    }, [quiz, edit, id]);
+    }, [edit, id, token]);
 
     return (
         <div className="relative flex flex-col items-center gap-5 py-10">
@@ -95,12 +112,15 @@ const CreateQuestions = () => {
                 </div>
             </section>
             <div className="w-full flex flex-col gap-5 rounded-lg min-h-[50vh]">
-                {!loading && questions.length === 0 && (
+                {loading ? (
+                    <div className="w-full text-lg text-black bg-[#E0FBFC] flex justify-center items-center min-h-[50vh]">
+                        Loading questions...
+                    </div>
+                ) : questions.length === 0 ? (
                     <div className="w-full text-lg text-black bg-[#E0FBFC] flex justify-center items-center min-h-[50vh]">
                         No questions found
                     </div>
-                )}
-                {!loading && questions.length > 0 && (
+                ) : (
                     questions.map((ques) => (
                         <div key={ques._id} className="flex flex-col gap-3 bg-white p-4 rounded shadow">
                             {ques.questionFormat === "IMAGE" ? (
@@ -108,7 +128,7 @@ const CreateQuestions = () => {
                                     src={ques.questionImage}
                                     alt="Question"
                                     className="max-w-[200px] max-h-[200px] object-contain rounded-md"
-                                    />
+                                />
                             ) : (
                                 <p className="text-xl">{ques.questionText}</p>
                             )}
