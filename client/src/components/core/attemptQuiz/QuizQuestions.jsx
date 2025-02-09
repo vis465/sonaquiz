@@ -27,12 +27,19 @@ const QuizQuestions = ({ quizDetails, quizQuestions }) => {
             setCurrentSectionIndex(prev => prev + 1);
             setSectionTimers(prev => ({
                 ...prev,
-                [sections[currentSectionIndex + 1]]: sectionTime,
+                [sections[currentSectionIndex + 1]]: prev[sections[currentSectionIndex + 1]] || sectionTime,
             }));
         } else {
             submitQuiz();
         }
     }, [currentSectionIndex, totalSections, sectionTime, sections]);
+
+    const moveToPreviousSection = () => {
+        if (currentSectionIndex > 0) {
+            clearInterval(timerRef.current);
+            setCurrentSectionIndex(prev => prev - 1);
+        }
+    };
 
     useEffect(() => {
         if (quizStarted && sectionTimers[sections[currentSectionIndex]] > 0) {
@@ -78,7 +85,8 @@ const QuizQuestions = ({ quizDetails, quizQuestions }) => {
 
     const submitQuiz = async () => {
         try {
-            await apiConnector('POST', `${quizEndpoints.ATTEMPT_QUIZ}/${quizDetails._id}/attempt`, { quizId: quizDetails._id, answers: userAnswers }, { Authorization: `Bearer ${token}` });
+            console.log(`${quizEndpoints.ATTEMMP_QUIZ}/${quizDetails._id}/attempt`)
+            await apiConnector('POST', `${quizEndpoints.ATTEMMP_QUIZ}/${quizDetails._id}/attempt`, { quizId: quizDetails._id, answers: userAnswers }, { Authorization: `Bearer ${token}` });
             navigate('/quiz-results');
         } catch (error) {
             console.error('Error submitting quiz:', error);
@@ -91,13 +99,18 @@ const QuizQuestions = ({ quizDetails, quizQuestions }) => {
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     };
 
-    // Check if all questions in current section are answered
     const getCurrentSectionAnswers = () => {
         const currentSectionQuestions = quizQuestions[sections[currentSectionIndex]];
         const answeredQuestions = userAnswers.filter(answer => 
             currentSectionQuestions.some(question => question._id === answer.questionId)
         );
         return answeredQuestions.length === currentSectionQuestions.length;
+    };
+
+    // Get previously submitted answer for a question
+    const getSubmittedAnswer = (questionId) => {
+        const answer = userAnswers.find(ans => ans.questionId === questionId);
+        return answer ? answer.answer : null;
     };
 
     return (
@@ -118,7 +131,7 @@ const QuizQuestions = ({ quizDetails, quizQuestions }) => {
                         ))}
                     </div>
                     <h2 className='border border-slate-600 py-2 px-3 rounded-lg text-center md:text-end'>
-                        Time Remaining: <span className='text-red-500 ml-2'>{formatTime(sectionTimers[sections[currentSectionIndex]])}</span>
+                        Time Remaining: <span className='text-red-500 ml-2'>{formatTime(sectionTimers[sections[currentSectionIndex]] || 0)}</span>
                     </h2>
                     <h1 className='text-lg font-semibold text-white mb-2'>{sections[currentSectionIndex]}</h1>
                     <div className='min-h-[50vh]'>
@@ -128,26 +141,37 @@ const QuizQuestions = ({ quizDetails, quizQuestions }) => {
                                 question={question}
                                 onAnswerChange={(answer) => handleAnswerChange(question._id, answer, question.questionType)}
                                 disabled={sectionTimers[sections[currentSectionIndex]] === 0}
+                                submittedAnswer={getSubmittedAnswer(question._id)}
                             />
                         ))}
                     </div>
-                    {currentSectionIndex === totalSections - 1 ? (
+                    <div className='flex justify-between w-full mt-4'>
                         <Button 
-                            className='w-max self-end mt-4' 
-                            onClick={submitQuiz} 
-                            disabled={!getCurrentSectionAnswers()}
+                            className='w-max' 
+                            onClick={moveToPreviousSection}
+                            disabled={currentSectionIndex === 0}
                         >
-                            Submit
+                            Previous Section
                         </Button>
-                    ) : (
-                        <Button 
-                            className='w-max self-end mt-4' 
-                            onClick={moveToNextSection} 
-                            disabled={!getCurrentSectionAnswers()}
-                        >
-                            Next Section
-                        </Button>
-                    )}
+
+                        {currentSectionIndex === totalSections - 1 ? (
+                            <Button 
+                                className='w-max' 
+                                onClick={submitQuiz} 
+                             //  disabled={!getCurrentSectionAnswers()}
+                            >
+                                Submit
+                            </Button>
+                        ) : (
+                            <Button 
+                                className='w-max' 
+                                onClick={moveToNextSection} 
+                              //  disabled={!getCurrentSectionAnswers()}
+                            >
+                                Next Section
+                            </Button>
+                        )}
+                    </div>
                 </>
             )}
         </div>
