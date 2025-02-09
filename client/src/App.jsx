@@ -29,8 +29,8 @@ function App() {
 
   return (
     <div
-      className="bg-cover bg-center text-black min-h-screen"
-      style={{ backgroundColor: 'white' }}
+      className=" text-red  min-h-screen"
+      
     >    <div className="w-full px-5 sm:px-3 mx-auto min-h-screen min-w-screen">
         <Routes>
           <Route path="/" element={<LoggedInRoutes><Home /></LoggedInRoutes>}/>

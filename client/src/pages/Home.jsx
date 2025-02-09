@@ -2,8 +2,27 @@ import { useSelector } from 'react-redux'
 import React, { useEffect, useState } from 'react'
 import { apiConnector } from "../services/apiConnector"
 import { quizEndpoints } from "../services/APIs/index"
+import Lottie from 'react-lottie';
+import animationData from '../lottie/nothingfound.json';
+import animationdata2 from "../lottie/geting.json"
 import QuizCard from '../components/core/Home/QuizCard'
 import Navbar from '../components/Navbar'
+const defaultOptions = {
+  loop: true,
+  autoplay: true,
+  animationData: animationData,
+  rendererSettings: {
+    preserveAspectRatio: "xMidYMid slice"
+  }
+};
+const defaultOption = {
+  loop: true,
+  autoplay: true,
+  animationData: animationdata2,
+  rendererSettings: {
+    preserveAspectRatio: "xMidYMid slice"
+  }
+};
 const Home = () => {
 
   const [quizzes, setQuizzes] = useState([])
@@ -38,10 +57,17 @@ const Home = () => {
   }, [])
 
   return (
-    <section className='min-h-[90vh] border-t border-slate-600 py-5 mt-3 '>
+    <section className='min-h-[90vh]  border-t border-slate-600 py-5 mt-3 '>
       <Navbar />
       {
-        loading ? <div className='text-center min-h-[90vh] flex items-center  justify-center text-xl'>Loading your quizzes...</div>
+        loading ? <div className='text-center min-h-[90vh] flex items-center justify-center text-xl'>
+          <Lottie 
+            options={defaultOption}
+            height={500} // Larger height
+            width={500}  // Larger width
+          />
+          <h3>
+          Loading your quizzes...</h3></div>
           : !loading && quizzes?.length > 0
             ? <div className='grid grid-cols-1 md:grid-cols-2 gap-3 lg:grid-cols-3 '>
               {
@@ -51,7 +77,14 @@ const Home = () => {
                 })
               }
             </div>
-            : <p>No quizzes found</p>
+            : 
+            <><Lottie 
+            options={defaultOptions}
+            height={500} // Larger height
+            width={500}  // Larger width
+          />
+          <h2  className='text-center mt-7 flex items-center  justify-center text-xl'>You have all caught up!</h2>
+          </>
       }
     </section>
   )

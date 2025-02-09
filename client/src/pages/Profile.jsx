@@ -2,9 +2,18 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import React from 'react';
 import { formatDistanceToNow } from 'date-fns';
+import animationdata from "../lottie/profile.json"
 import Button from "../components/Button";
+import Lottie from 'react-lottie';
 import { FaHome, FaUserAlt } from "react-icons/fa";
-
+const defaultOption = {
+  loop: true,
+  autoplay: true,
+  animationData: animationdata,
+  rendererSettings: {
+    preserveAspectRatio: "xMidYMid slice"
+  }
+};
 const Profile = () => {
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
@@ -24,11 +33,16 @@ const Profile = () => {
   return (
     <section className="search-container p-6 bg-gray-900 text-white rounded-lg shadow-lg ">
       <h1 className="text-2xl md:text-4xl text-blue-800 font-bold text-center mt-4 mb-9">My Profile</h1>
-      <div className="w-full py-5 px-5 grid grid-cols-1 md:grid-cols-2 gap-6 text-base md:text-lg bg-white border border-gray-300 rounded-lg shadow-md">
+      <Lottie 
+            options={defaultOption}
+            height={200} // Larger height
+            width={200}  // Larger width
+          />
+      <div className="w-full py-5 px-5 grid grid-cols-1 md:grid-cols-2 gap-6 text-base md:text-lg bg-[#0F3460] border border-gray-300 rounded-lg shadow-md">
         {userDetails.map((detail, index) => (
           <div key={index} className="flex flex-col">
-            <span className="font-medium text-gray-600">{detail.label}:</span>
-            <span className="font-semibold text-gray-800">{detail.value}</span>
+            <span className="font-medium text-[#F9F9F9]">{detail.label}:</span>
+            <span className="font-semibold text-[#F9F9F9]">{detail.value}</span>
           </div>
         ))}
       </div>

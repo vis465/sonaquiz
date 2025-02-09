@@ -8,6 +8,20 @@ import Button from '../components/Button';
 import RequiredError from '../components/RequiredError';
 import { signUp } from '../services/operations/AuthAPIs';
 import { apiConnector } from '../services/apiConnector';
+import animation from "../lottie/signup.json"
+import Lottie from 'react-lottie';
+
+const defaultOption = {
+  loop: true,
+
+  autoplay: true,
+  animationData: animation,
+
+  rendererSettings: {
+    preserveAspectRatio: "xMidYMid slice"
+  }
+
+};
 
 const SignUp = () => {
   const [step, setStep] = useState(1);
@@ -58,16 +72,16 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <section className="w-full max-w-2xl bg-white shadow-lg rounded-lg p-8">
-        <h1 className="text-4xl font-bold text-center mb-5">Sign Up</h1>
+    <div className="min-h-screen flex items-center justify-center text-[#e94560] ">
+      <section className="w-full max-w-2xl shadow-lg rounded-lg p-8">
+        <h1 className="text-4xl font-bold text-center mb-5 ">Sign Up</h1>
 
         <form onSubmit={handleSubmit(submitHandler)}>
           {/* Step 1: Personal Details */}
           {step === 1 && (
             <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }} transition={{ duration: 0.5 }}>
               <h2 className="text-2xl font-semibold">Step 1: Personal Details</h2>
-              <div>
+              <div className='mt-8'>
                 <label htmlFor="username">Username</label>
                 <input
                   id="username"
@@ -319,6 +333,14 @@ const SignUp = () => {
           </div>
         </form>
       </section>
+      <div className='max-sm:hidden'>
+      <Lottie 
+            options={defaultOption}
+            height={500} // Larger height
+            width={500}  // Larger width
+          />
+      </div>
+      
     </div>
   );
 };

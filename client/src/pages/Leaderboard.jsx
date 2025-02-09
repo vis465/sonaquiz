@@ -3,7 +3,16 @@ import { quizEndpoints } from "../services/APIs";
 import { apiConnector } from "../services/apiConnector";
 import { useSelector } from "react-redux";
 import Navbar from '../components/Navbar'
-
+import Lottie from 'react-lottie';
+import animationdata2 from "../lottie/geting.json"
+const defaultOption = {
+  loop: true,
+  autoplay: true,
+  animationData: animationdata2,
+  rendererSettings: {
+    preserveAspectRatio: "xMidYMid slice"
+  }
+};
 export default function Leaderboard() {
   const [dashboardData, setDashboardData] = useState();
   const { user, token } = useSelector((state) => state.auth);
@@ -87,7 +96,15 @@ export default function Leaderboard() {
           </div>
         ))
       ) : (
-        <p className="text-white-500 text-center">Loading data...</p>
+        <>
+        <Lottie 
+            options={defaultOption}
+            height={500} // Larger height
+            width={500}  // Larger width
+          />
+          
+        <h3 className="text-black-500 text-center">Loading data...</h3>
+        </>
       )}
     </div>
   );

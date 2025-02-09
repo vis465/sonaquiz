@@ -7,8 +7,22 @@ import RequiredError from '../components/RequiredError'
 import { login } from '../services/operations/AuthAPIs'
 import HighLightText from '../components/HighLightText'
 import { TbEyeClosed, TbEyeCheck } from "react-icons/tb";
+import Lottie from 'react-lottie'
 import toast from 'react-hot-toast'
 
+import animation from "../lottie/login.json"
+
+const defaultOption = {
+  loop: true,
+
+  autoplay: true,
+  animationData: animation,
+
+  rendererSettings: {
+    preserveAspectRatio: "xMidYMid slice"
+  }
+
+};
 
 const LogIn = () => {
 
@@ -35,14 +49,15 @@ const LogIn = () => {
   }
 
   return (
-    <div className='min-h-screen flex items-center justify-center '>
+    <div className='min-h-screen flex items-center justify-center text-[#e94560]'>
+      
       <section>
-        <h1 className='text-center pb-5 text-4xl font-mono underline'>Quizzy </h1>
+       
         <form
           onSubmit={handleSubmit(submitHandler)}
-          className='flex flex-col gap-y-3 max-w-[480px] shadow-lg shadow-blue-300 border p-10 rounded-lg  bg-opacity-20 backdrop-blur-lg'>
+          className='flex flex-col gap-y-3 max-w-[480px] shadow-lg shadow-blue-300 border p-10 rounded-lg  bg-opacity-20 backdrop-blur-lg text-[#e94560]'>
           <div>
-            <h3 className='text-4xl pb-5 text-center leading-[1.125]'>
+            <h3 className='text-4xl text-[#e94560] pb-5 text-center  leading-[1.125]'>
               Log in to Your Account
             </h3>
           </div>
@@ -54,7 +69,7 @@ const LogIn = () => {
             </span>
           }
 
-          <span className='flex flex-col gap-1 text-white'>
+          <span className='flex flex-col gap-1 text-[#e94560]'>
             <label htmlFor="email">Email</label>
             <input
               id='email'
@@ -68,7 +83,7 @@ const LogIn = () => {
             }
           </span>
 
-          <span className='flex flex-col gap-1 text-white'>
+          <span className='flex flex-col gap-1 text-[#e94560]'>
             <label htmlFor="password">Password</label>
             <span className='flex items-center w-full'>
               <input
@@ -96,10 +111,17 @@ const LogIn = () => {
             <Button disabled={loading} varient={"primary"} type={"submit"}>Submit</Button>
           </span>
 
-          <p className='text-center mt-3 text-white'>Don't have an account? <span onClick={() => navigate("/signup")} className=' cursor-pointer text-green-500'>Sign Up</span></p>
+          <p className='text-center mt-3 text-[#e94560]'>Don't have an account? <span onClick={() => navigate("/signup")} className=' cursor-pointer text-green-500'>Sign Up</span></p>
 
         </form>
       </section >
+      <div className='max-sm:hidden'>
+      <Lottie 
+            options={defaultOption}
+            height={500} // Larger height
+            width={500}  // Larger width
+          />
+          </div>
     </div >
   )
 }
