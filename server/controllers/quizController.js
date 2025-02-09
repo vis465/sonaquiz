@@ -342,10 +342,11 @@ exports.attemptQuiz = async (req, res) => {
       score,
       answers: answersArray,
     });
+    
     await attempt.save();
 
     const user = await User.findById(userId);
-
+    console.log(user)
     if (!user.attemptedQuizes.includes(quizId)) {
       user.attemptedQuizes.push(quizId);
       await user.save();
