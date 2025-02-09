@@ -226,7 +226,7 @@ exports.getQuizQuestions = async (req, res) => {
     console.log(grp);
     return res.status(200).json({
       success: true,
-      data: questions,
+      data: grp,
     });
   } catch (e) {
     console.log("ERROR GETTING QUIZ QUESTIONS: ", e);

@@ -13,12 +13,12 @@ export const store = configureStore({
 })
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
+
     <BrowserRouter>
       <Provider store={store}>
       <Toaster />
       <App />
       </Provider>
     </BrowserRouter>
-  </React.StrictMode>
+ 
 )

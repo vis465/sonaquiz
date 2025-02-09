@@ -14,7 +14,7 @@ const BulkQuestionUpload = () => {
   const [questions, setQuestions] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const { quiz, edit } = useSelector(state => state.quiz);
   // Use useLocation to get state passed during navigation
   const location = useLocation();
   const { id: quizId } = location.state || {};  // Access quizId from state
@@ -132,6 +132,7 @@ const BulkQuestionUpload = () => {
         questionType,
         options: questionType === "MCQ" ? JSON.parse(data.options || "[]") : undefined,
         answers: questionType === "FIB" ? JSON.parse(data.answers || "[]") : undefined,
+        section: data.section || quiz?.title,  // Default section to "General"
       };
 
       console.log("Payload being sent:", payload); // Debug payload
