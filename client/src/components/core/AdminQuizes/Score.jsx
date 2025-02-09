@@ -110,7 +110,7 @@ const Score = ({ quiz }) => {
                         key={index}
                         className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm"
                       >
-                        <h4 className="text-lg font-semibold">{score.username}</h4>
+                        <h4 className="text-lg font-semibold text-black">{score.username}</h4>
                         <p className="text-sm text-gray-600">Year: {score.year}</p>
                         <p className="text-sm text-gray-600">Department: {score.department}</p>
                         <p className="text-sm text-gray-600">Class: {score.class}</p>
@@ -143,7 +143,7 @@ const Score = ({ quiz }) => {
                         key={index}
                         className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm"
                       >
-                        <h4 className="text-lg font-semibold">{user.username}</h4>
+                        <h4 className="text-lg font-semibold text-black">{user.username}</h4>
                         <p className="text-m text-gray-600">Year: {user.year}</p>
                         <p className="text-m text-gray-600">Department: {user.dept}</p>
                         <p className="text-m text-gray-600">Class: {user.class}</p>

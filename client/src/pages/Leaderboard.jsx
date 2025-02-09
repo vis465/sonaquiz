@@ -45,36 +45,36 @@ export default function Leaderboard() {
       {dashboardData ? (
         dashboardData.map((quiz, index) => (
           <div
-            className="bg-white shadow-md rounded-lg p-6 mb-6 border border-gray-200"
+            className="bg-[#0F3460] shadow-md rounded-lg p-6 mb-6 border border-gray-200"
             key={index}
           >
-            <h2 className="text-xl font-semibold text-blue-600 mb-2">{quiz.quizTitle}</h2>
+            <h2 className="text-xl font-bold text-[#F9F9F9] mb-2">{quiz.quizTitle}</h2>
             <p className="text-gray-500 mb-4">
               <span className="font-medium">Created At:</span>{" "}
               {new Date(quiz.createdAt).toLocaleString()}
             </p>
-            <h3 className="text-lg font-medium text-gray-700 mb-3">Attempts:</h3>
+            <h3 className="text-lg font-medium text-[#F9F9F9] mb-3">Attempts:</h3>
             {quiz.attempts.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="table-auto w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-gray-100 border-b border-gray-200">
-                      <th className="py-2 px-4 text-gray-600">Username</th>
-                      <th className="py-2 px-4 text-gray-600">Year</th>
-                      <th className="py-2 px-4 text-gray-600">Department</th>
-                      <th className="py-2 px-4 text-gray-600">Class</th>
-                      <th className="py-2 px-4 text-gray-600">Score</th>
-                      <th className="py-2 px-4 text-gray-600">Attempt Date</th>
+                      <th className="py-2 px-4 text-black">Username</th>
+                      <th className="py-2 px-4 text-black">Year</th>
+                      <th className="py-2 px-4 text-black">Department</th>
+                      <th className="py-2 px-4 text-black">Class</th>
+                      <th className="py-2 px-4 text-black">Score</th>
+                      <th className="py-2 px-4 text-black">Attempt Date</th>
                     </tr>
                   </thead>
                   <tbody>
                     {quiz.attempts.map((attempt, attemptIndex) => (
                       <tr
                         key={attemptIndex}
-                        className={`border-b last:border-none ${
+                        className={`border-b last:border-none text-[#F9F9F9] ${
                           attempt.userId === user.id
                             ? "bg-green-100 text-green-700"
-                            : "hover:bg-gray-50"
+                            : "hover:bg-gray-50 hover:text-black"
                         }`}
                       >
                         <td className="py-2 px-4">{attempt.username}</td>

@@ -47,32 +47,37 @@ const CreateQuestions = () => {
             console.warn("Quiz ID or token is missing, skipping API call.");
             return;
         }
-
+    
         setLoading(true);
         try {
+            let data={role:"staff"}
+            console.log(data)
             console.log("Fetching quiz questions for quiz:", id);
-            const response = await apiConnector("GET", `${questionEndpoints.GET_QUIZ_QUESTIONS}/${id}`, null, {
+            const response = await apiConnector("POST", `${questionEndpoints.GET_QUIZ_QUESTIONS}/${id}`, data, {
                 Authorization: `Bearer ${token}`
             });
-            
+    
+            console.log(`${questionEndpoints.GET_QUIZ_QUESTIONS}/${id}`);
             console.log("Fetched quizQuestions:", response?.data?.data);
-            
+    
             if (response?.data?.data) {
-                setQuestions(response.data.data);
-                const sections1 = Object.keys(questions);
-                setSections(sections1);
-                console.log("sections",Object.keys(questions));
+                const fetchedQuestions = response.data.data;
+                setQuestions(fetchedQuestions);
+                setSections(Object.keys(fetchedQuestions));  // Set sections **after** updating questions
             } else {
                 console.warn("No questions found in API response.");
                 setQuestions([]);
+                setSections([]);
             }
         } catch (error) {
             console.error("Error fetching quiz questions:", error);
             setQuestions([]);
+            setSections([]);
         } finally {
             setLoading(false);
         }
     };
+    
 
     useEffect(() => {
         if (quiz === null) {
@@ -124,7 +129,7 @@ const CreateQuestions = () => {
                 ) : (
                     sections.map((sectionName,index) => (
                         <div key={index}>
-                            <strong><h1>{sectionName}</h1></strong>
+                            <strong className='text-white'><h1> {sections[index]}</h1></strong>
                             
                    { questions[sectionName].map((ques) => (
                         <div key={ques._id} className="flex flex-col gap-3 bg-white p-4 rounded shadow">

@@ -201,40 +201,59 @@ exports.getQuizQuestions = async (req, res) => {
   try {
     const ttl = process.env.REDDISTTL;
     const quizId = req.params.id;
-
-    const redisoutput = await client.get(`quiz:${quizId}`);
+    const role = req.body.role;
 
     let questions;
 
-    if (redisoutput) {
-      console.log(`Cache hit for ${quizId}`);
-      questions = JSON.parse(redisoutput);
-    } else {
+    console.log(`Role: ${role}`);
 
-      questions = await Question.find({ quizId });
-      console.log(`caching questions for quiz ${quizId}`)
-      client.setEx(`quiz:${quizId}`, ttl, JSON.stringify(questions));
+    if (role === "student") {
+        const redisOutput = await client.get(`quiz:${quizId}`);
+
+        if (redisOutput) {
+            console.log(`Cache hit for ${quizId}`);
+            questions = JSON.parse(redisOutput);
+        } else {
+            console.log(`Cache miss for ${quizId}, fetching from DB...`);
+            questions = await Question.find({ quizId });
+
+            if (questions.length > 0) {
+                await client.setEx(`quiz:${quizId}`, ttl, JSON.stringify(questions));
+                console.log(`Cached questions for quiz ${quizId}`);
+            }
+        }
+    } else if (role === "staff") {
+        console.log(`Fetching questions from DB for staff role`);
+        questions = await Question.find({ quizId });
+    } else {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role provided",
+        });
     }
-    console.log(questions);
+
     if (!questions.some(q => "section" in q)) {
-      for (let question of questions) {
-        question.section = "Quiz";
-      }
+        for (let question of questions) {
+            question.section = "Quiz";
+        }
     }
-    
+
     const grp = questions.reduce((acc, question) => {
-      const { section } = question;
-      if (!acc[section]) {
-        acc[section] = [];
-      }
-      acc[section].push(question);
-      return acc;
+        const { section } = question;
+        if (!acc[section]) {
+            acc[section] = [];
+        }
+        acc[section].push(question);
+        return acc;
     }, {});
-    console.log(grp);
+
+    // console.log(grp);
     return res.status(200).json({
-      success: true,
-      data: grp,
+        success: true,
+        data: grp,
     });
+
+
   } catch (e) {
     console.log("ERROR GETTING QUIZ QUESTIONS: ", e);
     return res.status(500).json({

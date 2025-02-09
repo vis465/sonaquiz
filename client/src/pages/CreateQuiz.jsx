@@ -162,7 +162,7 @@ const CreateQuiz = () => {
       <h1 className="text-4xl font-bold text-center text-white">Create Quiz</h1>
       <form
         onSubmit={handleSubmit(submitHandler)}
-        className="w-full max-w-md bg-gray-800 p-6 rounded-lg shadow-md "
+        className="w-full max-w-xl bg-gray-800 p-6 rounded-lg shadow-md "
       >
         <div>
           {/* Title */}

@@ -16,8 +16,9 @@ const AttemptQuiz = () => {
 
     // Fetch Quiz Questions
     const fetchQuizQuestions = async () => {
+        let data={role:'student'}
         try {
-            const response = await apiConnector("GET", `${questionEndpoints.GET_QUIZ_QUESTIONS}/${quizId}`, null, {
+            const response = await apiConnector("POST", `${questionEndpoints.GET_QUIZ_QUESTIONS}/${quizId}`, data, {
                 Authorization: `Bearer ${token}`
             });
 
