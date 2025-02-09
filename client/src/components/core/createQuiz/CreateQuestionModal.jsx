@@ -13,6 +13,7 @@ const CreateQuestionModal = ({ quiz, setQuestions, setCreateQuestionModalData })
   const [loading, setLoading] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm();
   const { token } = useSelector((state) => state.auth);
+  const [section, setSection] = useState("Quantitative Aptitude");
 
   // Handle image uploads
   const handleImageUpload = (file, callback) => {
@@ -27,7 +28,9 @@ const CreateQuestionModal = ({ quiz, setQuestions, setCreateQuestionModalData })
     setOptions([...options, currentOption]);
     setCurrentOption({ text: "", isCorrect: false, imageUrl: null });
   };
- let quequestionFormat= questionImage?"IMAGE":"TEXT"
+
+  let questionFormat = questionImage ? "IMAGE" : "TEXT";
+
   const submitHandler = async (data) => {
     const payload = {
       quizId: quiz._id,
@@ -35,15 +38,14 @@ const CreateQuestionModal = ({ quiz, setQuestions, setCreateQuestionModalData })
       questionImage,
       questionType,
       options: questionType === "MCQ" ? options : undefined,
-      questionFormat:quequestionFormat
+      questionFormat,
+      section,
     };
 
     try {
       setLoading(true);
-      console.log("payload",payload)
-     
-     
-      console.log("payload",quequestionFormat)
+      console.log("Payload:", payload);
+
       const response = await createQuestion(payload, token);
       if (response) {
         setQuestions((prev) => [...prev, response]);
@@ -71,6 +73,22 @@ const CreateQuestionModal = ({ quiz, setQuestions, setCreateQuestionModalData })
           >
             <option value="MCQ">Multiple Choice</option>
             <option value="FIB">Fill in the Blank</option>
+          </select>
+        </div>
+
+        {/* Section Selection */}
+        <div className="flex gap-4 items-center">
+          <label className="font-medium">Section:</label>
+          <select
+            className="p-2 border rounded"
+            value={section}
+            onChange={(e) => setSection(e.target.value)}
+          >
+            <option value="Quantitative Aptitude">Quantitative Aptitude</option>
+            <option value="Reasoning">Reasoning</option>
+            <option value="Verbal Aptitude">Verbal Aptitude</option>
+            <option value="Technical MCQs">Technical MCQs</option>
+            <option value="Core MCQs">Core MCQs</option>
           </select>
         </div>
 
