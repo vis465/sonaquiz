@@ -11,7 +11,7 @@ const cors = require("cors");
 
 const PORT = process.env.PORT || 4000;
 
-// connect to db
+// connect to db  
 database.connectToDB();
 
 app.use(express.json({ limit: '50mb' })); // Adjust limit as needed

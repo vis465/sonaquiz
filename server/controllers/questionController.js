@@ -14,6 +14,7 @@ exports.createQuestion = async (req, res) => {
       questionType,
       questionImage,
       questionFormat,
+      section
     } = req.body;
 
     // Validate required fields
@@ -87,6 +88,7 @@ exports.createQuestion = async (req, res) => {
       answers: questionType === "FIB" ? answers : undefined,
       questionImage, // Optional image field
       questionFormat, // Optional formatting field
+      section
     });
     console.log("question");
     return res.status(201).json({
@@ -213,10 +215,18 @@ exports.getQuizQuestions = async (req, res) => {
       console.log(`caching questions for quiz ${quizId}`)
       client.setEx(`quiz:${quizId}`, ttl, JSON.stringify(questions));
     }
-
+    console.log(questions);
+    if (!questions.some(q => "section" in q)) {
+      for (let question of questions) {
+        question.section = "Quiz";
+      }
+    }
+    
+    grp=Object.groupBy(questions,({section})=>section);
+    console.log(grp);
     return res.status(200).json({
       success: true,
-      data: questions,
+      data: grp,
     });
   } catch (e) {
     console.log("ERROR GETTING QUIZ QUESTIONS: ", e);

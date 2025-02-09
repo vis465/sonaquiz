@@ -277,7 +277,7 @@ const CreateQuiz = () => {
               id="timer"
               placeholder="Enter time in minutes"
               min={0}
-              max={60}
+              max={1000}
               className="w-full px-3 py-2 rounded bg-gray-700 text-white outline-none"
               {...register("timer", { required: "Timer is required" })}
             />
